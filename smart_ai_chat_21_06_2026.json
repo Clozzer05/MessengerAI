@@ -1,0 +1,1522 @@
+{
+  "collections": {
+    "smart_ai_chat.adminlogs": {
+      "ns": "smart_ai_chat.adminlogs",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "action",
+          "admin",
+          "createdAt",
+          "details",
+          "ip",
+          "targetUser",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "action": {
+            "bsonType": "string"
+          },
+          "admin": {
+            "bsonType": "objectId"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "details": {
+            "bsonType": "string"
+          },
+          "ip": {
+            "bsonType": "string"
+          },
+          "targetUser": {
+            "bsonType": [
+              "null",
+              "objectId"
+            ]
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.badwords": {
+      "ns": "smart_ai_chat.badwords",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "addedBy",
+          "createdAt",
+          "isActive",
+          "severity",
+          "updatedAt",
+          "word"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "addedBy": {
+            "bsonType": "objectId"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "isActive": {
+            "bsonType": "bool"
+          },
+          "severity": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          },
+          "word": {
+            "bsonType": "string"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.chatdurations": {
+      "ns": "smart_ai_chat.chatdurations",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "createdAt",
+          "lastInteraction",
+          "participants",
+          "roomId",
+          "totalMessages",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "lastInteraction": {
+            "bsonType": "date"
+          },
+          "participants": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "objectId"
+            }
+          },
+          "roomId": {
+            "bsonType": "objectId"
+          },
+          "totalMessages": {
+            "bsonType": "int"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.counselingsessions": {
+      "ns": "smart_ai_chat.counselingsessions",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "aiActive",
+          "category",
+          "createdAt",
+          "expert",
+          "isAnonymous",
+          "room",
+          "status",
+          "title",
+          "updatedAt",
+          "user"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "aiActive": {
+            "bsonType": "bool"
+          },
+          "category": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "expert": {
+            "bsonType": "objectId"
+          },
+          "isAnonymous": {
+            "bsonType": "bool"
+          },
+          "room": {
+            "bsonType": "objectId"
+          },
+          "status": {
+            "bsonType": "string"
+          },
+          "title": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          },
+          "user": {
+            "bsonType": "objectId"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.friendships": {
+      "ns": "smart_ai_chat.friendships",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "createdAt",
+          "recipient",
+          "requester",
+          "status",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "recipient": {
+            "bsonType": "objectId"
+          },
+          "requester": {
+            "bsonType": "objectId"
+          },
+          "status": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.messages": {
+      "ns": "smart_ai_chat.messages",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "aiMetadata",
+          "callEvent",
+          "content",
+          "createdAt",
+          "deleted",
+          "deletedFor",
+          "editedAt",
+          "location",
+          "originalLanguage",
+          "pinned",
+          "pinnedAt",
+          "pinnedBy",
+          "poll",
+          "reactions",
+          "readBy",
+          "replyToNote",
+          "room",
+          "sender",
+          "translations",
+          "type",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "aiMetadata": {
+            "bsonType": "object",
+            "properties": {
+              "isAIResponse": {
+                "bsonType": "bool"
+              },
+              "model": {
+                "bsonType": [
+                  "null",
+                  "string"
+                ]
+              },
+              "prompt": {
+                "bsonType": "null"
+              }
+            },
+            "required": [
+              "isAIResponse",
+              "model",
+              "prompt"
+            ]
+          },
+          "callEvent": {
+            "bsonType": "object",
+            "properties": {
+              "callType": {
+                "bsonType": "null"
+              },
+              "durationSec": {
+                "bsonType": "int"
+              },
+              "isGroup": {
+                "bsonType": "bool"
+              },
+              "kind": {
+                "bsonType": "null"
+              }
+            },
+            "required": [
+              "callType",
+              "durationSec",
+              "isGroup",
+              "kind"
+            ]
+          },
+          "content": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "deleted": {
+            "bsonType": "bool"
+          },
+          "deletedFor": {
+            "bsonType": "array"
+          },
+          "editedAt": {
+            "bsonType": "null"
+          },
+          "location": {
+            "bsonType": "object",
+            "properties": {
+              "address": {
+                "bsonType": "string"
+              }
+            },
+            "required": [
+              "address"
+            ]
+          },
+          "originalLanguage": {
+            "bsonType": [
+              "null",
+              "string"
+            ]
+          },
+          "pinned": {
+            "bsonType": "bool"
+          },
+          "pinnedAt": {
+            "bsonType": "null"
+          },
+          "pinnedBy": {
+            "bsonType": "null"
+          },
+          "poll": {
+            "bsonType": "object",
+            "properties": {
+              "multipleChoice": {
+                "bsonType": "bool"
+              },
+              "options": {
+                "bsonType": "array",
+                "items": {
+                  "bsonType": "object",
+                  "properties": {
+                    "_id": {
+                      "bsonType": "objectId"
+                    },
+                    "text": {
+                      "bsonType": "string"
+                    },
+                    "votes": {
+                      "bsonType": "array",
+                      "items": {
+                        "bsonType": "objectId"
+                      }
+                    }
+                  },
+                  "required": [
+                    "_id",
+                    "text",
+                    "votes"
+                  ]
+                }
+              },
+              "question": {
+                "bsonType": "string"
+              }
+            },
+            "required": [
+              "multipleChoice",
+              "options"
+            ]
+          },
+          "reactions": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "_id": {
+                  "bsonType": "objectId"
+                },
+                "emoji": {
+                  "bsonType": "string"
+                },
+                "user": {
+                  "bsonType": "objectId"
+                }
+              },
+              "required": [
+                "_id",
+                "emoji",
+                "user"
+              ]
+            }
+          },
+          "readBy": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "_id": {
+                  "bsonType": "objectId"
+                },
+                "readAt": {
+                  "bsonType": "date"
+                },
+                "user": {
+                  "bsonType": "objectId"
+                }
+              },
+              "required": [
+                "_id",
+                "readAt",
+                "user"
+              ]
+            }
+          },
+          "replyToNote": {
+            "bsonType": "null"
+          },
+          "room": {
+            "bsonType": "objectId"
+          },
+          "sender": {
+            "bsonType": "objectId"
+          },
+          "translations": {
+            "bsonType": "array"
+          },
+          "type": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.notes": {
+      "ns": "smart_ai_chat.notes",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "author",
+          "content",
+          "createdAt",
+          "expiresAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "author": {
+            "bsonType": "objectId"
+          },
+          "content": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "expiresAt": {
+            "bsonType": "date"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.reports": {
+      "ns": "smart_ai_chat.reports",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "adminNote",
+          "createdAt",
+          "description",
+          "evidence",
+          "message",
+          "reason",
+          "reportedUser",
+          "reporter",
+          "resolvedAt",
+          "resolvedBy",
+          "room",
+          "status",
+          "targetType",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "adminNote": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "description": {
+            "bsonType": "string"
+          },
+          "evidence": {
+            "bsonType": "array"
+          },
+          "message": {
+            "bsonType": [
+              "null",
+              "objectId"
+            ]
+          },
+          "reason": {
+            "bsonType": "string"
+          },
+          "reportedUser": {
+            "bsonType": "objectId"
+          },
+          "reporter": {
+            "bsonType": "objectId"
+          },
+          "resolvedAt": {
+            "bsonType": [
+              "null",
+              "date"
+            ]
+          },
+          "resolvedBy": {
+            "bsonType": [
+              "null",
+              "objectId"
+            ]
+          },
+          "room": {
+            "bsonType": [
+              "objectId",
+              "null"
+            ]
+          },
+          "status": {
+            "bsonType": "string"
+          },
+          "targetType": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.rooms": {
+      "ns": "smart_ai_chat.rooms",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "avatar",
+          "createdAt",
+          "description",
+          "groupAvatar",
+          "groupBackground",
+          "hiddenFor",
+          "lastMessage",
+          "members",
+          "mutedBy",
+          "name",
+          "nicknames",
+          "pendingMembers",
+          "pinnedMessages",
+          "settings",
+          "type",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "avatar": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "description": {
+            "bsonType": "string"
+          },
+          "groupAvatar": {
+            "bsonType": "string"
+          },
+          "groupBackground": {
+            "bsonType": "string"
+          },
+          "hiddenFor": {
+            "bsonType": "array"
+          },
+          "lastMessage": {
+            "bsonType": [
+              "null",
+              "objectId"
+            ]
+          },
+          "members": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "aiBotEnabled": {
+                  "bsonType": "bool"
+                },
+                "joinedAt": {
+                  "bsonType": "date"
+                },
+                "role": {
+                  "bsonType": "string"
+                },
+                "user": {
+                  "bsonType": "objectId"
+                }
+              },
+              "required": [
+                "aiBotEnabled",
+                "joinedAt",
+                "role",
+                "user"
+              ]
+            }
+          },
+          "mutedBy": {
+            "bsonType": "array"
+          },
+          "name": {
+            "bsonType": [
+              "string",
+              "null"
+            ]
+          },
+          "nicknames": {
+            "bsonType": "object",
+            "properties": {}
+          },
+          "pendingMembers": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "objectId"
+            }
+          },
+          "pinnedMessages": {
+            "bsonType": "array"
+          },
+          "settings": {
+            "bsonType": "object",
+            "properties": {
+              "aiTranslationEnabled": {
+                "bsonType": "bool"
+              }
+            },
+            "required": [
+              "aiTranslationEnabled"
+            ]
+          },
+          "type": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.systemconfigs": {
+      "ns": "smart_ai_chat.systemconfigs",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "createdAt",
+          "key",
+          "updatedAt",
+          "updatedBy",
+          "value"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "key": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          },
+          "updatedBy": {
+            "bsonType": "objectId"
+          },
+          "value": {
+            "bsonType": [
+              "bool",
+              "int"
+            ]
+          }
+        }
+      }
+    },
+    "smart_ai_chat.topicrooms": {
+      "ns": "smart_ai_chat.topicrooms",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "category",
+          "createdAt",
+          "creator",
+          "description",
+          "isActive",
+          "isPublic",
+          "maxMembers",
+          "memberCount",
+          "room",
+          "tags",
+          "title",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "category": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "creator": {
+            "bsonType": "objectId"
+          },
+          "description": {
+            "bsonType": "string"
+          },
+          "isActive": {
+            "bsonType": "bool"
+          },
+          "isPublic": {
+            "bsonType": "bool"
+          },
+          "maxMembers": {
+            "bsonType": "int"
+          },
+          "memberCount": {
+            "bsonType": "int"
+          },
+          "room": {
+            "bsonType": "objectId"
+          },
+          "tags": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "title": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "smart_ai_chat.users": {
+      "ns": "smart_ai_chat.users",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "__v",
+          "accountStatus",
+          "address",
+          "avatar",
+          "bio",
+          "blockedUsers",
+          "coverPicture",
+          "createdAt",
+          "education",
+          "email",
+          "expertCategories",
+          "googleId",
+          "googlePicture",
+          "hobbies",
+          "interests",
+          "is_locked",
+          "isVerified",
+          "lastOnline",
+          "lastSeen",
+          "lock_until",
+          "password",
+          "phoneNumber",
+          "preferredBubbleFrame",
+          "preferredLanguage",
+          "preferredLanguageLabel",
+          "preferredTheme",
+          "provider",
+          "resetOTP",
+          "resetOTPExpire",
+          "role",
+          "socketId",
+          "status",
+          "updatedAt",
+          "username"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "__v": {
+            "bsonType": "int"
+          },
+          "accountStatus": {
+            "bsonType": "string"
+          },
+          "address": {
+            "bsonType": "string"
+          },
+          "avatar": {
+            "bsonType": "string"
+          },
+          "bio": {
+            "bsonType": "string"
+          },
+          "blockedUsers": {
+            "bsonType": "array"
+          },
+          "coverPicture": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "education": {
+            "bsonType": "string"
+          },
+          "email": {
+            "bsonType": "string"
+          },
+          "expertCategories": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "googleId": {
+            "bsonType": "null"
+          },
+          "googlePicture": {
+            "bsonType": "string"
+          },
+          "hobbies": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "interests": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "is_locked": {
+            "bsonType": "bool"
+          },
+          "isVerified": {
+            "bsonType": "bool"
+          },
+          "lastOnline": {
+            "bsonType": "null"
+          },
+          "lastSeen": {
+            "bsonType": "date"
+          },
+          "lock_until": {
+            "bsonType": "null"
+          },
+          "password": {
+            "bsonType": "string"
+          },
+          "phoneNumber": {
+            "bsonType": "string"
+          },
+          "preferredBubbleFrame": {
+            "bsonType": "string"
+          },
+          "preferredLanguage": {
+            "bsonType": "string"
+          },
+          "preferredLanguageLabel": {
+            "bsonType": "string"
+          },
+          "preferredTheme": {
+            "bsonType": "string"
+          },
+          "provider": {
+            "bsonType": "string"
+          },
+          "resetOTP": {
+            "bsonType": "null"
+          },
+          "resetOTPExpire": {
+            "bsonType": "null"
+          },
+          "role": {
+            "bsonType": "string"
+          },
+          "socketId": {
+            "bsonType": "null"
+          },
+          "status": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          },
+          "username": {
+            "bsonType": "string"
+          }
+        }
+      }
+    }
+  },
+  "relationships": [
+    {
+      "id": "6efb6491-f34a-4cf2-ab2c-76628901874d",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.reports",
+          "cardinality": 1,
+          "fields": [
+            "message"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "16ae694b-9be1-4e16-8c6b-0452fe10fabc",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "lastMessage"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "a1e8875c-c278-413e-b03c-8a7823b0fe32",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.chatdurations",
+          "cardinality": 1,
+          "fields": [
+            "roomId"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "60f2e6f5-4da0-4f93-b7ae-9a1319b1e169",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.counselingsessions",
+          "cardinality": 1,
+          "fields": [
+            "room"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "fff1851b-5ddf-4842-8652-47c02895cab8",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "room"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "451ca883-636b-40b0-b83a-2afa0312aa63",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.reports",
+          "cardinality": 1,
+          "fields": [
+            "room"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "ddc54670-7c41-4917-920d-6144f923cf93",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.topicrooms",
+          "cardinality": 1,
+          "fields": [
+            "room"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "5992244c-317c-4f03-a54b-61c7c90fd69e",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.adminlogs",
+          "cardinality": 1,
+          "fields": [
+            "admin"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "0ea48875-e6a6-4c66-ba50-a150b61bfcda",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.adminlogs",
+          "cardinality": 1,
+          "fields": [
+            "targetUser"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "b71433be-27c1-4dc0-8b9f-74afb1c7965f",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.badwords",
+          "cardinality": 1,
+          "fields": [
+            "addedBy"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "78d3e1e1-2119-4de4-8d14-f6df9a4d01fd",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.chatdurations",
+          "cardinality": 1,
+          "fields": [
+            "participants"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "97ed36b5-57e5-471b-a773-74b4aa7cbcbb",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.counselingsessions",
+          "cardinality": 1,
+          "fields": [
+            "expert"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "963e2486-6795-4a8e-983b-5a0f9a469a23",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.counselingsessions",
+          "cardinality": 1,
+          "fields": [
+            "user"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "6462d9bc-d6d0-40db-a3e1-23b8b195fc1c",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.friendships",
+          "cardinality": 1,
+          "fields": [
+            "recipient"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "9bbb2ef9-1d11-4d12-8987-4052e7718aa4",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.friendships",
+          "cardinality": 1,
+          "fields": [
+            "requester"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "4a988eb2-577f-4791-9a64-3369303789dc",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "poll",
+            "options",
+            "votes"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "c4d066f7-490c-4e6d-97c3-924df1e98362",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "reactions",
+            "user"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "639d3ba8-ad53-4a0f-a34e-0b335c5e1d3d",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "readBy",
+            "user"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "f1c59370-4deb-4ba8-b7e1-7765dfe645d7",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.messages",
+          "cardinality": 1,
+          "fields": [
+            "sender"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "76aa3304-9002-4f2a-a689-7fb7593e046e",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.notes",
+          "cardinality": 1,
+          "fields": [
+            "author"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "fca24a57-1b18-49ef-a5b1-175427ee47e7",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.reports",
+          "cardinality": 1,
+          "fields": [
+            "reportedUser"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "b832bf3c-b122-4a94-85c8-7f6d2328ed50",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.reports",
+          "cardinality": 1,
+          "fields": [
+            "reporter"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "b6f97300-96b8-4b87-b29b-27d87547856c",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.reports",
+          "cardinality": 1,
+          "fields": [
+            "resolvedBy"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "c579a1d7-8310-45ce-9180-89c0a276859a",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "members",
+            "user"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "6ae3c3e5-791d-4f7f-96a8-391759dcd1c8",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.rooms",
+          "cardinality": 1,
+          "fields": [
+            "pendingMembers"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "9bf136fa-b174-4d5d-a60e-fac151173dfe",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.systemconfigs",
+          "cardinality": 1,
+          "fields": [
+            "updatedBy"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "c2df3341-5a7b-402b-a302-793ddf20d1db",
+      "relationship": [
+        {
+          "ns": "smart_ai_chat.topicrooms",
+          "cardinality": 1,
+          "fields": [
+            "creator"
+          ]
+        },
+        {
+          "ns": "smart_ai_chat.users",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    }
+  ]
+}

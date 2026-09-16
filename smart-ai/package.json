@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "qa:multirole": "node backend/scripts/qaMultiroleOfficial.js",
+    "qa:cleanup": "node backend/scripts/qaMultiroleOfficial.js --cleanup-only"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "groq": "^5.17.1",
+    "nodemailer": "^8.0.3",
+    "resend": "^6.9.4"
+  }
+}
