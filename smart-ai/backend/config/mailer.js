@@ -1,11 +1,26 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ─── Khởi tạo chậm: chỉ tạo transporter khi thực sự gửi mail ──────
+// Nhờ vậy server vẫn khởi động bình thường khi chưa cấu hình mail.
+let transporter = null;
+
+const getTransporter = () => {
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.MAIL_USER,
+                pass: process.env.MAIL_APP_PASSWORD,
+            },
+        });
+    }
+    return transporter;
+};
 
 // ─── Kiểm tra config ─────────────────────────────
 const ensureMailConfig = () => {
-    if (!process.env.RESEND_API_KEY) {
-        const error = new Error('Thiếu RESEND_API_KEY.');
+    if (!process.env.MAIL_USER || !process.env.MAIL_APP_PASSWORD) {
+        const error = new Error('Thiếu MAIL_USER hoặc MAIL_APP_PASSWORD.');
         error.statusCode = 500;
         throw error;
     }
@@ -16,20 +31,20 @@ const sendMail = async ({ to, subject, html }) => {
     ensureMailConfig();
 
     try {
-        console.log(`📧 [Mailer] Sending email via Resend (to: ${to})`);
+        console.log(`📧 [Mailer] Sending email via Gmail SMTP (to: ${to})`);
 
-        const data = await resend.emails.send({
-            from: process.env.MAIL_FROM || 'Smart AI Chat <no-reply@smart-ai-chat.me>',
+        const info = await getTransporter().sendMail({
+            from: process.env.MAIL_FROM || `Smart AI Chat <${process.env.MAIL_USER}>`,
             to,
             subject,
             html,
         });
 
-        console.log(`✅ [Mailer] Email sent (id: ${data.id})`);
-        return data;
+        console.log(`✅ [Mailer] Email sent (id: ${info.messageId})`);
+        return info;
 
     } catch (error) {
-        console.error('❌ [Mailer] Send failed:', error);
+        console.error('❌ [Mailer] Send failed:', error.message);
 
         const mailError = new Error('Không thể gửi email. Vui lòng thử lại sau.');
         mailError.statusCode = 500;
