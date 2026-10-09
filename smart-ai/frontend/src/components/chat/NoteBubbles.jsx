@@ -66,7 +66,7 @@ export default function NoteBubbles({ onSelectRoom }) {
     if (loading && notes.length === 0) return null;
 
     return (
-        <div className="px-3 py-2 border-b border-gray-100">
+        <div data-tour="notes" className="px-3 py-2 border-b border-gray-100">
             <div className="flex items-center gap-3 overflow-x-auto scrollbar-none py-1">
                 {/* Create note button */}
                 <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onClick={() => setShowCreate(true)}>

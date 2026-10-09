@@ -138,6 +138,7 @@ export default function ChatPage() {
                         </button>
                     )}
                     <button
+                        data-tour="settings"
                         onClick={() => navigate('/settings')}
                         className="p-1.5 rounded-full transition"
                         style={{ color: 'var(--text-secondary)' }}
@@ -157,6 +158,7 @@ export default function ChatPage() {
 
                 {/* Sidebar Tabs */}
                 <div
+                    data-tour="tabs"
                     className="border-b border-gray-200 flex"
                     style={{
                         backgroundColor: 'var(--bg-card)',
@@ -164,6 +166,7 @@ export default function ChatPage() {
                     }}
                 >
                     <button
+                        data-tour="tab-chats"
                         onClick={() => setSidebarTab('chats')}
                         className={`flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 ${sidebarTab === 'chats'
                             ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
@@ -175,6 +178,7 @@ export default function ChatPage() {
                         {t('chatPage.messages')}
                     </button>
                     <button
+                        data-tour="tab-friends"
                         onClick={() => setSidebarTab('friends')}
                         className={`flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 relative ${sidebarTab === 'friends'
                             ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
@@ -191,6 +195,7 @@ export default function ChatPage() {
                         )}
                     </button>
                     <button
+                        data-tour="tab-topics"
                         onClick={() => setSidebarTab('topics')}
                         className={`flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 ${sidebarTab === 'topics'
                             ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
@@ -202,6 +207,7 @@ export default function ChatPage() {
                         Chủ đề
                     </button>
                     <button
+                        data-tour="tab-counseling"
                         onClick={() => navigate('/counseling')}
                         className="flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 hover:opacity-90"
                         style={{ color: 'var(--text-secondary)' }}

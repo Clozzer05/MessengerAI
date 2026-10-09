@@ -1,75 +1,142 @@
-.onboarding-popup-overlay {
-  position: fixed;
-  z-index: 9999;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Lớp phủ: khi có phần tử được khoanh vùng thì phần tối do .ob-spotlight tạo ra,
+   khi không có (bước mở đầu và kết thúc) mới tối toàn màn hình. */
+.ob-root {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
 }
-.onboarding-popup {
-  background: var(--theme-surface, #fff);
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  padding: 32px 24px;
-  max-width: 350px;
-  width: 90vw;
-  text-align: center;
-  animation: fadeIn .4s cubic-bezier(.4,0,.2,1);
+
+.ob-root.ob-dim {
+    background: rgba(0, 0, 0, 0.55);
 }
-.onboarding-popup h2 {
-  margin-bottom: 12px;
-  font-size: 1.3rem;
-  font-weight: bold;
+
+/* Ô sáng khoanh vùng phần giao diện đang giới thiệu */
+.ob-spotlight {
+    position: fixed;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55),
+                0 0 0 2px var(--color-primary, #1976d2);
+    pointer-events: none;
+    transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease;
 }
-.onboarding-step-indicator {
-  margin-bottom: 8px;
-  color: var(--text-tertiary, #6b7280);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+
+/* Hộp chú thích */
+.ob-tooltip {
+    position: fixed;
+    width: 330px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    background: var(--bg-card, #fff);
+    color: var(--text-primary, #111827);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+    padding: 20px;
+    animation: obFadeIn .25s cubic-bezier(.4, 0, .2, 1);
 }
-.onboarding-dots {
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
+
+.ob-tooltip.ob-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
-.onboarding-dots .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text-tertiary, #9ca3af) 40%, transparent);
+
+.ob-step-indicator {
+    margin-bottom: 6px;
+    color: var(--text-tertiary, #6b7280);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
-.onboarding-dots .dot.active {
-  width: 18px;
-  background: var(--theme-primary, #1976d2);
+
+.ob-tooltip h2 {
+    margin-bottom: 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
 }
-.onboarding-popup-actions {
-  margin-top: 24px;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
+
+.ob-content {
+    color: var(--text-secondary, #4b5563);
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
-.onboarding-popup-actions button {
-  background: var(--theme-primary, #1976d2);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 18px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background .2s;
+
+.ob-dots {
+    margin-top: 14px;
+    display: flex;
+    gap: 6px;
 }
-.onboarding-popup-actions button.ghost {
-  background: transparent;
-  color: var(--text-secondary, #4b5563);
-  border: 1px solid color-mix(in srgb, var(--border-color, #d1d5db) 80%, transparent);
+
+.ob-tooltip.ob-center .ob-dots {
+    justify-content: center;
 }
-.onboarding-popup-actions button:hover {
-  background: var(--theme-primary-dark, #115293);
+
+.ob-dots .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--text-tertiary, #9ca3af) 40%, transparent);
+    transition: width .2s ease, background .2s ease;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+
+.ob-dots .dot.active {
+    width: 16px;
+    background: var(--color-primary, #1976d2);
+}
+
+.ob-actions {
+    margin-top: 18px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.ob-tooltip.ob-center .ob-actions {
+    justify-content: center;
+}
+
+.ob-actions button {
+    background: var(--color-primary, #1976d2);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: opacity .2s;
+}
+
+.ob-actions button:hover {
+    opacity: .88;
+}
+
+.ob-actions button.ghost {
+    background: transparent;
+    color: var(--text-secondary, #4b5563);
+    border: 1px solid color-mix(in srgb, var(--border-color, #d1d5db) 80%, transparent);
+}
+
+@keyframes obFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bước mở đầu và kết thúc dùng .ob-center nên cần giữ phép dịch chuyển khi xuất hiện */
+.ob-tooltip.ob-center {
+    animation: obFadeInCenter .25s cubic-bezier(.4, 0, .2, 1);
+}
+
+@keyframes obFadeInCenter {
+    from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@media (max-width: 640px) {
+    .ob-tooltip {
+        width: calc(100vw - 24px);
+        left: 12px !important;
+        right: 12px;
+    }
 }

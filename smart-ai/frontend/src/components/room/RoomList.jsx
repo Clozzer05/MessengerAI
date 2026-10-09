@@ -241,6 +241,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-xl font-bold text-gray-900">Tin nhắn</h2>
                     <button
+                        data-tour="new-chat"
                         onClick={() => setShowCreate(true)}
                         className="p-2 hover:bg-gray-100 rounded-full transition"
                         title="Tạo cuộc trò chuyện"
@@ -250,7 +251,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                 </div>
 
                 {/* Search */}
-                <div className="relative">
+                <div data-tour="search" className="relative">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         ref={searchInputRef}
