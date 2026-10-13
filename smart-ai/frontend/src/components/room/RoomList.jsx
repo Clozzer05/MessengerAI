@@ -297,9 +297,19 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
 
     return (
         <div key={room._id} className="relative group">
-            <button
+            {/* div thay cho button: bên trong có nút 3 chấm, HTML không cho button lồng button */}
+            <div
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelectRoom(room._id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left ${
+                onKeyDown={(e) => {
+                    if (e.target !== e.currentTarget) return;
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelectRoom(room._id);
+                    }
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left cursor-pointer ${
                     isActive ? 'bg-[var(--color-primary-light)] border-r-2 border-[var(--color-primary-ring)]' : ''
                 }`}
             >
@@ -375,7 +385,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                         </div>
                     </div>
                 </div>
-            </button>
+            </div>
 
             {/* Dropdown Menu - Đưa ra ngoài button để tránh lỗi click */}
             {menuOpenId === room._id && (

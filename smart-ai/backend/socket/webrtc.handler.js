@@ -2,7 +2,8 @@ const { User } = require('../models/User');
 const Message = require('../models/Message');
 const Room = require('../models/Room');
 const Friendship = require('../models/Friendship');
-
+const SystemConfig = require('../models/SystemConfig');
+const { getAnonymousOwner } = require('../utils/anonymity');
 // ─── Active Calls Tracker (in-memory) ─────────────────────────────────
 const activeCalls = new Map(); // roomId → { callType, callerId, participants[], startTime, isGroup, roomName }
 
@@ -36,6 +37,10 @@ module.exports = (io, socket) => {
                 return socket.emit('call:error', { roomId, error: 'Không có người nhận cuộc gọi' });
             }
 
+            if (callType === 'video' && !(await SystemConfig.getValue('videoCallEnabled', true))) {
+                return socket.emit('call:error', { roomId, error: 'Quản trị viên đã tạm tắt tính năng gọi video' });
+            }
+
             // Kiểm tra nếu room đang có cuộc gọi
             if (activeCalls.has(roomId)) {
                 return socket.emit('call:error', {
@@ -53,6 +58,11 @@ module.exports = (io, socket) => {
             const isCallerMember = room.members?.some((member) => member.user.toString() === userId);
             if (!isCallerMember) {
                 return socket.emit('call:error', { roomId, error: 'Bạn không phải thành viên của phòng' });
+            }
+
+            // Gọi thoại/video sẽ lộ giọng nói, hình ảnh và tên người hỏi
+            if (room.type === 'counseling' && await getAnonymousOwner(roomId)) {
+                return socket.emit('call:error', { roomId, error: 'Không thể gọi trong phiên tư vấn ẩn danh' });
             }
 
             const isGroup = room?.type === 'group';

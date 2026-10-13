@@ -12,8 +12,10 @@ const REASONS = [
     { value: 'other', label: 'Khác' },
 ];
 
-export default function ReportModal({ reportedUserId, roomId, onClose }) {
+// message (tuỳ chọn): khi có thì đây là báo cáo một tin nhắn cụ thể
+export default function ReportModal({ reportedUserId, roomId, message, onClose }) {
     const [reason, setReason] = useState('');
+    const [error, setError] = useState('');
     const [description, setDescription] = useState('');
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
@@ -22,11 +24,12 @@ export default function ReportModal({ reportedUserId, roomId, onClose }) {
         e.preventDefault();
         if (!reason) return;
         setSending(true);
+        setError('');
         try {
-            await userActionsAPI.report({ reportedUserId, roomId, reason, description: description.trim() });
+            await userActionsAPI.report({ reportedUserId, roomId, messageId: message?._id, reason, description: description.trim() });
             setSent(true);
         } catch (err) {
-            console.error('Report error:', err);
+            setError(err.response?.data?.error || 'Gửi báo cáo thất bại. Vui lòng thử lại.');
         } finally {
             setSending(false);
         }
@@ -55,7 +58,7 @@ export default function ReportModal({ reportedUserId, roomId, onClose }) {
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                     <div className="flex items-center gap-2">
                         <AlertTriangle size={18} className="text-red-500" />
-                        <h3 className="font-semibold text-gray-900">Báo cáo người dùng</h3>
+                        <h3 className="font-semibold text-gray-900">{message ? 'Báo cáo tin nhắn' : 'Báo cáo người dùng'}</h3>
                     </div>
                     <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
                         <X size={18} />
@@ -63,6 +66,11 @@ export default function ReportModal({ reportedUserId, roomId, onClose }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                    {message && (
+                        <div className="border-l-2 border-red-300 pl-3 text-sm text-gray-700 break-words line-clamp-3">
+                            {message.type === 'text' ? message.content : `[${message.type === 'image' ? 'Hình ảnh' : 'Tệp đính kèm'}] ${message.file?.name || ''}`}
+                        </div>
+                    )}
                     <div>
                         <label className="text-sm font-medium text-gray-700 block mb-2">Lý do báo cáo</label>
                         <div className="space-y-2">
@@ -93,6 +101,8 @@ export default function ReportModal({ reportedUserId, roomId, onClose }) {
                             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
                         />
                     </div>
+
+                    {error && <p className="text-sm text-red-600">{error}</p>}
 
                     <div className="flex gap-3">
                         <button

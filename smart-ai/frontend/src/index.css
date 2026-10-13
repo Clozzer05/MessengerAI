@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dark: theo theme của app (class theme-dark trên <html>), không theo dark mode của hệ điều hành */
+@custom-variant dark (&:where(.theme-dark, .theme-dark *));
+
 @font-face {
   font-family: 'FVF Fernando 08';
   src: url('./assets/fonts/FVF Fernando 08.ttf') format('truetype');

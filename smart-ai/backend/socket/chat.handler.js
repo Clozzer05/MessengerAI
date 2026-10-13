@@ -1,7 +1,7 @@
 const { User } = require('../models/User');
 const Room = require('../models/Room');
 const Message = require('../models/Message');
-
+const { getAnonymousOwner, maskMessage, maskRoom, ownerToMaskFor, emitToRoomMasked, ANONYMOUS_PROFILE } = require('../utils/anonymity');
 module.exports = (io, socket) => {
     const userId = socket.user._id;
 
@@ -24,10 +24,14 @@ module.exports = (io, socket) => {
             const populatedRoom = await Room.findById(roomId)
                 .populate('members.user', 'username avatar googlePicture status preferredLanguage preferredLanguageLabel socketId');
 
+            const ownerId = populatedRoom.type === 'counseling'
+                ? ownerToMaskFor(await getAnonymousOwner(roomId), userId)
+                : null;
+
             socket.emit('room:joined', {
                 roomId,
-                messages,
-                members: populatedRoom.members,
+                messages: ownerId ? messages.map(m => maskMessage(m, ownerId)) : messages,
+                members: ownerId ? maskRoom(populatedRoom.members, ownerId) : populatedRoom.members,
             });
 
             console.log(`🚪 ${socket.user.username} joined room ${roomId}`);
@@ -83,19 +87,20 @@ module.exports = (io, socket) => {
     });
 
     // ─── room:typing ────────────────────────────────────────────────────
-    socket.on('room:typing', ({ roomId }) => {
-        socket.to(roomId).emit('room:typing', {
+    socket.on('room:typing', async ({ roomId }) => {
+        const anonymousOwner = await getAnonymousOwner(roomId);
+        emitToRoomMasked(io, roomId, 'room:typing', {
             roomId,
             userId: userId.toString(),
-            username: socket.user.username,
-        });
+            username: anonymousOwner === userId.toString() ? ANONYMOUS_PROFILE.username : socket.user.username,
+        }, anonymousOwner, { excludeSocketId: socket.id });
     });
 
     // ─── room:stop-typing ───────────────────────────────────────────────
-    socket.on('room:stop-typing', ({ roomId }) => {
-        socket.to(roomId).emit('room:stop-typing', {
+    socket.on('room:stop-typing', async ({ roomId }) => {
+        emitToRoomMasked(io, roomId, 'room:stop-typing', {
             roomId,
             userId: userId.toString(),
-        });
+        }, await getAnonymousOwner(roomId), { excludeSocketId: socket.id });
     });
 };

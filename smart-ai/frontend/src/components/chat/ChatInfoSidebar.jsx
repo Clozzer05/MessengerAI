@@ -41,6 +41,8 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
         ? room?.members?.find((m) => (m.user?._id || m.user) !== user?._id)
         : null;
     const otherUser = otherMember?.user;
+    // Người hỏi trong phiên tư vấn ẩn danh: server đã che tên và _id
+    const isAnonymousPeer = otherUser?._id === 'anonymous';
     const otherIsOnline = otherUser?._id && onlineUsers.includes(otherUser._id);
 
     // Check initial muted/blocked state
@@ -50,12 +52,12 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
     }, [room, user]);
 
     useEffect(() => {
-        if (isGroup || !otherUser?._id) return;
+        if (isGroup || !otherUser?._id || isAnonymousPeer) return;
         userActionsAPI.getBlocked().then(({ data }) => {
             const blockedIds = (data.blockedUsers || []).map((u) => u._id || u);
             setBlocked(blockedIds.includes(otherUser._id));
         }).catch(() => { });
-    }, [isGroup, otherUser]);
+    }, [isGroup, otherUser, isAnonymousPeer]);
 
     // Listen for realtime block/unblock events from the other user
     useEffect(() => {
@@ -219,7 +221,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                             className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:opacity-90 transition overflow-hidden ${isGroup ? 'bg-purple-500' : 'bg-[var(--color-primary)]'}`}
                             onClick={() => {
                                 if (isGroup) navigate(`/group/${room._id}`);
-                                else if (otherUser?._id) navigate(`/profile/${otherUser._id}`);
+                                else if (otherUser?._id && !isAnonymousPeer) navigate(`/profile/${otherUser._id}`);
                             }}
                         >
                             {isGroup ? (
@@ -248,23 +250,27 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                     {/* ─── Actions for 1-1 chat ─── */}
                     {!isGroup && (
                         <div className="px-2 py-3 border-b border-gray-100 space-y-0.5">
-                            {/* View profile */}
-                            <button
-                                onClick={() => navigate(`/profile/${otherUser?._id}`)}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
-                            >
-                                <Users size={16} className="text-gray-400" />
-                                Xem trang cá nhân
-                            </button>
+                            {!isAnonymousPeer && (
+                                <>
+                                    {/* View profile */}
+                                    <button
+                                        onClick={() => navigate(`/profile/${otherUser?._id}`)}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                    >
+                                        <Users size={16} className="text-gray-400" />
+                                        Xem trang cá nhân
+                                    </button>
 
-                            {/* Set nickname */}
-                            <button
-                                onClick={() => setNicknameTarget(otherMember)}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
-                            >
-                                <Edit3 size={16} className="text-gray-400" />
-                                Đặt biệt danh
-                            </button>
+                                    {/* Set nickname */}
+                                    <button
+                                        onClick={() => setNicknameTarget(otherMember)}
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                    >
+                                        <Edit3 size={16} className="text-gray-400" />
+                                        Đặt biệt danh
+                                    </button>
+                                </>
+                            )}
 
                             {/* Mute */}
                             <button
@@ -283,7 +289,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                             </button>
 
                             {/* Block */}
-                            <button
+                            {!isAnonymousPeer && <button
                                 onClick={handleToggleBlock}
                                 disabled={actionLoading === 'block'}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl transition disabled:opacity-50 ${blocked ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-50'}`}
@@ -294,9 +300,9 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                     <Ban size={16} className={blocked ? 'text-red-400' : 'text-gray-400'} />
                                 )}
                                 {blocked ? 'Bỏ chặn' : 'Chặn'}
-                            </button>
+                            </button>}
 
-                            {/* Report */}
+                            {/* Report — với người hỏi ẩn danh, server tự tra tài khoản thật để admin xử lý */}
                             <button
                                 onClick={() => setShowReport(true)}
                                 className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition"

@@ -7,7 +7,11 @@ const AdminLog = require('../models/AdminLog');
 const SystemConfig = require('../models/SystemConfig');
 const bcrypt = require('bcryptjs');
 const { clearCache } = require('../utils/badWordFilter');
+const { banAccount, lockAccount, ADMIN_ROLES } = require('../utils/moderation');
 
+// Sub admin chỉ được tác động lên user thường và chuyên gia, không được đụng tới tài khoản admin
+const canManageUser = (actor, target) => actor.role === 'super_admin' || !ADMIN_ROLES.includes(target.role);
+const NO_PERMISSION_ON_ADMIN = 'Sub admin không có quyền thao tác trên tài khoản quản trị';
 // ── Helper: Log admin action ──────────────────────────────────────────
 const logAction = async (adminId, action, targetUserId, details, ip) => {
     try {
@@ -165,23 +169,7 @@ const banUser = async (req, res) => {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
 
-        user.accountStatus = 'banned';
-        user.status = 'banned';
-        user.is_locked = true;
-        user.lock_until = null;
-        await user.save({ validateModifiedOnly: true });
-
-        const io = req.io || req.app.get('socketio') || req.app.get('io');
-        if (io && user.socketId) {
-            io.to(user.socketId).emit('account:banned', { message: 'Tài khoản đã bị khóa bởi Admin' });
-        }
-        if (io) {
-            io.to(user._id.toString()).emit('user:status-updated', {
-                accountStatus: 'banned',
-                lockUntil: null,
-                isLocked: true,
-            });
-        }
+        await banAccount(req.app.get('io'), user);
 
         await logAction(req.user._id, 'ban_user', user._id, `Banned ${user.username}`, req.ip);
         return res.status(200).json({ message: `Đã ban user ${user.username}`, user });
@@ -233,34 +221,9 @@ const lockUser = async (req, res) => {
 
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
+        if (!canManageUser(req.user, user)) return res.status(403).json({ error: NO_PERMISSION_ON_ADMIN });
 
-        if (minutes === 0) {
-            user.accountStatus = 'active';
-            user.status = 'active';
-            user.is_locked = false;
-            user.lock_until = null;
-        } else {
-            user.accountStatus = 'locked';
-            user.status = 'active';
-            user.is_locked = true;
-            user.lock_until = new Date(Date.now() + minutes * 60000);
-        }
-        await user.save({ validateModifiedOnly: true });
-
-        const io = req.io || req.app.get('socketio') || req.app.get('io');
-        if (io) {
-            io.to(user._id.toString()).emit('user:status-updated', {
-                accountStatus: user.accountStatus,
-                lockUntil: user.lock_until,
-                isLocked: user.is_locked,
-            });
-            if (minutes > 0) {
-                io.to(user._id.toString()).emit('account:locked', {
-                    message: `Tài khoản bị khóa tạm thời ${minutes} phút`,
-                    lockUntil: user.lock_until,
-                });
-            }
-        }
+        await lockAccount(req.app.get('io'), user, minutes);
 
         await logAction(
             req.user._id,
@@ -293,6 +256,7 @@ const resetPassword = async (req, res) => {
 
         const user = await User.findById(req.params.id).select('+password');
         if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
+        if (!canManageUser(req.user, user)) return res.status(403).json({ error: NO_PERMISSION_ON_ADMIN });
 
         user.password = newPassword; // Will be hashed by pre-save hook
         await user.save();
@@ -325,6 +289,7 @@ const getReports = async (req, res) => {
                 .populate('reporter', 'username avatar')
                 .populate('reportedUser', 'username avatar email accountStatus')
                 .populate('resolvedBy', 'username')
+                .populate('message', 'type content file deleted createdAt')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit),
@@ -342,21 +307,57 @@ const getReports = async (req, res) => {
 
 const resolveReport = async (req, res) => {
     try {
-        const { status, adminNote } = req.body;
+        const { status, adminNote, action = 'none' } = req.body;
         if (!['resolved', 'dismissed'].includes(status)) {
             return res.status(400).json({ error: 'Status phải là resolved hoặc dismissed' });
+        }
+        if (!['none', 'lock', 'ban'].includes(action) || (status === 'dismissed' && action !== 'none')) {
+            return res.status(400).json({ error: 'Hình thức xử lý không hợp lệ' });
+        }
+        const lockMinutes = Number(req.body.lockMinutes);
+        if (action === 'lock' && (!Number.isFinite(lockMinutes) || lockMinutes <= 0)) {
+            return res.status(400).json({ error: 'Cần chỉ định thời gian khóa (phút)' });
         }
 
         const report = await Report.findById(req.params.id);
         if (!report) return res.status(404).json({ error: 'Không tìm thấy report' });
+        if (report.status !== 'pending') {
+            return res.status(400).json({ error: 'Báo cáo này đã được xử lý' });
+        }
+
+        // Áp dụng chế tài lên người bị báo cáo (nếu có)
+        let penaltyText = '';
+        if (action !== 'none') {
+            const target = await User.findById(report.reportedUser);
+            if (!target) return res.status(404).json({ error: 'Người bị báo cáo không còn tồn tại' });
+            if (target._id.toString() === req.user._id.toString()) {
+                return res.status(400).json({ error: 'Không thể tự xử phạt chính mình' });
+            }
+            const io = req.app.get('io');
+            if (action === 'ban') {
+                await banAccount(io, target);
+                penaltyText = 'ban vĩnh viễn';
+                await logAction(req.user._id, 'ban_user', target._id, `Banned ${target.username} (report ${report._id})`, req.ip);
+            } else {
+                await lockAccount(io, target, lockMinutes);
+                penaltyText = `khóa ${lockMinutes} phút`;
+                await logAction(req.user._id, 'lock_user', target._id, `Locked ${target.username} for ${lockMinutes} minutes (report ${report._id})`, req.ip);
+            }
+        }
 
         report.status = status;
-        report.adminNote = adminNote || '';
+        report.adminNote = [penaltyText && `Hình thức: ${penaltyText}`, (adminNote || '').trim()].filter(Boolean).join(' — ');
         report.resolvedBy = req.user._id;
         report.resolvedAt = new Date();
         await report.save();
 
         await logAction(req.user._id, status === 'resolved' ? 'resolve_report' : 'dismiss_report', report.reportedUser, `Report ${req.params.id} ${status}`, req.ip);
+        await report.populate([
+            { path: 'reporter', select: 'username avatar' },
+            { path: 'reportedUser', select: 'username avatar email accountStatus' },
+            { path: 'resolvedBy', select: 'username' },
+            { path: 'message', select: 'type content file deleted createdAt' },
+        ]);
         res.json(report);
     } catch (error) {
         res.status(500).json({ error: 'Lỗi khi xử lý report' });

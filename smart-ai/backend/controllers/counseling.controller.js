@@ -1,4 +1,5 @@
 const CounselingSession = require('../models/CounselingSession');
+const { ANONYMOUS_PROFILE } = require('../utils/anonymity');
 const Room = require('../models/Room');
 const Message = require('../models/Message');
 
@@ -136,12 +137,12 @@ exports.getSessionById = async (req, res, next) => {
             
         if (!session) return res.status(404).json({ error: 'Phiên tư vấn không tồn tại' });
 
-        if (session.user.toString() !== req.user._id.toString() && 
-            (!session.expert || session.expert._id.toString() !== req.user._id.toString())) {
+        const isOwner = session.user.toString() === req.user._id.toString();
+        if (!isOwner && (!session.expert || session.expert._id.toString() !== req.user._id.toString())) {
             return res.status(403).json({ error: 'Không có quyền truy cập phiên này' });
         }
 
-        res.json({ session });
+        res.json({ session: isOwner ? session : hideAnonymousUser(session.toObject()) });
     } catch (error) {
         next(error);
     }
@@ -232,7 +233,7 @@ exports.joinExpert = async (req, res, next) => {
             } catch (e) { /* non-fatal */ }
         }
 
-        res.json({ message: 'Đã tham gia tư vấn', session: populated, roomId: room._id });
+        res.json({ message: 'Đã tham gia tư vấn', session: hideAnonymousUser(populated), roomId: room._id });
     } catch (error) {
         next(error);
     }
@@ -246,6 +247,11 @@ exports.requireExpert = (req, res, next) => {
     }
     next();
 };
+
+// Phiên ẩn danh: chuyên gia không được thấy người hỏi là ai (kể cả _id)
+const hideAnonymousUser = (session) => (session.isAnonymous
+    ? { ...session, user: { ...ANONYMOUS_PROFILE } }
+    : session);
 
 // Expert dashboard: list sessions chưa có expert phụ trách
 exports.listPendingForExpert = async (req, res, next) => {
@@ -261,7 +267,7 @@ exports.listPendingForExpert = async (req, res, next) => {
             .populate('room', 'name updatedAt')
             .sort({ createdAt: -1 })
             .lean();
-        res.json({ sessions });
+        res.json({ sessions: sessions.map(hideAnonymousUser) });
     } catch (err) {
         next(err);
     }
@@ -275,7 +281,7 @@ exports.listMineForExpert = async (req, res, next) => {
             .populate('room', 'name updatedAt')
             .sort({ updatedAt: -1 })
             .lean();
-        res.json({ sessions });
+        res.json({ sessions: sessions.map(hideAnonymousUser) });
     } catch (err) {
         next(err);
     }
