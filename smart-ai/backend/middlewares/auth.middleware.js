@@ -24,6 +24,9 @@ const authMiddleware = async (req, res, next) => {
         if (!user) {
             return res.status(401).json({ error: 'User không tồn tại' });
         }
+        if (user.accountStatus === 'banned') {
+            return res.status(401).json({ error: 'Tài khoản của bạn đã bị khóa vĩnh viễn.' });
+        }
 
         req.user = user;
         next();

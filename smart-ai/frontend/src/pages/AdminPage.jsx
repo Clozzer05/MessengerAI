@@ -161,7 +161,7 @@ function EditUserModal({ user, onClose, onSave }) {
                         <div className="flex-1"><label className="block text-sm font-medium text-gray-600 mb-1">Vai trò</label>
                             <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
                                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="user">User</option><option value="sub_admin">Sub Admin</option><option value="super_admin">Super Admin</option></select></div>
+                                <option value="user">User</option><option value="expert">Chuyên gia</option><option value="sub_admin">Sub Admin</option><option value="super_admin">Super Admin</option></select></div>
                         <div className="flex-1"><label className="block text-sm font-medium text-gray-600 mb-1">Xác thực</label>
                             <select value={form.isVerified ? 'true' : 'false'} onChange={e => setForm({ ...form, isVerified: e.target.value === 'true' })}
                                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
@@ -245,6 +245,8 @@ function ResetPasswordModal({ user, onClose, onReset }) {
 }
 
 function UsersTab({ currentUser }) {
+    // Sub admin chỉ được khóa tạm và reset mật khẩu; các thao tác khác API chỉ cho super admin
+    const isSuper = currentUser?.role === 'super_admin';
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -343,8 +345,8 @@ function UsersTab({ currentUser }) {
                                     </td>
                                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400 hidden sm:table-cell">{u.email}</td>
                                     <td className="px-4 py-3">
-                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'super_admin' ? 'bg-purple-100 text-purple-700' : u.role === 'sub_admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                                            {u.role !== 'user' && <Shield size={12} />} {u.role === 'super_admin' ? 'Super Admin' : u.role === 'sub_admin' ? 'Sub Admin' : 'User'}
+                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'super_admin' ? 'bg-purple-100 text-purple-700' : u.role === 'sub_admin' ? 'bg-blue-100 text-blue-700' : u.role === 'expert' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                                            {u.role !== 'user' && <Shield size={12} />} {u.role === 'super_admin' ? 'Super Admin' : u.role === 'sub_admin' ? 'Sub Admin' : u.role === 'expert' ? 'Chuyên gia' : 'User'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">
@@ -358,20 +360,24 @@ function UsersTab({ currentUser }) {
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center justify-end gap-1 flex-wrap">
-                                            <button onClick={() => setEditUser(u)} className="p-1.5 hover:bg-blue-50 rounded-lg text-blue-600" title="Chỉnh sửa"><Edit3 size={15} /></button>
-                                            <button onClick={() => handleAction('toggleVerified', u._id)} className="p-1.5 hover:bg-gray-50 rounded-lg" title={u.isVerified ? 'Đã xác thực' : 'Chưa xác thực'}>
+                                            {isSuper && <button onClick={() => setEditUser(u)} className="p-1.5 hover:bg-blue-50 rounded-lg text-blue-600" title="Chỉnh sửa"><Edit3 size={15} /></button>}
+                                            <button onClick={() => handleAction('toggleVerified', u._id)} disabled={!isSuper} className="p-1.5 hover:bg-gray-50 rounded-lg disabled:cursor-default disabled:hover:bg-transparent" title={u.isVerified ? 'Đã xác thực' : 'Chưa xác thực'}>
                                                 {u.isVerified ? <CheckCircle size={15} className="text-green-500" /> : <XCircle size={15} className="text-gray-300" />}
                                             </button>
                                             {u._id !== currentUser?._id && (
                                                 <>
-                                                    {u.accountStatus !== 'banned' ? (
+                                                    {isSuper && (u.accountStatus !== 'banned' ? (
                                                         <button onClick={() => handleAction('ban', u._id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500" title="Ban"><Ban size={15} /></button>
                                                     ) : (
                                                         <button onClick={() => handleAction('unban', u._id)} className="p-1.5 hover:bg-green-50 rounded-lg text-green-600" title="Unban"><Unlock size={15} /></button>
+                                                    ))}
+                                                    {(isSuper || !['sub_admin', 'super_admin'].includes(u.role)) && (
+                                                        <>
+                                                            <button onClick={() => setLockUser(u)} className="p-1.5 hover:bg-orange-50 rounded-lg text-orange-500" title="Khóa tạm"><Lock size={15} /></button>
+                                                            <button onClick={() => setResetPwUser(u)} className="p-1.5 hover:bg-purple-50 rounded-lg text-purple-500" title="Reset mật khẩu"><Key size={15} /></button>
+                                                        </>
                                                     )}
-                                                    <button onClick={() => setLockUser(u)} className="p-1.5 hover:bg-orange-50 rounded-lg text-orange-500" title="Khóa tạm"><Lock size={15} /></button>
-                                                    <button onClick={() => setResetPwUser(u)} className="p-1.5 hover:bg-purple-50 rounded-lg text-purple-500" title="Reset mật khẩu"><Key size={15} /></button>
-                                                    <button onClick={() => setDeleteUser(u)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500" title="Xóa"><Trash2 size={15} /></button>
+                                                    {isSuper && <button onClick={() => setDeleteUser(u)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500" title="Xóa"><Trash2 size={15} /></button>}
                                                 </>
                                             )}
                                         </div>
@@ -411,7 +417,20 @@ const REASON_LABELS = {
     impersonation: 'Giả mạo', other: 'Khác',
 };
 
-function ReportsTab() {
+const PENALTY_OPTIONS = [
+    { value: 'none', label: 'Chỉ đánh dấu đã xử lý' },
+    { value: 'lock', label: 'Khóa tạm thời' },
+    { value: 'ban', label: 'Ban vĩnh viễn' },
+];
+const LOCK_DURATIONS = [
+    { value: 60, label: '1 giờ' },
+    { value: 1440, label: '24 giờ' },
+    { value: 10080, label: '7 ngày' },
+];
+
+function ReportsTab({ currentUser }) {
+    const canResolve = currentUser?.role === 'super_admin';
+    const [draft, setDraft] = useState(null); // { id, action, lockMinutes, note }
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -432,12 +451,14 @@ function ReportsTab() {
     useEffect(() => { fetchReports(); }, [fetchReports]);
     useEffect(() => { setPage(1); }, [statusFilter]);
 
-    const handleResolve = async (id, status, adminNote = '') => {
+    const handleResolve = async (id, payload) => {
+        if (payload.action === 'ban' && !window.confirm('Ban vĩnh viễn tài khoản này?')) return;
         setResolving(id);
         try {
-            await adminAPI.resolveReport(id, { status, adminNote });
+            await adminAPI.resolveReport(id, payload);
+            setDraft(null);
             fetchReports();
-        } catch (err) { console.error(err); }
+        } catch (err) { alert(err.response?.data?.error || 'Lỗi khi xử lý báo cáo'); }
         finally { setResolving(null); }
     };
 
@@ -460,6 +481,7 @@ function ReportsTab() {
                     <option value="dismissed">Đã bỏ qua</option>
                 </select>
             </div>
+            {!canResolve && <p className="text-sm text-gray-500">Chỉ Super Admin mới được xử lý báo cáo.</p>}
 
             <div className="space-y-3">
                 {loading ? (
@@ -483,6 +505,22 @@ function ReportsTab() {
                         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
                             <p className="text-sm"><span className="text-gray-500 font-medium">Lý do:</span> {REASON_LABELS[r.reason] || r.reason}</p>
                             {r.description && <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{r.description}</p>}
+                            {r.message && (
+                                <div className="mt-2 border-l-2 border-red-300 pl-3">
+                                    <p className="text-xs text-gray-500">Tin nhắn bị báo cáo · {new Date(r.message.createdAt).toLocaleString('vi-VN')}</p>
+                                    {r.message.deleted ? (
+                                        <p className="text-sm italic text-gray-400">(Người gửi đã thu hồi tin nhắn này)</p>
+                                    ) : r.message.type === 'text' ? (
+                                        <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">{r.message.content}</p>
+                                    ) : r.message.file?.url ? (
+                                        <a href={resolveMediaUrl(r.message.file.url)} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
+                                            Xem {r.message.type === 'image' ? 'ảnh' : 'file'} đính kèm
+                                        </a>
+                                    ) : (
+                                        <p className="text-sm text-gray-500">[{r.message.type}]</p>
+                                    )}
+                                </div>
+                            )}
                             {r.evidence?.length > 0 && (
                                 <div className="mt-2 flex gap-2 flex-wrap">{r.evidence.map((e, i) => (
                                     <a key={i} href={resolveMediaUrl(e)} target="_blank" rel="noopener noreferrer"
@@ -494,16 +532,44 @@ function ReportsTab() {
                             <p className="text-xs text-gray-400">Trạng thái tài khoản bị báo cáo: <span className="font-medium">{r.reportedUser.accountStatus}</span></p>
                         )}
                         {r.adminNote && <p className="text-xs text-gray-500">Ghi chú admin: {r.adminNote}</p>}
-                        {r.status === 'pending' && (
+                        {r.status === 'pending' && canResolve && draft?.id !== r._id && (
                             <div className="flex gap-2 pt-1">
-                                <button onClick={() => handleResolve(r._id, 'resolved')} disabled={resolving === r._id}
+                                <button onClick={() => setDraft({ id: r._id, action: 'none', lockMinutes: 1440, note: '' })} disabled={resolving === r._id}
                                     className="px-4 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-1.5">
-                                    {resolving === r._id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />} Xử lý
+                                    <CheckCircle size={14} /> Xử lý
                                 </button>
-                                <button onClick={() => handleResolve(r._id, 'dismissed')} disabled={resolving === r._id}
+                                <button onClick={() => handleResolve(r._id, { status: 'dismissed' })} disabled={resolving === r._id}
                                     className="px-4 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50 flex items-center gap-1.5">
-                                    <XCircle size={14} /> Bỏ qua
+                                    {resolving === r._id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />} Bỏ qua
                                 </button>
+                            </div>
+                        )}
+                        {draft?.id === r._id && (
+                            <div className="rounded-lg border border-gray-200 p-3 space-y-3">
+                                <div className="flex flex-wrap gap-2">
+                                    <select value={draft.action} onChange={e => setDraft(d => ({ ...d, action: e.target.value }))}
+                                        className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                        {PENALTY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                                    </select>
+                                    {draft.action === 'lock' && (
+                                        <select value={draft.lockMinutes} onChange={e => setDraft(d => ({ ...d, lockMinutes: Number(e.target.value) }))}
+                                            className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                            {LOCK_DURATIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                                        </select>
+                                    )}
+                                </div>
+                                <input value={draft.note} onChange={e => setDraft(d => ({ ...d, note: e.target.value }))} maxLength={300}
+                                    placeholder="Ghi chú xử lý (tuỳ chọn)"
+                                    className="w-full px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <div className="flex gap-2">
+                                    <button onClick={() => handleResolve(r._id, { status: 'resolved', action: draft.action, lockMinutes: draft.lockMinutes, adminNote: draft.note })}
+                                        disabled={resolving === r._id}
+                                        className="px-4 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-1.5">
+                                        {resolving === r._id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />} Xác nhận
+                                    </button>
+                                    <button onClick={() => setDraft(null)} disabled={resolving === r._id}
+                                        className="px-4 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50">Huỷ</button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -527,7 +593,8 @@ function ReportsTab() {
 // ─── Bad Words Tab ────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════
 
-function BadWordsTab() {
+function BadWordsTab({ currentUser }) {
+    const canEdit = currentUser?.role === 'super_admin';
     const [words, setWords] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newWord, setNewWord] = useState('');
@@ -553,7 +620,7 @@ function BadWordsTab() {
 
     const handleRemove = async (id) => {
         try { await adminAPI.removeBadWord(id); fetchWords(); }
-        catch (err) { console.error(err); }
+        catch (err) { alert(err.response?.data?.error || 'Lỗi'); }
     };
 
     const sevColors = { low: 'bg-yellow-100 text-yellow-700', medium: 'bg-orange-100 text-orange-700', high: 'bg-red-100 text-red-700' };
@@ -561,7 +628,8 @@ function BadWordsTab() {
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2"><AlertTriangle size={22} /> Bộ lọc từ ngữ</h2>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+            {!canEdit && <p className="text-sm text-gray-500">Chỉ Super Admin mới được thêm hoặc xoá từ cấm.</p>}
+            {canEdit && <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4">
                 <div className="flex gap-2">
                     <input type="text" placeholder="Thêm từ cấm..." value={newWord} onChange={e => setNewWord(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAdd()}
@@ -575,7 +643,7 @@ function BadWordsTab() {
                         {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Thêm
                     </button>
                 </div>
-            </div>
+            </div>}
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                 {loading ? (
                     <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-gray-400" /></div>
@@ -589,7 +657,7 @@ function BadWordsTab() {
                                     <span className="font-mono text-sm text-gray-800 dark:text-gray-200">{w.word}</span>
                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sevColors[w.severity] || ''}`}>{w.severity}</span>
                                 </div>
-                                <button onClick={() => handleRemove(w._id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500" title="Xóa"><Trash2 size={15} /></button>
+                                {canEdit && <button onClick={() => handleRemove(w._id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500" title="Xóa"><Trash2 size={15} /></button>}
                             </div>
                         ))}
                     </div>
@@ -603,7 +671,8 @@ function BadWordsTab() {
 // ─── System Config Tab ────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════
 
-function ConfigTab() {
+function ConfigTab({ currentUser }) {
+    const canEdit = currentUser?.role === 'super_admin';
     const [config, setConfig] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -621,7 +690,7 @@ function ConfigTab() {
         setConfig(prev => ({ ...prev, [key]: newVal }));
         setSaving(true);
         try { await adminAPI.updateConfig({ [key]: newVal }); }
-        catch (err) { console.error(err); setConfig(prev => ({ ...prev, [key]: !newVal })); }
+        catch (err) { setConfig(prev => ({ ...prev, [key]: !newVal })); alert(err.response?.data?.error || 'Lỗi khi cập nhật config'); }
         finally { setSaving(false); }
     };
 
@@ -636,6 +705,7 @@ function ConfigTab() {
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2"><Settings size={22} /> Cấu hình hệ thống</h2>
+            {!canEdit && <p className="text-sm text-gray-500">Chỉ Super Admin mới được thay đổi cấu hình.</p>}
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
                 {toggles.map(t => (
                     <div key={t.key} className="flex items-center justify-between px-5 py-4">
@@ -643,9 +713,10 @@ function ConfigTab() {
                             <p className="font-medium text-gray-800 dark:text-gray-200">{t.label}</p>
                             <p className="text-sm text-gray-500">{t.desc}</p>
                         </div>
-                        <button onClick={() => handleToggle(t.key)} disabled={saving}
-                            className={`relative w-12 h-7 rounded-full transition-colors ${config[t.key] ? 'bg-blue-600' : 'bg-gray-300'}`}>
-                            <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${config[t.key] ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                        <button onClick={() => handleToggle(t.key)} disabled={saving || !canEdit}
+                            role="switch" aria-checked={!!config[t.key]} aria-label={t.label}
+                            className={`relative shrink-0 w-12 h-7 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${config[t.key] ? 'bg-blue-600' : 'bg-gray-300'}`}>
+                            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${config[t.key] ? 'translate-x-5' : 'translate-x-0'}`} />
                         </button>
                     </div>
                 ))}
@@ -739,12 +810,15 @@ export default function AdminPage() {
     const [collapsed, setCollapsed] = useState(false);
     const [stats, setStats] = useState(null);
 
+    const isAdmin = ['sub_admin', 'super_admin'].includes(currentUser?.role);
+
     useEffect(() => {
+        if (!isAdmin) return;
         (async () => {
             try { const res = await adminAPI.getStats(); setStats(res.data); }
             catch (err) { console.error(err); }
         })();
-    }, []);
+    }, [isAdmin]);
 
     if (currentUser && !['sub_admin', 'super_admin'].includes(currentUser.role)) {
         return (
@@ -763,9 +837,9 @@ export default function AdminPage() {
         switch (activeTab) {
             case 'dashboard': return <DashboardTab stats={stats} />;
             case 'users': return <UsersTab currentUser={currentUser} />;
-            case 'reports': return <ReportsTab />;
-            case 'badwords': return <BadWordsTab />;
-            case 'config': return <ConfigTab />;
+            case 'reports': return <ReportsTab currentUser={currentUser} />;
+            case 'badwords': return <BadWordsTab currentUser={currentUser} />;
+            case 'config': return <ConfigTab currentUser={currentUser} />;
             case 'logs': return <LogsTab />;
             default: return <DashboardTab stats={stats} />;
         }

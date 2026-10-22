@@ -169,7 +169,7 @@ export default function ExpertCounselingPage() {
                             return (
                                 <div key={session._id} className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
                                     <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
-                                        {avatarUrl ? <img src={avatarUrl} alt={u.username} className="w-full h-full object-cover" /> : (u.username || '?').charAt(0).toUpperCase()}
+                                        {avatarUrl ? <img src={avatarUrl} alt={u.username} className="w-full h-full object-cover" /> : session.isAnonymous ? '?' : (u.username || '?').charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">

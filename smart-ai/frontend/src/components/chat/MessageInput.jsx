@@ -113,7 +113,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                 emitToast('Upload file thành công.', { type: 'success' });
             } catch (err) {
                 console.error('Upload error:', err);
-                emitToast('Upload file thất bại. Vui lòng thử lại.', { type: 'error' });
+                emitToast(err.response?.data?.error || 'Upload file thất bại. Vui lòng thử lại.', { type: 'error' });
             } finally {
                 setUploading(false);
                 setFile(null);
@@ -282,7 +282,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                 emitToast('Đã gửi ghi âm thành công.', { type: 'success' });
             } catch (err) {
                 console.error('Voice upload error:', err);
-                emitToast('Gửi ghi âm thất bại. Vui lòng thử lại.', { type: 'error' });
+                emitToast(err.response?.data?.error || 'Gửi ghi âm thất bại. Vui lòng thử lại.', { type: 'error' });
             } finally {
                 setUploading(false);
             }

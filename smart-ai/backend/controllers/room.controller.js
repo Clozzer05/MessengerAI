@@ -1,4 +1,5 @@
 const Room = require('../models/Room');
+const { getAnonymousOwners, getAnonymousOwner, displayNameInRoom, maskRoom, maskMessage, ownerToMaskFor, emitToRoomMasked } = require('../utils/anonymity');
 const Message = require('../models/Message');
 const { User } = require('../models/User');
 
@@ -69,7 +70,8 @@ exports.createRoom = async (req, res, next) => {
 exports.getUserRooms = async (req, res, next) => {
     try {
         const rooms = await Room.getUserRooms(req.user._id);
-        res.json({ rooms });
+        const owners = await getAnonymousOwners(rooms.filter(r => r.type === 'counseling').map(r => r._id));
+        res.json({ rooms: rooms.map(r => maskRoom(r, ownerToMaskFor(owners.get(String(r._id)), req.user._id))) });
     } catch (error) {
         next(error);
     }
@@ -96,7 +98,8 @@ exports.getRoomById = async (req, res, next) => {
             return res.status(403).json({ error: 'Bạn không phải thành viên của room này' });
         }
 
-        res.json({ room });
+        const ownerId = room.type === 'counseling' ? ownerToMaskFor(await getAnonymousOwner(room._id), req.user._id) : null;
+        res.json({ room: maskRoom(room, ownerId) });
     } catch (error) {
         next(error);
     }
@@ -121,7 +124,8 @@ exports.getRoomMessages = async (req, res, next) => {
 
         const messages = await Message.getByRoom(id, { page, limit, userId: req.user._id });
         const hasMore = messages.length >= limit;
-        res.json({ messages, page, limit, hasMore });
+        const ownerId = room.type === 'counseling' ? ownerToMaskFor(await getAnonymousOwner(room._id), req.user._id) : null;
+        res.json({ messages: ownerId ? messages.map(m => maskMessage(m, ownerId)) : messages, page, limit, hasMore });
     } catch (error) {
         next(error);
     }
@@ -261,9 +265,11 @@ exports.setNickname = async (req, res, next) => {
         // Create system message for nickname change
         const setter = await User.findById(req.user._id).select('username').lean();
         const target = await User.findById(targetUserId).select('username').lean();
+        const setterName = await displayNameInRoom(id, req.user._id, setter?.username || '?');
+        const targetName = await displayNameInRoom(id, targetUserId, target?.username || '?');
         const systemContent = nickname && nickname.trim()
-            ? `${setter?.username || '?'} đã đặt biệt danh cho ${target?.username || '?'} thành "${nickname.trim()}"`
-            : `${setter?.username || '?'} đã xóa biệt danh của ${target?.username || '?'}`;
+            ? `${setterName} đã đặt biệt danh cho ${targetName} thành "${nickname.trim()}"`
+            : `${setterName} đã xóa biệt danh của ${targetName}`;
 
         const systemMsg = await Message.create({
             room: id,
@@ -279,18 +285,18 @@ exports.setNickname = async (req, res, next) => {
         const updatedNicknames = Object.fromEntries(room.nicknames);
 
         // Emit system message + nickname update
-        io.to(id).emit('message:received', { message: populatedSystemMsg });
+        const anonymousOwner = await getAnonymousOwner(id);
+        emitToRoomMasked(io, id, 'message:received', { message: populatedSystemMsg }, anonymousOwner);
         for (const member of room.members) {
             const memberDoc = await User.findById(member.user).select('socketId').lean();
             if (memberDoc?.socketId) {
-                io.to(memberDoc.socketId).emit('room:nickname-updated', {
-                    roomId: id,
-                    nicknames: updatedNicknames,
-                });
+                const payload = { roomId: id, nicknames: updatedNicknames };
+                io.to(memberDoc.socketId).emit('room:nickname-updated',
+                    anonymousOwner && member.user.toString() !== anonymousOwner ? maskRoom(payload, anonymousOwner) : payload);
             }
         }
 
-        res.json({ nicknames: updatedNicknames });
+        res.json({ nicknames: maskRoom(updatedNicknames, ownerToMaskFor(anonymousOwner, req.user._id)) });
     } catch (error) {
         next(error);
     }
@@ -574,7 +580,7 @@ exports.pinMessage = async (req, res, next) => {
         const pinner = await User.findById(req.user._id).select('username').lean();
         const systemMsg = await Message.create({
             room: id, sender: req.user._id, type: 'system',
-            content: `${pinner?.username || '?'} đã ghim một tin nhắn`,
+            content: `${await displayNameInRoom(id, req.user._id, pinner?.username || '?')} đã ghim một tin nhắn`,
         });
         const populatedSystemMsg = await Message.findById(systemMsg._id)
             .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
@@ -584,8 +590,9 @@ exports.pinMessage = async (req, res, next) => {
             .lean();
 
         const io = req.app.get('io');
-        io.to(id).emit('message:received', { message: populatedSystemMsg });
-        io.to(id).emit('message:pinned', { messageId, roomId: id, pinned: true, message: populatedPinnedMsg });
+        const anonymousOwner = await getAnonymousOwner(id);
+        emitToRoomMasked(io, id, 'message:received', { message: populatedSystemMsg }, anonymousOwner);
+        emitToRoomMasked(io, id, 'message:pinned', { messageId, roomId: id, pinned: true, message: populatedPinnedMsg }, anonymousOwner);
 
         res.json({ message: 'Đã ghim tin nhắn' });
     } catch (error) {
@@ -659,7 +666,7 @@ exports.forwardMessage = async (req, res, next) => {
         await Room.findByIdAndUpdate(targetRoomId, { lastMessage: forwardedMsg._id });
 
         const io = req.app.get('io');
-        io.to(targetRoomId).emit('message:received', { message: populated });
+        emitToRoomMasked(io, targetRoomId, 'message:received', { message: populated }, await getAnonymousOwner(targetRoomId));
 
         res.json({ message: 'Đã chuyển tiếp tin nhắn', forwardedMessage: populated });
     } catch (error) {

@@ -4,13 +4,30 @@ const ChatDuration = require('../models/ChatDuration');
 const { User } = require('../models/User');
 const { translateForRoom, getTranslationForUser } = require('../services/translation.service');
 const { filterMessage } = require('../utils/badWordFilter');
-
+const { getAnonymousOwner, maskMessage, emitToRoomMasked } = require('../utils/anonymity');
+const { BAD_WORD_LIMIT, BAD_WORD_LOCK_MINUTES, ADMIN_ROLES, lockAccount, isLockActive } = require('../utils/moderation');
 const STICKER_MESSAGE_PREFIX = '__smartsticker__:';
 const isStickerPayload = (content) => typeof content === 'string' && content.startsWith(STICKER_MESSAGE_PREFIX);
 
 module.exports = (io, socket) => {
     const userId = socket.user._id;
 
+    // Ghi nhận 1 lần dùng từ cấm: cảnh báo, đủ BAD_WORD_LIMIT lần thì tự khóa tạm
+    const recordBadWord = async () => {
+        if (ADMIN_ROLES.includes(socket.user.role)) return;
+        const user = await User.findByIdAndUpdate(userId, { $inc: { badWordViolations: 1 } }, { new: true });
+        if (!user) return;
+        if (user.badWordViolations >= BAD_WORD_LIMIT) {
+            user.badWordViolations = 0;
+            await lockAccount(io, user, BAD_WORD_LOCK_MINUTES,
+                `Bạn đã dùng từ ngữ bị cấm ${BAD_WORD_LIMIT} lần nên bị khóa chat ${BAD_WORD_LOCK_MINUTES} phút`);
+            console.log(`🚫 Auto-locked ${user.username} for ${BAD_WORD_LOCK_MINUTES} minutes (bad words)`);
+        } else {
+            socket.emit('moderation:warning', {
+                message: `Tin nhắn chứa từ ngữ bị cấm và đã được che. Cảnh báo ${user.badWordViolations}/${BAD_WORD_LIMIT}: đến lần thứ ${BAD_WORD_LIMIT} bạn sẽ bị khóa chat ${BAD_WORD_LOCK_MINUTES} phút.`,
+            });
+        }
+    };
     // ─── message:send ───────────────────────────────────────────────────
     socket.on('message:send', async ({ roomId, content, type = 'text', file = null }) => {
         try {
@@ -45,13 +62,13 @@ module.exports = (io, socket) => {
             }
 
             // ── Lấy preferredLanguage MỚI NHẤT từ DB (socket.user có thể stale) ──
-            const senderFresh = await User.findById(userId).select('preferredLanguage accountStatus').lean();
+            const senderFresh = await User.findById(userId).select('preferredLanguage accountStatus lock_until').lean();
 
             // ── Check account status ──
             if (senderFresh?.accountStatus === 'banned') {
                 return socket.emit('error', { message: 'Tài khoản của bạn đã bị khóa.' });
             }
-            if (senderFresh?.accountStatus === 'locked' && senderFresh?.lockUntil && new Date(senderFresh.lockUntil) > new Date()) {
+            if (isLockActive(senderFresh)) {
                 return socket.emit('error', { message: 'Tài khoản đang bị khóa tạm thời.' });
             }
 
@@ -61,8 +78,9 @@ module.exports = (io, socket) => {
             let filteredContent = content;
             if (type === 'text' && content) {
                 if (!isStickerPayload(content)) {
-                    const { filtered } = await filterMessage(content);
+                    const { filtered, hasBadWord } = await filterMessage(content);
                     filteredContent = filtered;
+                    if (hasBadWord) await recordBadWord();
                 }
             }
 
@@ -125,7 +143,9 @@ module.exports = (io, socket) => {
             // ═════════════════════════════════════════════════════════════════
             // BƯỚC 1: Broadcast tin nhắn GỐC ngay lập tức (không chờ AI)
             // ═════════════════════════════════════════════════════════════════
-            io.to(roomId).emit('message:received', { message: populatedMessage });
+            // Phòng tư vấn ẩn danh: chỉ người hỏi thấy tên thật của mình
+            const anonymousOwner = room.type === 'counseling' ? await getAnonymousOwner(roomId) : null;
+            emitToRoomMasked(io, roomId, 'message:received', { message: populatedMessage }, anonymousOwner);
 
             // ═════════════════════════════════════════════════════════════════
             // BƯỚC 1.5: Notify ALL room members (sidebar update + unread)
@@ -136,11 +156,11 @@ module.exports = (io, socket) => {
                 if (member.user.toString() === userId.toString()) continue;
                 const memberDoc = await User.findById(member.user).select('socketId').lean();
                 if (memberDoc?.socketId) {
-                    io.to(memberDoc.socketId).emit('room:new-message', {
-                        roomId,
-                        lastMessage: populatedMessage,
-                        senderId: userId.toString(),
-                    });
+                    const newMessagePayload = { roomId, lastMessage: populatedMessage, senderId: userId.toString() };
+                    io.to(memberDoc.socketId).emit('room:new-message',
+                        anonymousOwner && member.user.toString() !== anonymousOwner
+                            ? maskMessage(newMessagePayload, anonymousOwner)
+                            : newMessagePayload);
                 }
             }
 
@@ -240,10 +260,10 @@ module.exports = (io, socket) => {
                 },
             });
 
-            socket.to(roomId).emit('message:read-update', {
+            emitToRoomMasked(io, roomId, 'message:read-update', {
                 messageId,
                 userId: userId.toString(),
-            });
+            }, await getAnonymousOwner(roomId), { excludeSocketId: socket.id });
         } catch (error) {
             console.error('message:read error:', error.message);
         }
@@ -265,7 +285,16 @@ module.exports = (io, socket) => {
                 return socket.emit('error', { message: 'Tin nhắn đã bị xoá' });
             }
 
-            message.content = content.trim();
+            const editor = await User.findById(userId).select('accountStatus lock_until').lean();
+            if (editor?.accountStatus === 'banned' || isLockActive(editor)) {
+                return socket.emit('error', { message: 'Tài khoản đang bị khóa, không thể sửa tin nhắn.' });
+            }
+
+            // Sửa tin cũng phải qua bộ lọc, tránh gửi chữ sạch rồi sửa thành từ cấm
+            const { filtered, hasBadWord } = await filterMessage(content.trim());
+            if (hasBadWord) await recordBadWord();
+
+            message.content = filtered;
             message.editedAt = new Date();
             // Stale translations: clear so they re-translate on demand
             if (Array.isArray(message.translations)) message.translations = [];
@@ -330,10 +359,10 @@ module.exports = (io, socket) => {
             await message.save();
 
             // Broadcast updated reactions to room
-            io.to(roomId).emit('message:reacted', {
+            emitToRoomMasked(io, roomId, 'message:reacted', {
                 messageId,
                 reactions: message.reactions,
-            });
+            }, await getAnonymousOwner(roomId));
         } catch (error) {
             console.error('message:react error:', error.message);
         }
@@ -376,10 +405,10 @@ module.exports = (io, socket) => {
             option.votes.push(userId);
             await message.save();
 
-            io.to(roomId).emit('poll:updated', {
+            emitToRoomMasked(io, roomId, 'poll:updated', {
                 messageId,
                 poll: message.poll,
-            });
+            }, await getAnonymousOwner(roomId));
         } catch (error) {
             console.error('poll:vote error:', error.message);
         }
@@ -410,7 +439,7 @@ module.exports = (io, socket) => {
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
             await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
-            io.to(roomId).emit('message:received', { message: populated });
+            emitToRoomMasked(io, roomId, 'message:received', { message: populated }, await getAnonymousOwner(roomId));
         } catch (error) {
             console.error('message:send-poll error:', error.message);
         }
@@ -441,7 +470,7 @@ module.exports = (io, socket) => {
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
             await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
-            io.to(roomId).emit('message:received', { message: populated });
+            emitToRoomMasked(io, roomId, 'message:received', { message: populated }, await getAnonymousOwner(roomId));
         } catch (error) {
             console.error('message:send-contact-card error:', error.message);
         }

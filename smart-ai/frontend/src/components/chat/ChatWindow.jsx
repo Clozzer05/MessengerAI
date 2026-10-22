@@ -11,6 +11,7 @@ import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import AIToggle from './AIToggle';
 import ForwardModal from './ForwardModal';
+import ReportModal from './ReportModal';
 import PollCreator from './PollCreator';
 import PinnedHeader from './PinnedHeader';
 import SkeletonBlock from '../ui/SkeletonBlock';
@@ -64,6 +65,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
     const processedServerOwnMessagesRef = useRef(new Set());
     const pendingQueueRef = useRef([]);
     const [forwardMsg, setForwardMsg] = useState(null);
+    const [reportMsg, setReportMsg] = useState(null);
     const [showPollCreator, setShowPollCreator] = useState(false);
     const [pinnedMessages, setPinnedMessages] = useState([]);
     const [pendingMessages, setPendingMessages] = useState([]);
@@ -145,7 +147,8 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         (m) => (m.user?._id || m.user) !== user?._id
                     );
                     const otherId = other?.user?._id || other?.user;
-                    if (otherId) {
+                    // 'anonymous': người hỏi trong phiên tư vấn ẩn danh, không có tài khoản để tra
+                    if (otherId && otherId !== 'anonymous') {
                         const { data: blockData } = await userActionsAPI.getBlocked();
                         const blockedIds = (blockData.blockedUsers || []).map((u) => u._id || u);
                         setIBlockedThem(blockedIds.includes(otherId));
@@ -1038,6 +1041,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                             onEdit={editMessage}
                                             onReact={reactToMessage}
                                             onForward={(msg) => setForwardMsg(msg)}
+                                            onReport={(m) => setReportMsg(m)}
                                             onPinMessage={handlePinMessage}
                                             onVotePoll={handleVotePoll}
                                             selectionMode={selectionMode}
@@ -1139,6 +1143,15 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             )}
 
             {/* Forward Modal */}
+            {reportMsg && (
+                <ReportModal
+                    reportedUserId={reportMsg.sender?._id || reportMsg.sender}
+                    roomId={roomId}
+                    message={reportMsg}
+                    onClose={() => setReportMsg(null)}
+                />
+            )}
+
             {forwardMsg && (
                 <ForwardModal
                     message={forwardMsg}

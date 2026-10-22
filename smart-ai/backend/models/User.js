@@ -161,6 +161,11 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    // Số lần dùng từ cấm kể từ lần bị tự khóa gần nhất
+    badWordViolations: {
+        type: Number,
+        default: 0,
+    },
 
 
 

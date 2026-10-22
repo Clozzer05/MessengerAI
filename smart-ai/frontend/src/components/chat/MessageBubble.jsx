@@ -1,6 +1,6 @@
 import { useAuth } from '../../hooks/useAuth';
 import { format } from 'date-fns';
-import { Bot, Trash2, Globe, ChevronDown, ChevronUp, FileText, FileArchive, FileSpreadsheet, FileImage, FileVideo, FileAudio, File, Download, SmilePlus, Forward, Pin, Copy, Check, ExternalLink, Smile, MoreHorizontal, Edit3, X, Phone, Video as VideoIconLucide } from 'lucide-react';
+import { Bot, Trash2, Globe, ChevronDown, ChevronUp, FileText, FileArchive, FileSpreadsheet, FileImage, FileVideo, FileAudio, File, Download, SmilePlus, Forward, Pin, Copy, Check, ExternalLink, Smile, MoreHorizontal, Edit3, X, Phone, Video as VideoIconLucide, Flag } from 'lucide-react';
 import { useCall } from '../../hooks/useCall';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -85,6 +85,7 @@ export default function MessageBubble({
     onForward,
     onPinMessage,
     onVotePoll,
+    onReport,
     selectionMode = false,
     isSelected = false,
     onToggleSelect,
@@ -659,7 +660,7 @@ export default function MessageBubble({
             <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2`}>
                 {!isOwn && (
                     <div className="w-8 h-8 rounded-full flex-shrink-0 mr-2 overflow-hidden cursor-pointer"
-                        onClick={() => message.sender?._id && navigate(`/profile/${message.sender._id}`)}>
+                        onClick={() => message.sender?._id && message.sender._id !== 'anonymous' && navigate(`/profile/${message.sender._id}`)}>
                         {(message.sender?.avatar || message.sender?.googlePicture) ? (
                             <img src={resolveMediaUrl(message.sender.avatar || message.sender.googlePicture)} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -754,7 +755,7 @@ export default function MessageBubble({
                     ) : showSenderAvatar ? (
                         <div
                             className="w-8 h-8 rounded-full flex-shrink-0 cursor-pointer overflow-hidden"
-                            onClick={() => message.sender?._id && navigate(`/profile/${message.sender._id}`)}
+                            onClick={() => message.sender?._id && message.sender._id !== 'anonymous' && navigate(`/profile/${message.sender._id}`)}
                             title={`${senderName} · ${format(new Date(message.createdAt), 'HH:mm - dd/MM/yyyy')}`}
                         >
                             {(message.sender?.avatar || message.sender?.googlePicture) && !imgError ? (
@@ -1179,6 +1180,20 @@ export default function MessageBubble({
                                         whileTap={{ scale: 0.92 }}
                                     >
                                         <Pin size={14} />
+                                    </motion.button>
+                                )}
+                                {!isOwn && !isAI && onReport && !message.deleted && message.type !== 'system' && (
+                                    <motion.button
+                                        onClick={() => {
+                                            onReport?.(message);
+                                            if (isTouchDevice) setShowActions(false);
+                                        }}
+                                        className="p-1 text-[var(--text-tertiary)] hover:text-red-500 transition"
+                                        title="Báo cáo tin nhắn"
+                                        whileHover={{ scale: 1.08 }}
+                                        whileTap={{ scale: 0.92 }}
+                                    >
+                                        <Flag size={14} />
                                     </motion.button>
                                 )}
                                 <motion.button

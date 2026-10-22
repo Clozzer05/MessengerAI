@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { connectSocket, disconnectSocket, getSocket } from '../config/socket';
 import { useAuth } from '../hooks/useAuth';
 import { SocketContext } from '.';
-
+import { emitToast } from '../utils/toast';
 export function SocketProvider({ children }) {
     const { token, user, updateLockStatus } = useAuth();
     const [connected, setConnected] = useState(false);
@@ -51,6 +51,16 @@ export function SocketProvider({ children }) {
         // Maintenance mode force logout
         socket.on('system:maintenance', () => {
             window.dispatchEvent(new Event('system:maintenance'));
+        });
+
+        // Bị admin ban khi đang online → AuthContext đăng xuất
+        socket.on('account:banned', ({ message } = {}) => {
+            window.dispatchEvent(new CustomEvent('account:banned', { detail: { message } }));
+        });
+
+        // Cảnh báo khi tin nhắn chứa từ cấm
+        socket.on('moderation:warning', ({ message } = {}) => {
+            emitToast(message, { type: 'error', duration: 6000 });
         });
 
         // Real-time lock/unlock status from admin

@@ -82,6 +82,16 @@ export function AuthProvider({ children }) {
         return () => window.removeEventListener('system:maintenance', handleMaintenance);
     }, [logout]);
 
+    // Bị ban khi đang online → thông báo rồi đăng xuất
+    useEffect(() => {
+        const handleBanned = (e) => {
+            alert(e.detail?.message || 'Tài khoản của bạn đã bị khóa vĩnh viễn.');
+            logout();
+        };
+        window.addEventListener('account:banned', handleBanned);
+        return () => window.removeEventListener('account:banned', handleBanned);
+    }, [logout]);
+
     const updateUser = useCallback((updated) => {
         setUser(updated);
         localStorage.setItem('user', JSON.stringify(updated));
