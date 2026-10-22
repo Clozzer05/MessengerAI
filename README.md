@@ -2,7 +2,9 @@
 
 Ứng dụng nhắn tin thời gian thực tích hợp AI: chat nhóm có trợ lý AI, tự dịch tin nhắn theo ngôn ngữ của từng thành viên, gọi thoại/video, phòng tư vấn (có chế độ ẩn danh) và trang quản trị kiểm duyệt nội dung.
 
-<!-- Thêm link demo và ảnh chụp màn hình tại đây -->
+<!-- Thêm link demo tại đây -->
+
+![Chat nhóm: tin nhắn tự dịch sang tiếng Việt, AI tóm tắt cuộc trò chuyện ở cột trái](docs/images/chat-vi.png)
 
 ## Tính năng chính
 
@@ -18,6 +20,10 @@
 - Tự dịch tin nhắn sang ngôn ngữ ưu tiên của từng người nhận (12 ngôn ngữ), dịch gộp nhiều ngôn ngữ trong một lần gọi, có cache trong bộ nhớ và giới hạn tốc độ gọi API để không vượt quota.
 - Phân tích ảnh chụp màn hình khi chia sẻ màn hình.
 
+Cùng cuộc trò chuyện ở ảnh trên, nhìn từ tài khoản dùng tiếng Anh:
+
+![Chat nhóm nhìn từ tài khoản tiếng Anh](docs/images/chat-en.png)
+
 ### Gọi thoại / video (WebRTC)
 - Gọi 1-1 và gọi nhóm, mời thêm thành viên vào cuộc gọi, chia sẻ màn hình.
 - Signaling qua Socket.IO; máy chủ STUN/TURN lấy từ Metered, có cấu hình TURN dự phòng.
@@ -27,11 +33,17 @@
 - Chế độ ẩn danh: mọi chỗ chứa mã tài khoản người hỏi (người gửi, thành viên, đã xem, reaction, phiếu bầu...) được thay bằng `anonymous` trước khi gửi tới người khác, nên không tra ngược được hồ sơ.
 - Phòng chủ đề công khai theo danh mục và tag.
 
+![AI tư vấn trả lời, chuyên gia vào phòng thì AI tự tạm dừng](docs/images/counseling-ai.png)
+
+![Bảng điều khiển của chuyên gia chỉ thấy "Người dùng ẩn danh"](docs/images/counseling-anonymous.png)
+
 ### Kiểm duyệt và quản trị
 - Phân quyền `user`, `expert`, `sub_admin`, `super_admin`.
 - Bộ lọc từ cấm do admin quản lý; vi phạm 5 lần thì tài khoản tự bị khóa 60 phút.
 - Người dùng báo cáo vi phạm; admin xử lý báo cáo, khóa tạm thời hoặc cấm vĩnh viễn (người bị xử lý bị ngắt kết nối ngay qua socket).
 - Thống kê, nhật ký thao tác của admin, cấu hình hệ thống.
+
+![Trang admin: danh sách báo cáo vi phạm](docs/images/admin-reports.png)
 
 ### Tài khoản và giao diện
 - Đăng ký xác thực OTP qua email, đăng nhập Google OAuth, quên/đặt lại mật khẩu, JWT.
