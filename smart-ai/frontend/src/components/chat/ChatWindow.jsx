@@ -1048,6 +1048,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                             isSelected={selectedMessageIds.has(msg._id)}
                                             onToggleSelect={toggleMessageSelection}
                                             onQuickReply={handleQuickReply}
+                                            roomMembers={room?.members}
                                             isClusterStart={isClusterStart}
                                             isClusterEnd={isClusterEnd}
                                         />

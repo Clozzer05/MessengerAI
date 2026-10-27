@@ -13,6 +13,7 @@ import { getMediaUrlCandidates, resolveMediaUrl } from '../../services/api';
 import { useTheme } from '../../hooks/useTheme';
 import { parseStickerPayload } from '../../utils/stickers';
 import { getChatBubbleFrameById } from '../../config/chatBubbleFrames';
+import ReactionDetailsModal from './ReactionDetailsModal';
 
 const avatarColors = [
     'bg-red-500', 'bg-[var(--color-primary)]', 'bg-green-500', 'bg-yellow-500',
@@ -90,6 +91,7 @@ export default function MessageBubble({
     isSelected = false,
     onToggleSelect,
     onQuickReply,
+    roomMembers,
     isClusterStart = true,
     isClusterEnd = true,
 }) {
@@ -106,18 +108,20 @@ export default function MessageBubble({
     const [editDraft, setEditDraft] = useState('');
     const [mediaCandidateIndex, setMediaCandidateIndex] = useState(0);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [showReactionDetails, setShowReactionDetails] = useState(false);
+    const [pickerBelow, setPickerBelow] = useState(false);
     const [shouldShake, setShouldShake] = useState(false);
     const [copied, setCopied] = useState(false);
     const [isTouchDevice, setIsTouchDevice] = useState(() => {
         if (typeof window === 'undefined' || !window.matchMedia) return false;
         return window.matchMedia('(hover: none), (pointer: coarse)').matches;
     });
-    const emojiPickerRef = useRef(null);
     const bubbleRef = useRef(null);
     const rowRef = useRef(null);
     const longPressTimerRef = useRef(null);
 
-    const REACTION_EMOJIS = ['👍', '❤️', '😂', '😯', '😢', '😡'];
+    // Bộ cảm xúc mặc định của Messenger
+    const REACTION_EMOJIS = ['❤️', '😆', '😮', '😢', '😠', '👍'];
 
     useEffect(() => {
         if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -360,7 +364,7 @@ export default function MessageBubble({
 
     const triggerReactionEffect = async (emoji) => {
         if (reduceMotion) return;
-        if (!['❤️', '👍', '😂', '😯'].includes(emoji)) return;
+        if (!['❤️', '👍', '😆', '😮'].includes(emoji)) return;
         try {
             const { default: confetti } = await import('canvas-confetti');
             const rect = bubbleRef.current?.getBoundingClientRect();
@@ -477,6 +481,13 @@ export default function MessageBubble({
     const showSenderFrameBadge = useSenderFrameStyle && isClusterStart;
     const showCompactMeta = isClusterEnd || showActions || showEmojiPicker;
 
+    // Mỗi người một cảm xúc; nhãn dưới bong bóng hiện tối đa 3 emoji nhiều nhất và tổng số
+    const reactions = message.reactions || [];
+    const myReaction = reactions.find((r) => String(r.user?._id || r.user) === user?._id)?.emoji;
+    const reactionSummary = Object.entries(
+        reactions.reduce((acc, r) => ({ ...acc, [r.emoji]: (acc[r.emoji] || 0) + 1 }), {})
+    ).sort((a, b) => b[1] - a[1]);
+
     const senderLinkClassName = frameIsLight ? 'text-slate-900' : 'text-white';
     const senderMentionClassName = frameIsLight ? 'font-semibold text-slate-900' : 'font-semibold text-white';
     const senderInlineCodeClassName = frameIsLight ? 'bg-black/10' : 'bg-white/20';
@@ -497,6 +508,16 @@ export default function MessageBubble({
     const senderName = senderNickname || message.sender?.username || 'Unknown';
     const showSenderAvatar = !isOwn && (isAI || isClusterEnd);
 
+    // Mở thanh cảm xúc; tin nhắn sát mép trên khung chat thì hiện thanh bên dưới để không bị che
+    const openEmojiPicker = () => {
+        const rect = bubbleRef.current?.getBoundingClientRect();
+        let scroller = bubbleRef.current?.parentElement;
+        while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement;
+        const topLimit = scroller ? scroller.getBoundingClientRect().top : 0;
+        setPickerBelow(!!rect && rect.top - topLimit < 64);
+        setShowEmojiPicker(true);
+    };
+
     const startLongPressMenu = () => {
         if (!isTouchDevice || selectionMode) return;
         if (longPressTimerRef.current) {
@@ -505,6 +526,7 @@ export default function MessageBubble({
 
         longPressTimerRef.current = setTimeout(() => {
             setShowActions(true);
+            openEmojiPicker();
         }, 360);
     };
 
@@ -728,9 +750,19 @@ export default function MessageBubble({
                     onClose={() => setLightbox(null)}
                 />
             )}
+            {showReactionDetails && reactions.length > 0 && (
+                <ReactionDetailsModal
+                    reactions={reactions}
+                    members={roomMembers}
+                    nicknames={nicknames}
+                    myId={user?._id}
+                    onRemove={(emoji) => onReact?.(message._id, emoji)}
+                    onClose={() => setShowReactionDetails(false)}
+                />
+            )}
             <motion.div
                 ref={rowRef}
-                className={`chat-message-row ${isClusterEnd ? 'chat-cluster-end' : 'chat-cluster-mid'} flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+                className={`chat-message-row group ${isClusterEnd ? 'chat-cluster-end' : 'chat-cluster-mid'} flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'} ${showActions || showEmojiPicker ? 'relative z-20' : ''}`}
                 onClick={(event) => {
                     if (selectionMode) {
                         event.preventDefault();
@@ -797,6 +829,7 @@ export default function MessageBubble({
                         )}
 
                         {/* Main bubble */}
+                        <div className={`relative ${reactionSummary.length ? 'mb-3.5' : ''}`}>
                         <motion.div
                             ref={bubbleRef}
                             className={`relative rounded-2xl ${message.type === 'location'
@@ -1042,6 +1075,112 @@ export default function MessageBubble({
                             )}
                         </motion.div>
 
+                        {/* Nhãn cảm xúc đè lên góc dưới bong bóng (giống Messenger) */}
+                        {reactionSummary.length > 0 && (
+                            <motion.button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowReactionDetails(true);
+                                }}
+                                className={`absolute -bottom-3.5 right-2 z-[3] flex items-center rounded-full border py-0.5 text-[13px] leading-none shadow-sm ${reactions.length > 1 ? 'pl-1 pr-1.5' : 'px-1'}`}
+                                style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+                                title="Xem ai đã thả cảm xúc"
+                                initial={reduceMotion ? false : { scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+                                whileHover={{ scale: 1.06 }}
+                            >
+                                <span className="flex -space-x-0.5">
+                                    {reactionSummary.slice(0, 3).map(([emoji]) => <span key={emoji}>{emoji}</span>)}
+                                </span>
+                                {reactions.length > 1 && <span className="ml-1 text-xs">{reactions.length}</span>}
+                            </motion.button>
+                        )}
+
+                        {/* Thanh hành động khi rê chuột (giống Messenger): thả cảm xúc nằm sát bong bóng, rồi menu */}
+                        {!selectionMode && message.type !== 'system' && (
+                            <div
+                                className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? 'right-full mr-1 flex-row-reverse' : 'left-full ml-1'} flex items-center gap-0.5 transition-opacity ${showActions || showEmojiPicker || isTouchDevice
+                                    ? 'opacity-100'
+                                    : 'opacity-0 group-hover:opacity-100'
+                                }`}
+                            >
+                                {!isTouchDevice && (
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setShowActions(false);
+                                            if (showEmojiPicker) setShowEmojiPicker(false);
+                                            else openEmojiPicker();
+                                        }}
+                                        className={`p-1.5 rounded-full transition ${showEmojiPicker
+                                            ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
+                                            : 'text-[var(--text-tertiary)] hover:bg-[var(--bg-hover)]'
+                                        }`}
+                                        title="Bày tỏ cảm xúc"
+                                    >
+                                        <SmilePlus size={16} />
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setShowEmojiPicker(false);
+                                        setShowActions((prev) => !prev);
+                                    }}
+                                    className={`p-1.5 rounded-full transition ${showActions
+                                        ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
+                                        : 'text-[var(--text-tertiary)] hover:bg-[var(--bg-hover)]'
+                                    }`}
+                                    title="Mở menu hành động"
+                                >
+                                    <MoreHorizontal size={16} />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Thanh chọn cảm xúc phía trên bong bóng */}
+                        <AnimatePresence>
+                            {!selectionMode && showEmojiPicker && (
+                                <motion.div
+                                    className={`absolute ${pickerBelow ? `top-full ${reactionSummary.length ? 'mt-6' : 'mt-2'}` : 'bottom-full mb-2'} ${isOwn ? 'right-0' : 'left-0'} z-[60] flex items-center gap-0.5 rounded-full border px-1.5 py-1 shadow-lg`}
+                                    style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
+                                    onClick={(e) => e.stopPropagation()}
+                                    initial={{ opacity: 0, y: pickerBelow ? -8 : 8, scale: 0.85 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: pickerBelow ? -8 : 8, scale: 0.85 }}
+                                    transition={{ duration: reduceMotion ? 0 : 0.16, ease: 'easeOut' }}
+                                >
+                                    {REACTION_EMOJIS.map((emoji, index) => (
+                                        <motion.button
+                                            key={emoji}
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onReact?.(message._id, emoji);
+                                                if (emoji !== myReaction) triggerReactionEffect(emoji);
+                                                setShowEmojiPicker(false);
+                                                setShowActions(false);
+                                            }}
+                                            className={`w-10 h-10 flex items-center justify-center rounded-full text-[26px] leading-none ${myReaction === emoji ? 'bg-[var(--bg-hover)]' : ''}`}
+                                            title={myReaction === emoji ? 'Gỡ cảm xúc' : undefined}
+                                            initial={reduceMotion ? false : { opacity: 0, y: 6, scale: 0.6 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            transition={{ delay: reduceMotion ? 0 : index * 0.025, type: 'spring', stiffness: 500, damping: 22 }}
+                                            whileHover={reduceMotion ? undefined : { scale: 1.3, y: -4 }}
+                                            whileTap={{ scale: 0.9 }}
+                                        >
+                                            {emoji}
+                                        </motion.button>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        </div>
+
                         {/* Show original text when translation is being displayed */}
                         {hasTranslation && (
                             <div className="mt-1">
@@ -1086,29 +1225,11 @@ export default function MessageBubble({
 
                         {/* Message actions */}
                         {!selectionMode && message.type !== 'system' && (
-                            <button
-                                type="button"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    setShowEmojiPicker(false);
-                                    setShowActions((prev) => !prev);
-                                }}
-                                className={`absolute ${isOwn ? '-left-8' : '-right-8'} top-0 p-1 rounded-full transition ${showActions
-                                    ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)] opacity-100'
-                                    : 'text-[var(--text-tertiary)] opacity-80 hover:bg-[var(--bg-hover)]'
-                                }`}
-                                title="Mở menu hành động"
-                            >
-                                <MoreHorizontal size={14} />
-                            </button>
-                        )}
-
-                        {!selectionMode && message.type !== 'system' && (
                             <div
                                 className={`absolute ${isTouchDevice
-                                    ? (isOwn ? 'left-0 -top-10' : 'right-0 -top-10')
-                                    : (isOwn ? '-left-24 bottom-1' : '-right-20 bottom-1')
-                                } flex items-center gap-1 rounded-full bg-white border border-gray-200 px-1 py-0.5 shadow-sm transition ${showActions
+                                    ? (isOwn ? 'right-0 top-full mt-2' : 'left-0 top-full mt-2')
+                                    : (isOwn ? 'right-full mr-1 bottom-full' : 'left-full ml-1 bottom-full')
+                                } z-[60] flex items-center gap-1 rounded-full bg-white border border-gray-200 px-1 py-0.5 shadow-sm transition ${showActions
                                     ? 'opacity-100 pointer-events-auto'
                                     : 'opacity-0 pointer-events-none'
                                 }`}
@@ -1212,93 +1333,7 @@ export default function MessageBubble({
                                 </motion.button>
                             </div>
                         )}
-
-                        {/* Reaction button */}
-                        {!selectionMode && (showActions || showEmojiPicker) && message.type !== 'system' && (
-                            <div className={`absolute ${isOwn ? '-left-8 top-0' : '-right-8 top-0'}`} ref={emojiPickerRef}>
-                                <motion.button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowEmojiPicker((v) => !v);
-                                    }}
-                                    className={`p-1 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] transition ${showEmojiPicker || showActions
-                                        ? 'opacity-100 text-[var(--color-primary)]'
-                                        : 'opacity-0 pointer-events-none'
-                                    }`}
-                                    title="Thả cảm xúc"
-                                    whileHover={{ scale: 1.08 }}
-                                    whileTap={{ scale: 0.92 }}
-                                >
-                                    <SmilePlus size={14} />
-                                </motion.button>
-
-                                {/* Emoji picker popover */}
-                                <AnimatePresence>
-                                    {showEmojiPicker && (
-                                        <motion.div
-                                        className={`absolute ${isOwn ? 'right-0' : 'left-0'} bottom-full mb-1 flex items-center gap-1 bg-white rounded-full shadow-lg border border-gray-200 px-2 py-1.5 z-[9999]`}
-                                        onClick={(e) => e.stopPropagation()}
-                                        initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 8, scale: 0.9 }}
-                                        transition={{ duration: reduceMotion ? 0 : 0.16, ease: 'easeOut' }}
-                                    >
-                                        {REACTION_EMOJIS.map((emoji) => (
-                                            <motion.button
-                                                key={emoji}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    onReact?.(message._id, emoji);
-                                                    triggerReactionEffect(emoji);
-                                                    setShowEmojiPicker(false);
-                                                    setShowActions(false);
-                                                }}
-                                                className="text-lg hover:scale-125 transition-transform px-0.5 cursor-pointer"
-                                                whileHover={{ scale: 1.18 }}
-                                                whileTap={{ scale: 0.88 }}
-                                            >
-                                                {emoji}
-                                            </motion.button>
-                                        ))}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        )}
                     </div>
-
-                    {/* Reactions display */}
-                    {message.reactions?.length > 0 && (() => {
-                        const grouped = {};
-                        message.reactions.forEach((r) => {
-                            if (!grouped[r.emoji]) grouped[r.emoji] = [];
-                            grouped[r.emoji].push(r.user?.toString?.() || r.user);
-                        });
-                        const myId = user?._id;
-                        return (
-                            <div className={`flex flex-wrap gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                                {Object.entries(grouped).map(([emoji, users]) => {
-                                    const isMine = users.includes(myId);
-                                    return (
-                                        <motion.button
-                                            key={emoji}
-                                            onClick={() => onReact?.(message._id, emoji)}
-                                            className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full border transition-colors
-                                                ${isMine
-                                                    ? 'bg-[var(--color-primary-light)] border-[var(--color-primary)] text-[var(--color-primary)]'
-                                                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                                                }`}
-                                            whileHover={{ y: -1, scale: 1.03 }}
-                                            whileTap={{ scale: 0.96 }}
-                                        >
-                                            <span>{emoji}</span>
-                                            {users.length > 1 && <span>{users.length}</span>}
-                                        </motion.button>
-                                    );
-                                })}
-                            </div>
-                        );
-                    })()}
                 </div>
             </motion.div>
         </>
