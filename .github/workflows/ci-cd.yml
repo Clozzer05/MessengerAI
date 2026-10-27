@@ -30,7 +30,7 @@ jobs:
       - name: Tạo .env chỉ để build
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
-        run: printf 'DOMAIN=%s\nJWT_SECRET=build-only\nVITE_GOOGLE_CLIENT_ID=%s\n' "$DOMAIN" "$VITE_GOOGLE_CLIENT_ID" > .env
+        run: printf 'DOMAIN=%s\nJWT_SECRET=build-only\nTURN_SECRET=build-only\nTURN_EXTERNAL_IP=0.0.0.0\nVITE_GOOGLE_CLIENT_ID=%s\n' "$DOMAIN" "$VITE_GOOGLE_CLIENT_ID" > .env
 
       - name: Build image
         run: docker compose -f docker-compose.prod.yml build $APP_SERVICES
