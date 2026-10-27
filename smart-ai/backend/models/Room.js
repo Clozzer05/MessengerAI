@@ -54,11 +54,18 @@ const roomSchema = new mongoose.Schema({
     },
     members: [memberSchema],
 
-    // Danh sách chờ duyệt (chỉ group — admin duyệt trước khi vào members)
+    // Danh sách chờ duyệt (chỉ group — trưởng/phó nhóm duyệt trước khi vào members)
     pendingMembers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     }],
+
+    // Mã link mời vào nhóm (/join/:inviteCode), tạo khi có người lấy link lần đầu
+    inviteCode: {
+        type: String,
+        unique: true,
+        sparse: true,
+    },
 
     // Biệt danh trong room: { "userId": "nickname" }
     nicknames: {

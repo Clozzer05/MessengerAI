@@ -241,6 +241,10 @@ export const roomAPI = {
     approveMember: (id, userId) => api.put(`/rooms/${id}/approve`, { userId }),
     rejectMember: (id, userId) => api.put(`/rooms/${id}/reject`, { userId }),
     getPending: (id) => api.get(`/rooms/${id}/pending`),
+    getInvite: (id) => api.get(`/rooms/${id}/invite`),
+    resetInvite: (id) => api.put(`/rooms/${id}/invite`),
+    previewInvite: (code) => api.get(`/rooms/invite/${code}`),
+    joinByInvite: (code) => api.post(`/rooms/invite/${code}/join`),
     updateGroupSettings: (id, data) => api.put(`/rooms/${id}/settings`, data),
     // New chat features
     deleteChat: (id) => api.delete(`/rooms/${id}/chat`),

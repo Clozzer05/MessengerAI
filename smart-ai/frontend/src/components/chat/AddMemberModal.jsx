@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { X, Search, Loader2, UserPlus, Check } from 'lucide-react';
 import { friendAPI, roomAPI } from '../../services/api';
+import { emitToast } from '../../utils/toast';
 
-export default function AddMemberModal({ roomId, existingMemberIds, onClose, onAdded }) {
+// Trưởng/phó nhóm thêm thẳng; thành viên thường chỉ mời được, người được mời vào danh sách chờ duyệt
+export default function AddMemberModal({ roomId, existingMemberIds, canAddDirectly, onClose, onAdded }) {
     const [friends, setFriends] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
@@ -27,11 +29,18 @@ export default function AddMemberModal({ roomId, existingMemberIds, onClose, onA
         console.log('Adding member:', userId);
         setAddingId(userId);
         try {
-            const { data } = await roomAPI.addMember(roomId, userId);
-            setAddedIds((prev) => new Set(prev).add(userId));
-            onAdded?.(data.room);
+            if (canAddDirectly) {
+                const { data } = await roomAPI.addMember(roomId, userId);
+                setAddedIds((prev) => new Set(prev).add(userId));
+                onAdded?.(data.room);
+            } else {
+                await roomAPI.requestJoin(roomId, userId);
+                setAddedIds((prev) => new Set(prev).add(userId));
+                emitToast('Đã mời, chờ trưởng nhóm hoặc phó nhóm duyệt', { type: 'success' });
+                onAdded?.();
+            }
         } catch (err) {
-            console.error('Add member error:', err);
+            emitToast(err.response?.data?.error || 'Không thêm được thành viên', { type: 'error' });
         } finally {
             setAddingId(null);
         }
@@ -53,11 +62,15 @@ export default function AddMemberModal({ roomId, existingMemberIds, onClose, onA
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
             <div className="bg-white rounded-2xl w-full max-w-sm mx-4 shadow-xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                    <h3 className="font-semibold text-gray-900">Thêm thành viên</h3>
+                    <h3 className="font-semibold text-gray-900">{canAddDirectly ? 'Thêm thành viên' : 'Mời thành viên'}</h3>
                     <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
                         <X size={18} />
                     </button>
                 </div>
+
+                {!canAddDirectly && (
+                    <p className="px-5 pt-3 text-xs text-gray-500">Người bạn mời sẽ vào danh sách chờ, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
+                )}
 
                 {/* Search */}
                 <div className="px-5 py-3">
