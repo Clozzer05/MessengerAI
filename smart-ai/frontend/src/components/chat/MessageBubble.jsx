@@ -92,7 +92,6 @@ export default function MessageBubble({
     onToggleSelect,
     onQuickReply,
     roomMembers,
-    isClusterStart = true,
     isClusterEnd = true,
 }) {
     const { user } = useAuth();
@@ -476,9 +475,7 @@ export default function MessageBubble({
     const frameIsLight = !!senderBubbleFrame?.isLightFrame;
     const senderContentTextClass = frameIsLight ? 'text-slate-900' : 'text-white';
     const senderMetaTextClass = senderBubbleFrame?.metaTextClass || (frameIsLight ? 'text-slate-700/80' : 'text-white/75');
-    const senderBadgeClass = senderBubbleFrame?.badgeClass || 'bg-white/90 text-[var(--color-primary)] border-white/70';
     const useSenderFrameStyle = !isAI && !isEmojiOnlyMessage && !isStickerMessage && message.type !== 'location';
-    const showSenderFrameBadge = useSenderFrameStyle && isClusterStart;
     const showCompactMeta = isClusterEnd || showActions || showEmojiPicker;
 
     // Mỗi người một cảm xúc; nhãn dưới bong bóng hiện tối đa 3 emoji nhiều nhất và tổng số
@@ -855,15 +852,6 @@ export default function MessageBubble({
                             animate={reduceMotion ? { x: 0 } : (shouldShake ? { x: [0, -2, 2, -1, 1, 0] } : { x: 0 })}
                             transition={reduceMotion ? { duration: 0 } : { duration: 0.36, ease: 'easeInOut' }}
                         >
-                            {showSenderFrameBadge && (
-                                <span
-                                    className={`absolute -top-2 -right-2 z-[2] w-6 h-6 rounded-full border text-[11px] leading-none flex items-center justify-center shadow-sm ${senderBadgeClass}`}
-                                    title={senderBubbleFrame?.name || 'Khung chat'}
-                                >
-                                    {senderBubbleFrame?.icon || '💬'}
-                                </span>
-                            )}
-
                             {/* Forward indicator */}
                             {message.forwardedFrom && (
                                 <p className={`text-[10px] mb-1 flex items-center gap-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-gray-400'}`}>
