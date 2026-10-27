@@ -1,0 +1,19 @@
+# Tên miền lấy từ biến DOMAIN trong .env. Caddy tự xin và gia hạn chứng chỉ HTTPS.
+
+{$DOMAIN} {
+	reverse_proxy frontend:80
+}
+
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
+office.{$DOMAIN} {
+	reverse_proxy skyoffice-client:80
+}
+
+office-server.{$DOMAIN} {
+	# Trang giám sát Colyseus không có đăng nhập, không để lộ ra ngoài
+	respond /colyseus* 404
+	reverse_proxy skyoffice-server:2567
+}

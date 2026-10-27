@@ -1,0 +1,84 @@
+# Chạy production trên một máy: Caddy nhận cổng 80/443 (tự cấp HTTPS) rồi chuyển vào các container.
+# Các biến (DOMAIN, JWT_SECRET, GROQ_API_KEY...) đọc từ file .env cùng thư mục với file này.
+# Chạy: docker compose -f docker-compose.prod.yml up -d --build
+services:
+  # ─── Caddy (HTTPS + reverse proxy, cấu hình trong Caddyfile) ─────────
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${DOMAIN:?Cần đặt DOMAIN trong .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+      - skyoffice-client
+      - skyoffice-server
+    restart: unless-stopped
+
+  # ─── MongoDB (không mở cổng ra ngoài) ────────────────────────────────
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  # ─── Backend (Chat API + Socket.io) ───────────────────────────────────
+  backend:
+    build: ./smart-ai/backend
+    env_file:
+      - ./.env
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/smart_ai_chat
+      - JWT_SECRET=${JWT_SECRET:?Cần đặt JWT_SECRET trong .env}
+      - CORS_ORIGINS=https://${DOMAIN}
+      - CORS_ORIGIN_PATTERNS=https://${DOMAIN}
+      - PUBLIC_BASE_URL=https://${DOMAIN}
+    volumes:
+      - backend-uploads:/app/uploads
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  # ─── SkyOffice Game Server (Colyseus 0.14) ────────────────────────────
+  skyoffice-server:
+    build:
+      context: ./SkyOffice
+      dockerfile: Dockerfile.server
+    environment:
+      - PORT=2567
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  # ─── SkyOffice Client (Phaser + React, served by Nginx) ───────────────
+  skyoffice-client:
+    build:
+      context: ./SkyOffice
+      dockerfile: Dockerfile.client
+      args:
+        - VITE_SERVER_URL=wss://office-server.${DOMAIN}
+    restart: unless-stopped
+
+  # ─── Frontend (Chat App, nginx proxy /api, /socket.io, /uploads sang backend) ─
+  frontend:
+    build:
+      context: ./smart-ai/frontend
+      args:
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
+        - VITE_SKYOFFICE_URL=https://office.${DOMAIN}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+  backend-uploads:
+  caddy-data:
+  caddy-config:
