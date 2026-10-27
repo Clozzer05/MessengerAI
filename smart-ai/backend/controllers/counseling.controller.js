@@ -2,6 +2,7 @@ const CounselingSession = require('../models/CounselingSession');
 const { ANONYMOUS_PROFILE } = require('../utils/anonymity');
 const Room = require('../models/Room');
 const Message = require('../models/Message');
+const { User } = require('../models/User');
 
 const COUNSELING_CATEGORIES = [
     {
@@ -99,14 +100,16 @@ exports.createSession = async (req, res, next) => {
             aiMetadata: { isAIResponse: true },
         });
 
-        // Broadcast to experts so their dashboard updates in realtime
+        // Chỉ báo cho chuyên gia đúng lĩnh vực; phiên ẩn danh không lộ người hỏi
         const io = req.app.get('io');
         if (io) {
             const populated = await CounselingSession.findById(session._id)
                 .populate('user', 'username avatar googlePicture')
                 .populate('room', 'name updatedAt')
                 .lean();
-            io.emit('counseling:pending-added', { session: populated });
+            const experts = await User.find({ role: 'expert', expertCategories: category }).select('_id').lean();
+            const payload = { session: hideAnonymousUser(populated) };
+            experts.forEach((e) => io.to(e._id.toString()).emit('counseling:pending-added', payload));
         }
 
         res.status(201).json({ session, room, roomId: room._id, welcomeMessage });
@@ -170,12 +173,16 @@ exports.closeSession = async (req, res, next) => {
 // Expert joins the counseling session
 exports.joinExpert = async (req, res, next) => {
     try {
-        if (!['expert', 'sub_admin', 'super_admin'].includes(req.user.role)) {
+        if (req.user.role !== 'expert') {
             return res.status(403).json({ error: 'Chỉ chuyên gia mới có quyền nhận phiên tư vấn' });
         }
 
         const session = await CounselingSession.findById(req.params.id);
         if (!session) return res.status(404).json({ error: 'Phiên tư vấn không tồn tại' });
+
+        if (!req.user.expertCategories.includes(session.category)) {
+            return res.status(403).json({ error: 'Phiên này không thuộc lĩnh vực của bạn' });
+        }
 
         if (session.status === 'closed') {
             return res.status(400).json({ error: 'Phiên tư vấn đã đóng' });
@@ -239,10 +246,10 @@ exports.joinExpert = async (req, res, next) => {
     }
 };
 
-// ── Middleware: chỉ cho phép user role 'expert' hoặc admin ──
+// ── Middleware: chỉ chuyên gia mới tư vấn, admin không tham gia ──
 exports.requireExpert = (req, res, next) => {
     if (!req.user) return res.status(401).json({ error: 'Chưa đăng nhập' });
-    if (!['expert', 'sub_admin', 'super_admin'].includes(req.user.role)) {
+    if (req.user.role !== 'expert') {
         return res.status(403).json({ error: 'Chỉ chuyên gia mới có quyền truy cập' });
     }
     next();
@@ -256,12 +263,8 @@ const hideAnonymousUser = (session) => (session.isAnonymous
 // Expert dashboard: list sessions chưa có expert phụ trách
 exports.listPendingForExpert = async (req, res, next) => {
     try {
-        const filter = { expert: null, status: 'active' };
-        // Lọc theo chuyên môn nếu user expert có khai báo expertCategories
-        const me = req.user;
-        if (me.role === 'expert' && Array.isArray(me.expertCategories) && me.expertCategories.length > 0) {
-            filter.category = { $in: me.expertCategories };
-        }
+        // Chuyên gia chỉ thấy phiên thuộc lĩnh vực được giao; chưa được giao thì không thấy phiên nào
+        const filter = { expert: null, status: 'active', category: { $in: req.user.expertCategories } };
         const sessions = await CounselingSession.find(filter)
             .populate('user', 'username avatar googlePicture')
             .populate('room', 'name updatedAt')
@@ -293,6 +296,12 @@ exports.toggleAI = async (req, res, next) => {
         const { active } = req.body;
         const session = await CounselingSession.findById(req.params.id);
         if (!session) return res.status(404).json({ error: 'Phiên tư vấn không tồn tại' });
+
+        const isOwner = session.user.toString() === req.user._id.toString();
+        const isAssignedExpert = session.expert?.toString() === req.user._id.toString();
+        if (!isOwner && !isAssignedExpert) {
+            return res.status(403).json({ error: 'Không có quyền truy cập phiên này' });
+        }
 
         session.aiActive = !!active;
         await session.save();

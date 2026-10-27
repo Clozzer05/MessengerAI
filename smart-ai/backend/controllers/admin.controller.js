@@ -99,7 +99,7 @@ const getUserById = async (req, res) => {
 // ─── Cập nhật user (admin) ────────────────────────────────────────────
 const updateUser = async (req, res) => {
     try {
-        const { username, email, phoneNumber, role, isVerified, bio } = req.body;
+        const { username, email, phoneNumber, role, isVerified, bio, expertCategories } = req.body;
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
 
@@ -118,6 +118,13 @@ const updateUser = async (req, res) => {
         if (role !== undefined) user.role = role;
         if (isVerified !== undefined) user.isVerified = isVerified;
         if (bio !== undefined) user.bio = bio;
+        if (expertCategories !== undefined) user.expertCategories = expertCategories;
+
+        // Lĩnh vực chỉ áp dụng cho chuyên gia; chuyên gia phải được giao ít nhất một lĩnh vực
+        if (user.role !== 'expert') user.expertCategories = [];
+        else if (!user.expertCategories.length) {
+            return res.status(400).json({ error: 'Chuyên gia phải được giao ít nhất một lĩnh vực tư vấn' });
+        }
 
         await user.save({ validateModifiedOnly: true });
         await logAction(req.user._id, 'update_user', user._id, `Updated fields for ${user.username}`, req.ip);

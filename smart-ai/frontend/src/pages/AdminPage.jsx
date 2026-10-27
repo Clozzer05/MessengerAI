@@ -120,16 +120,43 @@ function DashboardTab({ stats }) {
 // ─── Users Tab ────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════
 
+const ROLE_HINTS = {
+    user: 'Người dùng thường: chat, gọi, hỏi tư vấn.',
+    expert: 'Chuyên gia: chỉ nhận và tư vấn các phiên thuộc lĩnh vực được giao.',
+    sub_admin: 'Sub Admin: xem báo cáo, khóa tạm và reset mật khẩu user thường; không sửa thông tin hay đổi vai trò.',
+    super_admin: 'Super Admin: toàn quyền quản trị, kể cả đổi vai trò và giao lĩnh vực cho chuyên gia.',
+};
+
+const EXPERT_CATEGORIES = [
+    { key: 'tam_ly', label: 'Tâm lý' },
+    { key: 'phap_luat', label: 'Pháp luật' },
+    { key: 'bao_luc_gia_dinh', label: 'Bạo lực gia đình' },
+    { key: 'suc_khoe', label: 'Sức khỏe' },
+    { key: 'giao_duc', label: 'Giáo dục' },
+];
+
 function EditUserModal({ user, onClose, onSave }) {
     const [form, setForm] = useState({
         username: user.username || '', email: user.email || '',
         phoneNumber: user.phoneNumber || '', bio: user.bio || '',
         role: user.role || 'user', isVerified: user.isVerified || false,
+        expertCategories: user.expertCategories || [],
     });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
 
+    const toggleCategory = (key) => setForm(f => ({
+        ...f,
+        expertCategories: f.expertCategories.includes(key)
+            ? f.expertCategories.filter(k => k !== key)
+            : [...f.expertCategories, key],
+    }));
+
     const handleSave = async () => {
+        if (form.role === 'expert' && !form.expertCategories.length) {
+            setError('Chuyên gia phải được giao ít nhất một lĩnh vực tư vấn');
+            return;
+        }
         setSaving(true); setError('');
         try { await onSave(user._id, form); onClose(); }
         catch (err) { setError(err.response?.data?.error || 'Lỗi khi cập nhật'); }
@@ -167,6 +194,18 @@ function EditUserModal({ user, onClose, onSave }) {
                                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                                 <option value="true">Đã xác thực</option><option value="false">Chưa xác thực</option></select></div>
                     </div>
+                    <p className="text-xs text-gray-500">{ROLE_HINTS[form.role]}</p>
+                    {form.role === 'expert' && (
+                        <div><label className="block text-sm font-medium text-gray-600 mb-1">Lĩnh vực tư vấn</label>
+                            <div className="flex flex-wrap gap-2">
+                                {EXPERT_CATEGORIES.map(c => (
+                                    <label key={c.key} className={`px-3 py-1.5 rounded-full border text-sm cursor-pointer select-none ${form.expertCategories.includes(c.key) ? 'bg-emerald-50 border-emerald-400 text-emerald-700' : 'border-gray-300 text-gray-600'}`}>
+                                        <input type="checkbox" className="sr-only" checked={form.expertCategories.includes(c.key)} onChange={() => toggleCategory(c.key)} />
+                                        {c.label}
+                                    </label>
+                                ))}
+                            </div></div>
+                    )}
                 </div>
                 <div className="flex gap-3 pt-2">
                     <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">Hủy</button>
@@ -348,6 +387,11 @@ function UsersTab({ currentUser }) {
                                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'super_admin' ? 'bg-purple-100 text-purple-700' : u.role === 'sub_admin' ? 'bg-blue-100 text-blue-700' : u.role === 'expert' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
                                             {u.role !== 'user' && <Shield size={12} />} {u.role === 'super_admin' ? 'Super Admin' : u.role === 'sub_admin' ? 'Sub Admin' : u.role === 'expert' ? 'Chuyên gia' : 'User'}
                                         </span>
+                                        {u.role === 'expert' && (
+                                            <p className="text-[11px] text-gray-400 mt-0.5">
+                                                {EXPERT_CATEGORIES.filter(c => u.expertCategories?.includes(c.key)).map(c => c.label).join(', ') || 'Chưa giao lĩnh vực'}
+                                            </p>
+                                        )}
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${u.status === 'online' ? 'bg-green-500' : u.status === 'busy' ? 'bg-yellow-500' : 'bg-gray-300'}`} />

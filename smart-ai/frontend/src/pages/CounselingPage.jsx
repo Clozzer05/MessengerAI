@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 export default function CounselingPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const isExpert = ['expert', 'sub_admin', 'super_admin'].includes(user?.role);
+    const isExpert = user?.role === 'expert';
 
     const [categories, setCategories] = useState([]);
     const [disclaimer, setDisclaimer] = useState('');

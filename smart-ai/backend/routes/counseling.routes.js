@@ -8,7 +8,7 @@ router.get('/categories', counselingController.getCategories);
 router.post('/sessions', counselingController.createSession);
 router.get('/sessions', counselingController.getSessions);
 
-// Expert dashboard (gated by role 'expert' or admin)
+// Expert dashboard (chỉ role 'expert')
 router.get('/expert/pending', counselingController.requireExpert, counselingController.listPendingForExpert);
 router.get('/expert/mine', counselingController.requireExpert, counselingController.listMineForExpert);
 
