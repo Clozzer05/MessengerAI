@@ -1012,9 +1012,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         <AnimatePresence initial={false}>
                             {allRenderableMessages
                                 .map((msg, index, list) => {
-                                    const prev = list[index - 1];
                                     const next = list[index + 1];
-                                    const isClusterStart = !isClusterMate(prev, msg);
                                     const isClusterEnd = !isClusterMate(msg, next);
 
                                     return (
@@ -1049,7 +1047,6 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                             onToggleSelect={toggleMessageSelection}
                                             onQuickReply={handleQuickReply}
                                             roomMembers={room?.members}
-                                            isClusterStart={isClusterStart}
                                             isClusterEnd={isClusterEnd}
                                         />
                                     </motion.div>
