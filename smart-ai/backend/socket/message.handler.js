@@ -111,26 +111,33 @@ module.exports = (io, socket) => {
             const message = await Message.create(messageData);
 
             // ── Track tương tác cho direct chat (cặp user) ──
+            // Chỉ là thống kê: lỗi ở đây không được chặn việc gửi tin nhắn
             if (room.type === 'direct') {
                 const otherMember = room.members.find((m) => m.user.toString() !== userId.toString());
                 if (otherMember) {
                     const participants = [userId.toString(), otherMember.user.toString()].sort();
-                    await ChatDuration.findOneAndUpdate(
-                        { participants },
-                        {
-                            $setOnInsert: {
-                                participants,
+                    const pairKey = ChatDuration.pairKeyOf(participants);
+                    try {
+                        await ChatDuration.findOneAndUpdate(
+                            { pairKey },
+                            {
+                                $setOnInsert: {
+                                    participants,
+                                    pairKey,
+                                },
+                                $set: {
+                                    roomId: room._id,
+                                    lastInteraction: new Date(),
+                                },
+                                $inc: {
+                                    totalMessages: 1,
+                                },
                             },
-                            $set: {
-                                roomId: room._id,
-                                lastInteraction: new Date(),
-                            },
-                            $inc: {
-                                totalMessages: 1,
-                            },
-                        },
-                        { upsert: true, new: true, setDefaultsOnInsert: true }
-                    );
+                            { upsert: true, new: true, setDefaultsOnInsert: true }
+                        );
+                    } catch (err) {
+                        console.error('ChatDuration update error:', err.message);
+                    }
                 }
             }
 
