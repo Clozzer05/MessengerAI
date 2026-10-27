@@ -36,7 +36,7 @@ export default function ExpertCounselingPage() {
     const [claimingId, setClaimingId] = useState(null);
     const myCatsRef = useRef(user?.expertCategories || []);
 
-    const isExpert = ['expert', 'sub_admin', 'super_admin'].includes(user?.role);
+    const isExpert = user?.role === 'expert';
 
     const reload = useCallback(async () => {
         setLoading(true);
@@ -150,6 +150,11 @@ export default function ExpertCounselingPage() {
                         <span className={`px-2 py-0.5 rounded-full text-xs ${tab === 'mine' ? 'bg-white/20' : 'bg-gray-100 text-gray-700'}`}>{mine.length}</span>
                     </button>
                 </div>
+                <p className="max-w-4xl mx-auto mt-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    {user?.expertCategories?.length
+                        ? `Lĩnh vực của bạn: ${user.expertCategories.map(k => CATEGORY_LABEL[k] || k).join(', ')}`
+                        : 'Bạn chưa được giao lĩnh vực nào nên chưa nhận được phiên tư vấn. Hãy liên hệ Super Admin.'}
+                </p>
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6">

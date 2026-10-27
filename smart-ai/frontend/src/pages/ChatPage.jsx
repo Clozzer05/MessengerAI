@@ -141,7 +141,7 @@ export default function ChatPage() {
                             </div>
                         </>
                     )}
-                    {user?.role && user.role !== 'user' && (
+                    {['sub_admin', 'super_admin'].includes(user?.role) && (
                         <button
                             onClick={() => navigate('/admin')}
                             className="p-1.5 rounded-full transition"
