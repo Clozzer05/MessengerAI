@@ -1,0 +1,64 @@
+# CI: mỗi PR đều build thử 4 image cho ARM64 (giống server EC2 t4g).
+# CD: push vào main thì đẩy image lên GHCR rồi SSH vào EC2 chạy deploy.sh.
+# Cần các secret: EC2_HOST, EC2_KNOWN_HOSTS, EC2_SSH_KEY. Biến (tùy chọn): VITE_GOOGLE_CLIENT_ID.
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  DOMAIN: 74tt21.software
+  APP_SERVICES: backend skyoffice-server skyoffice-client frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # docker-compose.prod.yml bắt buộc có .env; khi build chỉ cần các biến nhúng vào frontend
+      - name: Tạo .env chỉ để build
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+        run: printf 'DOMAIN=%s\nJWT_SECRET=build-only\nVITE_GOOGLE_CLIENT_ID=%s\n' "$DOMAIN" "$VITE_GOOGLE_CLIENT_ID" > .env
+
+      - name: Build image
+        run: docker compose -f docker-compose.prod.yml build $APP_SERVICES
+
+      - name: Đẩy image lên GHCR
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker compose -f docker-compose.prod.yml push $APP_SERVICES
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Deploy lên EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$EC2_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "${{ github.actor }} ${{ secrets.GITHUB_TOKEN }}" | ssh -i ~/.ssh/deploy_key "ubuntu@$EC2_HOST" deploy
+
+      - name: Kiểm tra API sau deploy
+        run: curl -fsS --retry 10 --retry-delay 5 --retry-all-errors "https://$DOMAIN/api/health"

@@ -1,6 +1,11 @@
 # Chạy production trên một máy: Caddy nhận cổng 80/443 (tự cấp HTTPS) rồi chuyển vào các container.
 # Các biến (DOMAIN, JWT_SECRET, GROQ_API_KEY...) đọc từ file .env cùng thư mục với file này.
-# Chạy: docker compose -f docker-compose.prod.yml up -d --build
+# Image được GitHub Actions build và đẩy lên GHCR (.github/workflows/ci-cd.yml), server chỉ kéo về qua deploy.sh.
+# Build tay trên máy: docker compose -f docker-compose.prod.yml up -d --build
+
+x-build-labels: &build-labels
+  org.opencontainers.image.source: https://github.com/Clozzer05/MessengerAI
+
 services:
   # ─── Caddy (HTTPS + reverse proxy, cấu hình trong Caddyfile) ─────────
   caddy:
@@ -30,7 +35,10 @@ services:
 
   # ─── Backend (Chat API + Socket.io) ───────────────────────────────────
   backend:
-    build: ./smart-ai/backend
+    image: ghcr.io/clozzer05/messengerai-backend:latest
+    build:
+      context: ./smart-ai/backend
+      labels: *build-labels
     env_file:
       - ./.env
     environment:
@@ -49,9 +57,11 @@ services:
 
   # ─── SkyOffice Game Server (Colyseus 0.14) ────────────────────────────
   skyoffice-server:
+    image: ghcr.io/clozzer05/messengerai-skyoffice-server:latest
     build:
       context: ./SkyOffice
       dockerfile: Dockerfile.server
+      labels: *build-labels
     environment:
       - PORT=2567
       - NODE_ENV=production
@@ -59,17 +69,21 @@ services:
 
   # ─── SkyOffice Client (Phaser + React, served by Nginx) ───────────────
   skyoffice-client:
+    image: ghcr.io/clozzer05/messengerai-skyoffice-client:latest
     build:
       context: ./SkyOffice
       dockerfile: Dockerfile.client
+      labels: *build-labels
       args:
         - VITE_SERVER_URL=wss://office-server.${DOMAIN}
     restart: unless-stopped
 
   # ─── Frontend (Chat App, nginx proxy /api, /socket.io, /uploads sang backend) ─
   frontend:
+    image: ghcr.io/clozzer05/messengerai-frontend:latest
     build:
       context: ./smart-ai/frontend
+      labels: *build-labels
       args:
         - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:-}
         - VITE_SKYOFFICE_URL=https://office.${DOMAIN}
