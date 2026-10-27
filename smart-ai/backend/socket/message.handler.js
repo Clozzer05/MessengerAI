@@ -341,10 +341,17 @@ module.exports = (io, socket) => {
     // ─── message:react ────────────────────────────────────────────────
     socket.on('message:react', async ({ messageId, roomId, emoji }) => {
         try {
-            if (!messageId || !roomId || !emoji) return;
+            if (!messageId || !roomId || typeof emoji !== 'string' || !emoji || emoji.length > 16) return;
 
             const message = await Message.findById(messageId);
             if (!message) return socket.emit('error', { message: 'Tin nhắn không tồn tại' });
+
+            // Chỉ thành viên của phòng chứa tin nhắn mới thả cảm xúc được
+            if (message.room.toString() !== String(roomId)) return;
+            const room = await Room.findById(roomId).select('members.user').lean();
+            if (!room?.members.some(m => m.user.toString() === userId.toString())) {
+                return socket.emit('error', { message: 'Bạn không phải thành viên' });
+            }
 
             const existingIdx = message.reactions.findIndex(
                 (r) => r.user.toString() === userId.toString()
