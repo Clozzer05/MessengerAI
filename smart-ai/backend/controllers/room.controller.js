@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const Room = require('../models/Room');
 const { getAnonymousOwners, getAnonymousOwner, displayNameInRoom, maskRoom, maskMessage, ownerToMaskFor, emitToRoomMasked } = require('../utils/anonymity');
 const Message = require('../models/Message');
@@ -142,10 +143,13 @@ exports.addMember = async (req, res, next) => {
             return res.status(404).json({ error: 'Group không tồn tại' });
         }
 
-        // Bất kỳ thành viên nào cũng có thể thêm người mới
+        // Trưởng/phó nhóm thêm thẳng; thành viên thường mời qua danh sách chờ duyệt (requestJoin)
         const currentMember = room.members.find(m => m.user.toString() === req.user._id.toString());
         if (!currentMember) {
             return res.status(403).json({ error: 'Bạn không phải thành viên của nhóm' });
+        }
+        if (!MANAGER_ROLES.includes(currentMember.role)) {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm hoặc phó nhóm mới thêm thẳng được thành viên' });
         }
 
         // Kiểm tra đã là member chưa
@@ -154,8 +158,11 @@ exports.addMember = async (req, res, next) => {
             return res.status(409).json({ error: 'User đã là thành viên' });
         }
 
+        const wasPending = room.pendingMembers.some(uid => uid.toString() === userId);
+        room.pendingMembers = room.pendingMembers.filter(uid => uid.toString() !== userId);
         room.members.push({ user: userId, role: 'member' });
         await room.save();
+        if (wasPending) emitPendingUpdated(req, room);
 
         const populated = await room.populate('members.user', 'username avatar googlePicture status preferredLanguage preferredLanguageLabel');
 
@@ -231,6 +238,23 @@ exports.leaveRoom = async (req, res, next) => {
         next(error);
     }
 };
+
+// Trưởng nhóm và phó nhóm quản lý thành viên: thêm thẳng, duyệt, đổi link mời
+const MANAGER_ROLES = ['admin', 'deputy'];
+const isManager = (room, userId) => room.members.some(
+    m => String(m.user._id || m.user) === userId.toString() && MANAGER_ROLES.includes(m.role)
+);
+
+// Báo trưởng/phó nhóm tải lại danh sách chờ duyệt
+const emitPendingUpdated = (req, room) => {
+    const io = req.app.get('io');
+    if (!io) return;
+    room.members.filter(m => MANAGER_ROLES.includes(m.role)).forEach(m => {
+        io.to(String(m.user._id || m.user)).emit('room:pending-updated', { roomId: room._id.toString() });
+    });
+};
+
+const newInviteCode = () => crypto.randomBytes(9).toString('base64url');
 
 // Gửi danh sách thành viên mới cho mọi thành viên còn trong nhóm
 const emitMembersUpdated = async (req, room) => {
@@ -450,17 +474,7 @@ exports.requestJoin = async (req, res, next) => {
 
         room.pendingMembers.push(targetId);
         await room.save();
-
-        // Thông báo realtime cho admin
-        const io = req.app.get('io');
-        if (io) {
-            room.members.filter(m => m.role === 'admin').forEach(admin => {
-                io.to(`user:${admin.user.toString()}`).emit('room:pending-member', {
-                    roomId: id,
-                    userId: targetId,
-                });
-            });
-        }
+        emitPendingUpdated(req, room);
 
         res.json({ message: 'Đã thêm vào danh sách chờ duyệt' });
     } catch (error) {
@@ -479,10 +493,8 @@ exports.approveMember = async (req, res, next) => {
             return res.status(404).json({ error: 'Nhóm không tồn tại' });
         }
 
-        // Kiểm tra quyền admin
-        const currentMember = room.members.find(m => m.user.toString() === req.user._id.toString());
-        if (!currentMember || currentMember.role !== 'admin') {
-            return res.status(403).json({ error: 'Chỉ admin mới có quyền duyệt' });
+        if (!isManager(room, req.user._id)) {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm hoặc phó nhóm mới có quyền duyệt' });
         }
 
         // Kiểm tra user có trong danh sách chờ không
@@ -496,13 +508,9 @@ exports.approveMember = async (req, res, next) => {
         room.members.push({ user: userId, role: 'member' });
         await room.save();
 
-        const populated = await room.populate('members.user', 'username avatar googlePicture status preferredLanguage preferredLanguageLabel');
-
-        // Thông báo realtime
-        const io = req.app.get('io');
-        if (io) {
-            io.to(`user:${userId}`).emit('room:approved', { roomId: id });
-        }
+        const populated = await emitMembersUpdated(req, room);
+        req.app.get('io')?.to(userId).emit('room:approved', { roomId: id, roomName: room.name });
+        emitPendingUpdated(req, room);
 
         res.json({ room: populated });
     } catch (error) {
@@ -521,9 +529,8 @@ exports.rejectMember = async (req, res, next) => {
             return res.status(404).json({ error: 'Nhóm không tồn tại' });
         }
 
-        const currentMember = room.members.find(m => m.user.toString() === req.user._id.toString());
-        if (!currentMember || currentMember.role !== 'admin') {
-            return res.status(403).json({ error: 'Chỉ admin mới có quyền từ chối' });
+        if (!isManager(room, req.user._id)) {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm hoặc phó nhóm mới có quyền từ chối' });
         }
 
         const isPending = room.pendingMembers.some(uid => uid.toString() === userId);
@@ -533,6 +540,7 @@ exports.rejectMember = async (req, res, next) => {
 
         room.pendingMembers = room.pendingMembers.filter(uid => uid.toString() !== userId);
         await room.save();
+        emitPendingUpdated(req, room);
 
         res.json({ message: 'Đã từ chối' });
     } catch (error) {
@@ -550,12 +558,95 @@ exports.getPendingMembers = async (req, res, next) => {
             return res.status(404).json({ error: 'Nhóm không tồn tại' });
         }
 
-        const currentMember = room.members.find(m => m.user.toString() === req.user._id.toString());
-        if (!currentMember || currentMember.role !== 'admin') {
-            return res.status(403).json({ error: 'Chỉ admin mới xem được' });
+        if (!isManager(room, req.user._id)) {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm hoặc phó nhóm mới xem được' });
         }
 
         res.json({ pendingMembers: room.pendingMembers });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ─── Link mời vào nhóm ──────────────────────────────────────────────
+// Thành viên nào cũng lấy được link; người vào bằng link phải chờ trưởng/phó nhóm duyệt.
+exports.getInviteLink = async (req, res, next) => {
+    try {
+        const room = await Room.findById(req.params.id);
+        if (!room || room.type !== 'group') {
+            return res.status(404).json({ error: 'Nhóm không tồn tại' });
+        }
+        if (!room.members.some(m => m.user.toString() === req.user._id.toString())) {
+            return res.status(403).json({ error: 'Bạn không phải thành viên của nhóm' });
+        }
+
+        if (!room.inviteCode) {
+            room.inviteCode = newInviteCode();
+            await room.save();
+        }
+        res.json({ inviteCode: room.inviteCode });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Trưởng/phó nhóm tạo link mới, link cũ hết hiệu lực
+exports.resetInviteLink = async (req, res, next) => {
+    try {
+        const room = await Room.findById(req.params.id);
+        if (!room || room.type !== 'group') {
+            return res.status(404).json({ error: 'Nhóm không tồn tại' });
+        }
+        if (!isManager(room, req.user._id)) {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm hoặc phó nhóm mới đổi được link mời' });
+        }
+
+        room.inviteCode = newInviteCode();
+        await room.save();
+        res.json({ inviteCode: room.inviteCode });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Xem trước nhóm từ link mời
+exports.getInvitePreview = async (req, res, next) => {
+    try {
+        const room = await Room.findOne({ inviteCode: req.params.code, type: 'group' });
+        if (!room) {
+            return res.status(404).json({ error: 'Link mời không hợp lệ hoặc đã bị đổi' });
+        }
+
+        const me = req.user._id.toString();
+        const status = room.members.some(m => m.user.toString() === me) ? 'member'
+            : room.pendingMembers.some(uid => uid.toString() === me) ? 'pending'
+                : 'none';
+        res.json({
+            room: { _id: room._id, name: room.name, groupAvatar: room.groupAvatar, memberCount: room.members.length },
+            status,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Xin vào nhóm bằng link mời: vào danh sách chờ duyệt
+exports.joinByInvite = async (req, res, next) => {
+    try {
+        const room = await Room.findOne({ inviteCode: req.params.code, type: 'group' });
+        if (!room) {
+            return res.status(404).json({ error: 'Link mời không hợp lệ hoặc đã bị đổi' });
+        }
+
+        const me = req.user._id.toString();
+        if (room.members.some(m => m.user.toString() === me)) {
+            return res.json({ status: 'member', roomId: room._id });
+        }
+        if (!room.pendingMembers.some(uid => uid.toString() === me)) {
+            await Room.updateOne({ _id: room._id }, { $addToSet: { pendingMembers: req.user._id } });
+            emitPendingUpdated(req, room);
+        }
+        res.json({ status: 'pending' });
     } catch (error) {
         next(error);
     }

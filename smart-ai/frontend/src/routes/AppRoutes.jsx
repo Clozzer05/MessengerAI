@@ -6,7 +6,7 @@
  * with no auth logic at the top level.
  */
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
@@ -26,6 +26,7 @@ const AdminPage = lazy(() => import('../pages/AdminPage'));
 const CounselingPage = lazy(() => import('../pages/CounselingPage'));
 const ExpertCounselingPage = lazy(() => import('../pages/ExpertCounselingPage'));
 const OfficePage = lazy(() => import('../pages/OfficePage'));
+const JoinGroupPage = lazy(() => import('../pages/JoinGroupPage'));
 
 // ── Loading fallback ───────────────────────────────────────────
 function LoadingScreen() {
@@ -76,8 +77,12 @@ function LoadingScreen() {
 // ── Route guards ───────────────────────────────────────────────
 function PrivateRoute({ children }) {
     const { user, loading } = useAuth();
+    const { pathname } = useLocation();
+    // Nhớ trang đang mở (vd. link mời nhóm) để đăng nhập xong quay lại.
+    // state phải giữ nguyên giữa các lần render, nếu không <Navigate> chuyển trang lặp vô hạn
+    const loginState = useMemo(() => ({ from: pathname }), [pathname]);
     if (loading) return <LoadingScreen />;
-    return user ? children : <Navigate to="/login" replace />;
+    return user ? children : <Navigate to="/login" replace state={loginState} />;
 }
 
 function PublicRoute({ children }) {
@@ -187,6 +192,14 @@ export default function AppRoutes() {
                             element={
                                 <PrivateRoute>
                                     <ExpertCounselingPage />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/join/:code"
+                            element={
+                                <PrivateRoute>
+                                    <JoinGroupPage />
                                 </PrivateRoute>
                             }
                         />

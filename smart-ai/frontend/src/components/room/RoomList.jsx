@@ -93,6 +93,16 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
         return () => off('room:removed', handleRemoved);
     }, [on, off]);
 
+    // Được trưởng/phó nhóm duyệt vào nhóm: tải lại danh sách để thấy nhóm mới
+    useEffect(() => {
+        const handleApproved = ({ roomName }) => {
+            loadRooms();
+            emitToast(`Bạn đã được duyệt vào nhóm ${roomName || ''}`.trim(), { type: 'success' });
+        };
+        on('room:approved', handleApproved);
+        return () => off('room:approved', handleApproved);
+    }, [on, off]);
+
     // Listen for new messages (sidebar update + unread badge)
     useEffect(() => {
         const handleNewMessage = ({ roomId: msgRoomId, lastMessage, senderId }) => {

@@ -9,10 +9,11 @@ import PendingMembers from './PendingMembers';
 import NicknameModal from './NicknameModal';
 import ReportModal from './ReportModal';
 import AddMemberModal from './AddMemberModal';
+import InviteLinkModal from './InviteLinkModal';
 import OwnerTransferModal from './OwnerTransferModal';
 import {
     X, Users, Bell, BellOff, Ban, Flag, LogOut, UserPlus,
-    ChevronDown, ChevronUp, Edit3, Shield, Loader2, Crown, Eye,
+    ChevronDown, ChevronUp, Edit3, Shield, Loader2, Crown, Eye, Link2,
 } from 'lucide-react';
 
 export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
@@ -31,11 +32,13 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
     const [nicknameTarget, setNicknameTarget] = useState(null);
     const [showReport, setShowReport] = useState(false);
     const [showAddMember, setShowAddMember] = useState(false);
+    const [showInvite, setShowInvite] = useState(false);
     const [showOwnerTransfer, setShowOwnerTransfer] = useState(false);
 
     const isGroup = room?.type === 'group';
     const myMember = room?.members?.find((m) => (m.user?._id || m.user) === user?._id);
-    const isAdmin = myMember?.role === 'admin';
+    // Trưởng nhóm và phó nhóm: thêm thẳng thành viên, duyệt danh sách chờ, đổi link mời
+    const canManage = ['admin', 'deputy'].includes(myMember?.role);
 
     // For 1-1 chats
     const otherMember = !isGroup
@@ -101,13 +104,20 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
         };
     }, [isGroup, room, on, off, onRoomUpdate]);
 
-    // Load pending members for admin
+    // Load pending members for trưởng/phó nhóm, tải lại khi có người xin vào hoặc được duyệt
+    const roomId = room?._id;
     useEffect(() => {
-        if (!isGroup || !isAdmin || !room?._id) return;
-        roomAPI.getPending(room._id).then(({ data }) => {
+        if (!isGroup || !canManage || !roomId) return;
+        const loadPending = () => roomAPI.getPending(roomId).then(({ data }) => {
             setPendingMembers(data.pendingMembers || []);
         }).catch(() => { });
-    }, [isGroup, isAdmin, room]);
+        const handlePendingUpdated = (payload) => {
+            if (payload.roomId === roomId) loadPending();
+        };
+        loadPending();
+        on('room:pending-updated', handlePendingUpdated);
+        return () => off('room:pending-updated', handlePendingUpdated);
+    }, [isGroup, canManage, roomId, on, off]);
 
     // Listen for real-time group settings updates
     useEffect(() => {
@@ -348,7 +358,16 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
                                 >
                                     <UserPlus size={16} className="text-gray-400" />
-                                    Thêm thành viên
+                                    {canManage ? 'Thêm thành viên' : 'Mời thành viên'}
+                                </button>
+
+                                {/* Invite link */}
+                                <button
+                                    onClick={() => setShowInvite(true)}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                >
+                                    <Link2 size={16} className="text-gray-400" />
+                                    Link mời vào nhóm
                                 </button>
 
                                 {/* Set nickname for self */}
@@ -415,8 +434,8 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                 )}
                             </div>
 
-                            {/* ─── Pending members (admin only) ─── */}
-                            {isAdmin && (
+                            {/* ─── Pending members (trưởng/phó nhóm) ─── */}
+                            {canManage && (
                                 <div className="px-2 py-3 border-b border-gray-100">
                                     <button
                                         onClick={() => setShowPending(!showPending)}
@@ -471,6 +490,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                 <AddMemberModal
                     roomId={room._id}
                     existingMemberIds={existingMemberIds}
+                    canAddDirectly={canManage}
                     onClose={() => setShowAddMember(false)}
                     onAdded={(updatedRoom) => {
                         if (updatedRoom) {
@@ -478,6 +498,14 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                         }
                         setShowAddMember(false);
                     }}
+                />
+            )}
+
+            {showInvite && (
+                <InviteLinkModal
+                    roomId={room._id}
+                    canReset={canManage}
+                    onClose={() => setShowInvite(false)}
                 />
             )}
 

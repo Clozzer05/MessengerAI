@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -37,6 +37,8 @@ function GoogleLoginButton({ disabled, onError, onSuccess }) {
 export default function LoginPage() {
     const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTo = location.state?.from || '/';
     const [form, setForm] = useState({ email: '', password: '' });
     const [showPwd, setShowPwd] = useState(false);
     const [error, setError] = useState('');
@@ -49,7 +51,7 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await login(form);
-            navigate('/');
+            navigate(redirectTo);
         } catch (err) {
             setError(err.response?.data?.error || 'Đăng nhập thất bại');
         } finally {
@@ -135,7 +137,7 @@ export default function LoginPage() {
                                 setGoogleLoading(true);
                                 try {
                                     await loginWithGoogle({ credential: tokenResponse.access_token });
-                                    navigate('/');
+                                    navigate(redirectTo);
                                 } catch (err) {
                                     setError(err.response?.data?.error || 'Đăng nhập Google thất bại');
                                 } finally {

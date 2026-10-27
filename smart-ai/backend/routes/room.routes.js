@@ -11,6 +11,12 @@ router.post('/', roomController.createRoom);
 // GET /api/rooms            (danh sách rooms của user)
 router.get('/', roomController.getUserRooms);
 
+// GET  /api/rooms/invite/:code       (xem trước nhóm từ link mời)
+router.get('/invite/:code', roomController.getInvitePreview);
+
+// POST /api/rooms/invite/:code/join  (xin vào nhóm bằng link mời, chờ duyệt)
+router.post('/invite/:code/join', roomController.joinByInvite);
+
 // GET /api/rooms/:id        (chi tiết room)
 router.get('/:id', roomController.getRoomById);
 
@@ -39,14 +45,20 @@ router.put('/:id/mute', roomController.toggleMute);
 // POST /api/rooms/:id/request-join (mời người vào danh sách chờ)
 router.post('/:id/request-join', roomController.requestJoin);
 
-// PUT  /api/rooms/:id/approve      (admin duyệt thành viên)
+// PUT  /api/rooms/:id/approve      (trưởng/phó nhóm duyệt thành viên)
 router.put('/:id/approve', roomController.approveMember);
 
-// PUT  /api/rooms/:id/reject       (admin từ chối thành viên)
+// PUT  /api/rooms/:id/reject       (trưởng/phó nhóm từ chối thành viên)
 router.put('/:id/reject', roomController.rejectMember);
 
 // GET  /api/rooms/:id/pending      (lấy danh sách chờ duyệt)
 router.get('/:id/pending', roomController.getPendingMembers);
+
+// GET  /api/rooms/:id/invite       (lấy link mời nhóm)
+router.get('/:id/invite', roomController.getInviteLink);
+
+// PUT  /api/rooms/:id/invite       (trưởng/phó nhóm đổi link mời)
+router.put('/:id/invite', roomController.resetInviteLink);
 
 // PUT  /api/rooms/:id/settings     (admin cập nhật ảnh & thông tin nhóm)
 router.put('/:id/settings', roomController.updateGroupSettings);
