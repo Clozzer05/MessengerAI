@@ -6,6 +6,9 @@ WORKDIR /app
 # Install global ts-node-dev
 RUN npm install -g ts-node-dev
 
+# bcrypt has no prebuilt binary for Alpine on ARM64, so it compiles from source
+RUN apk add --no-cache python3 make g++
+
 # Copy all dependencies first for layer caching
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
