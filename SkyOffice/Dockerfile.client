@@ -22,8 +22,10 @@ COPY types ./types/
 COPY client ./client/
 
 # Build Vite app
+# Bỏ bước tsc (chỉ kiểm tra kiểu): tsconfig có ignoreDeprecations "6.0" cho TypeScript 6,
+# còn yarn.lock khóa TypeScript 4 không hiểu tùy chọn này
 WORKDIR /app/client
-RUN yarn build
+RUN yarn vite build
 
 
 # ===============================
