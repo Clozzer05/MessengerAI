@@ -14,6 +14,7 @@ import SkeletonBlock from '../components/ui/SkeletonBlock';
 import { LogOut, Settings, MessageCircle, Users, ShieldCheck, Compass, HeartHandshake } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
+import { useSocket } from '../hooks/useSocket';
 import { useEffect } from 'react';
 
 export default function ChatPage() {
@@ -47,6 +48,19 @@ export default function ChatPage() {
             window.history.replaceState({}, document.title);
         }
     }, [location.state, handleSelectRoom]);
+
+    // Bị xoá khỏi nhóm đang mở: đóng phòng, quay về danh sách
+    const { on, off } = useSocket();
+    useEffect(() => {
+        const handleRemoved = ({ roomId }) => {
+            if (roomId !== activeRoomId) return;
+            setShowSidebar(true);
+            setActiveRoomId(null);
+            setInfoRoom(null);
+        };
+        on('room:removed', handleRemoved);
+        return () => off('room:removed', handleRemoved);
+    }, [on, off, activeRoomId]);
 
     const handleBack = () => {
         setShowSidebar(true);

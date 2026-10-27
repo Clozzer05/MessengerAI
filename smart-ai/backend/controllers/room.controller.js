@@ -232,6 +232,89 @@ exports.leaveRoom = async (req, res, next) => {
     }
 };
 
+// Gửi danh sách thành viên mới cho mọi thành viên còn trong nhóm
+const emitMembersUpdated = async (req, room) => {
+    const io = req.app.get('io');
+    if (!io) return;
+    const populated = await room.populate('members.user', 'username avatar googlePicture status preferredLanguage preferredLanguageLabel');
+    for (const member of populated.members) {
+        io.to(member.user._id.toString()).emit('room:members-updated', { roomId: room._id.toString(), room: populated });
+    }
+    return populated;
+};
+
+// ─── Xoá thành viên khỏi nhóm (trưởng nhóm hoặc phó nhóm) ───────────
+// Trưởng nhóm xoá được phó nhóm và thành viên; phó nhóm chỉ xoá được thành viên thường.
+exports.removeMember = async (req, res, next) => {
+    try {
+        const { id, userId } = req.params;
+        const room = await Room.findById(id);
+        if (!room || room.type !== 'group') {
+            return res.status(404).json({ error: 'Group không tồn tại' });
+        }
+
+        const actor = room.members.find(m => m.user.toString() === req.user._id.toString());
+        if (!actor || !['admin', 'deputy'].includes(actor.role)) {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm hoặc phó nhóm mới được xoá thành viên' });
+        }
+        if (userId === req.user._id.toString()) {
+            return res.status(400).json({ error: 'Muốn rời nhóm hãy dùng chức năng rời nhóm' });
+        }
+
+        const target = room.members.find(m => m.user.toString() === userId);
+        if (!target) {
+            return res.status(404).json({ error: 'Người này không còn trong nhóm' });
+        }
+        const allowed = actor.role === 'admin' ? target.role !== 'admin' : target.role === 'member';
+        if (!allowed) {
+            return res.status(403).json({ error: 'Bạn không có quyền xoá người này khỏi nhóm' });
+        }
+
+        room.members = room.members.filter(m => m.user.toString() !== userId);
+        await room.save();
+
+        req.app.get('io')?.to(userId).emit('room:removed', { roomId: id, roomName: room.name });
+        const populated = await emitMembersUpdated(req, room);
+        res.json({ room: populated || room });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ─── Phong / bỏ phó nhóm (chỉ trưởng nhóm) ──────────────────────────
+exports.setMemberRole = async (req, res, next) => {
+    try {
+        const { id, userId } = req.params;
+        const { role } = req.body || {};
+        if (!['deputy', 'member'].includes(role)) {
+            return res.status(400).json({ error: 'Vai trò chỉ được là deputy hoặc member' });
+        }
+
+        const room = await Room.findById(id);
+        if (!room || room.type !== 'group') {
+            return res.status(404).json({ error: 'Group không tồn tại' });
+        }
+
+        const actor = room.members.find(m => m.user.toString() === req.user._id.toString());
+        if (actor?.role !== 'admin') {
+            return res.status(403).json({ error: 'Chỉ trưởng nhóm mới được phong phó nhóm' });
+        }
+
+        const target = room.members.find(m => m.user.toString() === userId);
+        if (!target || target.role === 'admin') {
+            return res.status(400).json({ error: 'Không thể đổi vai trò của người này' });
+        }
+
+        target.role = role;
+        await room.save();
+
+        const populated = await emitMembersUpdated(req, room);
+        res.json({ room: populated || room });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // ─── Đặt biệt danh ──────────────────────────────────────────────────
 exports.setNickname = async (req, res, next) => {
     try {

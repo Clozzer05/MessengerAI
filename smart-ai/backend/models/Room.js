@@ -6,9 +6,10 @@ const memberSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    // admin = trưởng nhóm, deputy = phó nhóm (trưởng nhóm phong)
     role: {
         type: String,
-        enum: ['admin', 'member'],
+        enum: ['admin', 'deputy', 'member'],
         default: 'member',
     },
     joinedAt: {

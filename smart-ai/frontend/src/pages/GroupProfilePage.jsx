@@ -261,6 +261,11 @@ export default function GroupProfilePage() {
                                                 Admin
                                             </span>
                                         )}
+                                        {member.role === 'deputy' && (
+                                            <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                                Phó nhóm
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             );

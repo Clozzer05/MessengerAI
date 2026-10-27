@@ -83,6 +83,16 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
         return () => off('room:nickname-updated', handleNicknameUpdated);
     }, [on, off]);
 
+    // Bị trưởng/phó nhóm xoá khỏi nhóm: bỏ nhóm khỏi danh sách
+    useEffect(() => {
+        const handleRemoved = ({ roomId, roomName }) => {
+            setRooms((prev) => prev.filter((r) => r._id !== roomId));
+            emitToast(`Bạn đã bị xoá khỏi nhóm ${roomName || ''}`.trim(), { type: 'error' });
+        };
+        on('room:removed', handleRemoved);
+        return () => off('room:removed', handleRemoved);
+    }, [on, off]);
+
     // Listen for new messages (sidebar update + unread badge)
     useEffect(() => {
         const handleNewMessage = ({ roomId: msgRoomId, lastMessage, senderId }) => {

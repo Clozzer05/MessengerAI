@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useSocket } from '../../hooks/useSocket';
 import { roomAPI, userActionsAPI, resolveMediaUrl } from '../../services/api';
+import { emitToast } from '../../utils/toast';
 import MemberList from './MemberList';
 import PendingMembers from './PendingMembers';
 import NicknameModal from './NicknameModal';
@@ -84,16 +85,20 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
         return () => off('room:nickname-updated', handleNicknameUpdated);
     }, [room, on, off, onRoomUpdate]);
 
-    // Listen for realtime member-added updates
+    // Listen for realtime member changes (thêm, xoá, đổi vai trò)
     useEffect(() => {
         if (!isGroup || !room?._id) return;
-        const handleMemberAdded = (payload) => {
+        const handleMembersChanged = (payload) => {
             if (payload.roomId === room._id && payload.room) {
                 onRoomUpdate?.(payload.room);
             }
         };
-        on('room:member-added', handleMemberAdded);
-        return () => off('room:member-added', handleMemberAdded);
+        on('room:member-added', handleMembersChanged);
+        on('room:members-updated', handleMembersChanged);
+        return () => {
+            off('room:member-added', handleMembersChanged);
+            off('room:members-updated', handleMembersChanged);
+        };
     }, [isGroup, room, on, off, onRoomUpdate]);
 
     // Load pending members for admin
@@ -175,9 +180,19 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
     const handleRemoveMember = async (userId) => {
         if (!confirm('Xoá thành viên này khỏi nhóm?')) return;
         try {
-            await roomAPI.addMember(room._id, userId); // reuse or call specific endpoint
+            const { data } = await roomAPI.removeMember(room._id, userId);
+            onRoomUpdate?.(data.room);
         } catch (err) {
-            console.error('Remove member error:', err);
+            emitToast(err.response?.data?.error || 'Không xoá được thành viên', { type: 'error' });
+        }
+    };
+
+    const handleSetMemberRole = async (userId, role) => {
+        try {
+            const { data } = await roomAPI.setMemberRole(room._id, userId, role);
+            onRoomUpdate?.(data.room);
+        } catch (err) {
+            emitToast(err.response?.data?.error || 'Không đổi được vai trò', { type: 'error' });
         }
     };
 
@@ -392,9 +407,10 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                     <MemberList
                                         members={room.members || []}
                                         nicknames={room.nicknames}
-                                        isAdmin={isAdmin}
+                                        myRole={myMember?.role}
                                         onSetNickname={(member) => setNicknameTarget(member)}
                                         onRemoveMember={handleRemoveMember}
+                                        onSetRole={handleSetMemberRole}
                                     />
                                 )}
                             </div>

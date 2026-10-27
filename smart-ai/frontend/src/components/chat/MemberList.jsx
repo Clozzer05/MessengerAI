@@ -5,7 +5,11 @@ import { Shield, Crown, MoreVertical, UserMinus, Edit3 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function MemberList({ members, nicknames, isAdmin, onSetNickname, onRemoveMember }) {
+// Trưởng nhóm (admin) xoá được phó nhóm và thành viên; phó nhóm chỉ xoá được thành viên thường
+const canRemove = (myRole, targetRole) =>
+    (myRole === 'admin' && targetRole !== 'admin') || (myRole === 'deputy' && targetRole === 'member');
+
+export default function MemberList({ members, nicknames, myRole, onSetNickname, onRemoveMember, onSetRole }) {
     const { user } = useAuth();
     const { onlineUsers } = useSocket();
     const navigate = useNavigate();
@@ -27,10 +31,11 @@ export default function MemberList({ members, nicknames, isAdmin, onSetNickname,
         };
     };
 
-    // Sort: admin first, then online, then alphabetical
+    // Sort: trưởng nhóm, phó nhóm, then online, then alphabetical
+    const roleOrder = { admin: 0, deputy: 1 };
     const sorted = [...members].sort((a, b) => {
-        if (a.role === 'admin' && b.role !== 'admin') return -1;
-        if (b.role === 'admin' && a.role !== 'admin') return 1;
+        const byRole = (roleOrder[a.role] ?? 2) - (roleOrder[b.role] ?? 2);
+        if (byRole) return byRole;
         const aOnline = onlineUsers.includes(a.user?._id || a.user);
         const bOnline = onlineUsers.includes(b.user?._id || b.user);
         if (aOnline && !bOnline) return -1;
@@ -73,6 +78,12 @@ export default function MemberList({ members, nicknames, isAdmin, onSetNickname,
                                 {m.role === 'admin' && (
                                     <Crown size={12} className="text-yellow-500 shrink-0" />
                                 )}
+                                {m.role === 'deputy' && (
+                                    <span className="flex items-center gap-0.5 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full shrink-0">
+                                        <Shield size={10} />
+                                        Phó nhóm
+                                    </span>
+                                )}
                                 {m.isSelf && (
                                     <span className="text-xs text-gray-400">(Bạn)</span>
                                 )}
@@ -103,7 +114,16 @@ export default function MemberList({ members, nicknames, isAdmin, onSetNickname,
                                                 <Edit3 size={14} />
                                                 Đặt biệt danh
                                             </button>
-                                            {isAdmin && m.role !== 'admin' && (
+                                            {myRole === 'admin' && m.role !== 'admin' && (
+                                                <button
+                                                    onClick={() => { setMenuOpen(null); onSetRole?.(m.id, m.role === 'deputy' ? 'member' : 'deputy'); }}
+                                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                                >
+                                                    <Shield size={14} />
+                                                    {m.role === 'deputy' ? 'Bỏ phó nhóm' : 'Đặt làm phó nhóm'}
+                                                </button>
+                                            )}
+                                            {canRemove(myRole, m.role) && (
                                                 <button
                                                     onClick={() => { setMenuOpen(null); onRemoveMember?.(m.id); }}
                                                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
