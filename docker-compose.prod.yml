@@ -107,9 +107,7 @@ services:
       - --use-auth-secret
       - --static-auth-secret=${TURN_SECRET:?Cần đặt TURN_SECRET trong .env}
       - --fingerprint
-      - --no-cli
       - --no-tls
-      - --no-dtls
       - --no-multicast-peers
       # Không cho relay vào mạng nội bộ của AWS và địa chỉ đặc biệt
       - --denied-peer-ip=0.0.0.0-0.255.255.255
