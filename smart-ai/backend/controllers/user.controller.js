@@ -67,6 +67,22 @@ exports.updateProfile = async (req, res, next) => {
 };
 
 // ─── Tìm kiếm user (để thêm vào room) ───────────────────────────────
+// ─── Khớp số điện thoại: chỉ khi nhập đủ cả số ───────────────────────
+// Bỏ qua dấu cách, chấm, gạch, ngoặc; +84 và số 0 ở đầu được coi như nhau.
+// Nhập thiếu số thì không khớp, để không dò được số của người khác.
+const buildPhoneRegex = (q) => {
+    if (!/^[\d\s.()+-]+$/.test(q)) return null;
+    let digits = q.replace(/\D/g, '');
+    let prefix = '\\+?';
+    if (/^(84|0)/.test(digits)) {
+        digits = digits.replace(/^(84|0)/, '');
+        prefix = '(?:\\+?84|0)?';
+    }
+    if (digits.length < 8) return null;
+    const sep = '[\\s.()-]*';
+    return new RegExp(`^${sep}${prefix}${sep}${digits.split('').join(sep)}${sep}$`);
+};
+
 exports.searchUsers = async (req, res, next) => {
     try {
         const { q } = req.query;
@@ -74,11 +90,13 @@ exports.searchUsers = async (req, res, next) => {
             return res.status(400).json({ error: 'Từ khóa tìm kiếm cần ít nhất 2 ký tự' });
         }
 
+        const phoneRegex = buildPhoneRegex(q.trim());
         const users = await User.find({
             _id: { $ne: req.user._id },  // Loại bỏ chính mình
             $or: [
                 { username: { $regex: q, $options: 'i' } },
                 { email: { $regex: q, $options: 'i' } },
+                ...(phoneRegex ? [{ phoneNumber: phoneRegex }] : []),
             ],
         })
             .select('username email avatar status preferredLanguage preferredLanguageLabel preferredBubbleFrame')
