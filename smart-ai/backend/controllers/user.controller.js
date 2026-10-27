@@ -91,11 +91,13 @@ exports.searchUsers = async (req, res, next) => {
         }
 
         const phoneRegex = buildPhoneRegex(q.trim());
+        // Thoát ký tự đặc biệt: từ khóa như "+84..." hay "(091)" không được làm hỏng regex
+        const keyword = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const users = await User.find({
             _id: { $ne: req.user._id },  // Loại bỏ chính mình
             $or: [
-                { username: { $regex: q, $options: 'i' } },
-                { email: { $regex: q, $options: 'i' } },
+                { username: { $regex: keyword, $options: 'i' } },
+                { email: { $regex: keyword, $options: 'i' } },
                 ...(phoneRegex ? [{ phoneNumber: phoneRegex }] : []),
             ],
         })
