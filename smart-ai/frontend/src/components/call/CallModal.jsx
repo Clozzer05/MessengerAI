@@ -32,20 +32,17 @@ function getCols(count) {
     return 4;
 }
 
-function getGridStyle(count) {
-    const cols = getCols(count);
-
-    return {
-        display: "grid",
-        gridTemplateColumns: `repeat(${cols}, 1fr)`,
-        gridAutoRows: "minmax(0, 1fr)",
-        gap: "8px",
-        width: "100%",
-        height: "100%",
-        padding: "8px",
-        boxSizing: "border-box",
-        alignContent: "center",
-    };
+// Chọn số cột cho lưới cuộc gọi nhóm sao cho ô 16:9 to nhất mà vẫn vừa khung (giống Google Meet)
+function getBestTileSize(count, width, height, gap) {
+    let best = { width: 0, height: 0 };
+    for (let cols = 1; cols <= count; cols++) {
+        const rows = Math.ceil(count / cols);
+        const maxWidth = (width - gap * (cols - 1)) / cols;
+        const maxHeight = (height - gap * (rows - 1)) / rows;
+        const tileWidth = Math.floor(Math.min(maxWidth, (maxHeight * 16) / 9));
+        if (tileWidth > best.width) best = { width: tileWidth, height: Math.floor((tileWidth * 9) / 16) };
+    }
+    return best;
 }
 
 function shouldCenterLast(count) {
@@ -416,6 +413,22 @@ export default function CallModal() {
         return tiles;
     }, [isGroup, localStream, remoteStreams, participants]);
 
+    // ── Đo khung lưới video nhóm để tính kích thước ô ──
+    const [gridBox, setGridBox] = useState({ width: 0, height: 0 });
+    const gridObserverRef = useRef(null);
+    const gridRef = useCallback((el) => {
+        gridObserverRef.current?.disconnect();
+        gridObserverRef.current = null;
+        if (!el) return;
+        const observer = new ResizeObserver(([entry]) => {
+            const { width, height } = entry.contentRect;
+            setGridBox({ width, height });
+        });
+        observer.observe(el);
+        gridObserverRef.current = observer;
+    }, []);
+    const tileSize = getBestTileSize(groupTiles.length, gridBox.width, gridBox.height, 8);
+
     // ── Detect group screen sharer (self or remote) ──
     const groupScreenShare = useMemo(() => {
         if (!isGroup) return null;
@@ -589,40 +602,26 @@ export default function CallModal() {
                                 )}
                             </div>
                         ) : (
-                            /* Normal group video grid — even: symmetric, odd: last centered */
-                            <div className="absolute inset-0 video-grid" style={getGridStyle(groupTiles.length)}>
-                                {groupTiles.map((tile, i) => {
-                                    const isLast =
-                                        i === groupTiles.length - 1 &&
-                                        shouldCenterLast(groupTiles.length);
-
-                                    return (
-                                        <div
-                                            key={tile.id}
-                                            style={{
-                                                aspectRatio: "16 / 9",
-                                                width: "100%",
-                                                maxWidth: "100%",
-                                                maxHeight: "100%",
-                                                minWidth: 0,
-                                                overflow: "hidden",
-                                                borderRadius: "16px",
-                                                background: "#111",
-                                                ...(isLast ? getLastItemStyle(groupTiles.length) : {}),
-                                            }}
-                                        >
-                                            <VideoTile
-                                                stream={tile.stream}
-                                                label={tile.label}
-                                                muted={tile.muted}
-                                                mirror={tile.mirror}
-                                                avatar={tile.avatar}
-                                                pinnable
-                                                onPin={() => setPinnedTileId(tile.id)}
-                                            />
-                                        </div>
-                                    );
-                                })}
+                            /* Normal group video grid — các ô cùng cỡ, hàng thiếu được căn giữa;
+                               chừa chỗ cho thanh tiêu đề (trên) và thanh điều khiển (dưới) để không che video */
+                            <div ref={gridRef} className="absolute inset-x-2 top-14 bottom-28 flex flex-wrap justify-center content-center gap-2">
+                                {groupTiles.map((tile) => (
+                                    <div
+                                        key={tile.id}
+                                        className="overflow-hidden rounded-2xl bg-[#111]"
+                                        style={{ width: tileSize.width, height: tileSize.height }}
+                                    >
+                                        <VideoTile
+                                            stream={tile.stream}
+                                            label={tile.label}
+                                            muted={tile.muted}
+                                            mirror={tile.mirror}
+                                            avatar={tile.avatar}
+                                            pinnable
+                                            onPin={() => setPinnedTileId(tile.id)}
+                                        />
+                                    </div>
+                                ))}
                             </div>
                         )
                     ) : (

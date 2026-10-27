@@ -20,6 +20,12 @@ router.get('/:id/messages', roomController.getRoomMessages);
 // POST /api/rooms/:id/members  (thêm thành viên)
 router.post('/:id/members', roomController.addMember);
 
+// DELETE /api/rooms/:id/members/:userId  (trưởng/phó nhóm xoá thành viên)
+router.delete('/:id/members/:userId', roomController.removeMember);
+
+// PUT /api/rooms/:id/members/:userId/role  (trưởng nhóm phong/bỏ phó nhóm)
+router.put('/:id/members/:userId/role', roomController.setMemberRole);
+
 // DELETE /api/rooms/:id/leave  (rời room)
 router.delete('/:id/leave', roomController.leaveRoom);
 

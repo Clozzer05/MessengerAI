@@ -230,6 +230,8 @@ export const roomAPI = {
     getById: (id) => api.get(`/rooms/${id}`),
     getMessages: (id, page = 1) => api.get(`/rooms/${id}/messages?page=${page}`),
     addMember: (id, userId) => api.post(`/rooms/${id}/members`, { userId }),
+    removeMember: (id, userId) => api.delete(`/rooms/${id}/members/${userId}`),
+    setMemberRole: (id, userId, role) => api.put(`/rooms/${id}/members/${userId}/role`, { role }),
     leave: (id, data) => api.delete(`/rooms/${id}/leave`, { data }),
     // Chat Info Sidebar
     setNickname: (id, targetUserId, nickname) =>
