@@ -3,6 +3,7 @@ const http = require('http');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const { Server } = require('socket.io');
@@ -96,8 +97,6 @@ app.get('/api/ice-servers', async (req, res) => {
             { urls: 'stun:stun2.l.google.com:19302' },
         ];
 
-        let hasTurn = false;
-
         // If Metered.ca API key is configured, fetch real TURN credentials
         const meteredApiKey = process.env.METERED_API_KEY;
         const meteredDomain = process.env.METERED_DOMAIN || 'phucanh.metered.live';
@@ -118,7 +117,6 @@ app.get('/api/ice-servers', async (req, res) => {
                         ...(s.credential && { credential: s.credential }),
                     })).filter(s => s.urls);
                     iceServers.push(...normalized);
-                    hasTurn = normalized.length > 0;
                     console.log(`✅ Fetched ${normalized.length} TURN servers from Metered.ca`);
                 } else {
                     console.warn('⚠️ Failed to fetch Metered TURN credentials:', response.status);
@@ -139,24 +137,21 @@ app.get('/api/ice-servers', async (req, res) => {
                 username: turnUser || '',
                 credential: turnCred || '',
             });
-            hasTurn = true;
             console.log('✅ Using TURN servers from TURN_URL env');
         }
 
-        // Fallback: Open Relay free TURN servers (static auth)
-        if (!hasTurn) {
-            const username = 'openrelayproject';
-            const credential = 'openrelayproject';
-
-            iceServers.push(
-                { urls: 'stun:openrelay.metered.ca:80' },
-                { urls: 'turn:openrelay.metered.ca:80', username, credential },
-                { urls: 'turn:openrelay.metered.ca:80?transport=tcp', username, credential },
-                { urls: 'turn:openrelay.metered.ca:443', username, credential },
-                { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username, credential }
-            );
-            hasTurn = true;
-            console.log('✅ Using Open Relay free TURN servers (static auth)');
+        // Self-hosted coturn (docker-compose.prod.yml): mật khẩu tạm theo chuẩn TURN REST API,
+        // username = "<hạn dùng>:<tên>", credential = HMAC-SHA1(TURN_SECRET, username), hết hạn sau 24 giờ
+        const turnSecret = process.env.TURN_SECRET;
+        const turnHost = process.env.DOMAIN;
+        if (turnSecret && turnHost) {
+            const username = `${Math.floor(Date.now() / 1000) + 24 * 3600}:smartai`;
+            const credential = crypto.createHmac('sha1', turnSecret).update(username).digest('base64');
+            iceServers.push({
+                urls: [`turn:${turnHost}:3478?transport=udp`, `turn:${turnHost}:3478?transport=tcp`],
+                username,
+                credential,
+            });
         }
 
         res.json({ iceServers });

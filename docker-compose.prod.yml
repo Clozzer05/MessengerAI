@@ -91,6 +91,37 @@ services:
       - backend
     restart: unless-stopped
 
+  # ─── TURN server cho cuộc gọi WebRTC (coturn) ──────────────────────────
+  # Dùng mạng của máy (network_mode: host) vì phải mở cả dải cổng UDP để relay.
+  # Backend cấp mật khẩu tạm từ TURN_SECRET (xem /api/ice-servers). Security group cần mở:
+  # UDP+TCP 3478 và UDP 49160-49200.
+  coturn:
+    image: coturn/coturn:4.18
+    network_mode: host
+    command:
+      - --listening-port=3478
+      - --min-port=49160
+      - --max-port=49200
+      - --external-ip=${TURN_EXTERNAL_IP:?Cần đặt TURN_EXTERNAL_IP (IP public/IP nội bộ) trong .env}
+      - --realm=${DOMAIN}
+      - --use-auth-secret
+      - --static-auth-secret=${TURN_SECRET:?Cần đặt TURN_SECRET trong .env}
+      - --fingerprint
+      - --no-cli
+      - --no-tls
+      - --no-dtls
+      - --no-multicast-peers
+      # Không cho relay vào mạng nội bộ của AWS và địa chỉ đặc biệt
+      - --denied-peer-ip=0.0.0.0-0.255.255.255
+      - --denied-peer-ip=10.0.0.0-10.255.255.255
+      - --denied-peer-ip=100.64.0.0-100.127.255.255
+      - --denied-peer-ip=127.0.0.0-127.255.255.255
+      - --denied-peer-ip=169.254.0.0-169.254.255.255
+      - --denied-peer-ip=172.16.0.0-172.31.255.255
+      - --denied-peer-ip=192.168.0.0-192.168.255.255
+      - --log-file=stdout
+    restart: unless-stopped
+
 volumes:
   mongo-data:
   backend-uploads:
