@@ -251,13 +251,13 @@ export default function MiniAIChatBox({ roomId, onClose, onAutoTranslateChange }
                     {screenSharing && screenStream && (
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Monitor size={13} className="text-blue-500" />
+                                <Monitor size={13} className="text-brand" />
                                 <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('miniAi.analyzeScreen')}</span>
                             </div>
                             <button
                                 onClick={handleAnalyzeScreen}
                                 disabled={thinking}
-                                className="text-[10px] px-2 py-0.5 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition disabled:opacity-50"
+                                className="text-[10px] px-2 py-0.5 bg-brand text-white rounded-md hover:bg-brand-hover transition disabled:opacity-50"
                             >
                                 {t('miniAi.analyze')}
                             </button>

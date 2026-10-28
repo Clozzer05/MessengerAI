@@ -53,6 +53,28 @@ body,
   font-family: var(--font-ui);
 }
 
+/* ─── Màu ngữ nghĩa theo theme ───
+   Dùng trong component thay cho màu cố định: bg-surface, text-fg, border-line, bg-brand...
+   Mỗi màu trỏ về biến của theme đang chọn nên tự đổi theo theme (kể cả theme tối). */
+@theme inline {
+  --color-app: var(--bg-main);
+  --color-surface: var(--bg-card);
+  --color-surface-muted: var(--bg-secondary);
+  --color-hover: var(--bg-hover);
+  --color-field: var(--bg-input);
+  --color-fg: var(--text-primary);
+  --color-fg-muted: var(--text-secondary);
+  --color-fg-subtle: var(--text-tertiary);
+  --color-line: var(--border-color);
+  --color-line-strong: var(--border-input);
+  --color-brand: var(--color-primary);
+  --color-brand-hover: var(--color-primary-hover);
+  --color-brand-soft: var(--color-primary-light);
+  --color-brand-medium: var(--color-primary-medium);
+  --color-brand-strong: var(--color-primary-dark);
+  --color-brand-ring: var(--color-primary-ring);
+}
+
 html[data-theme],
 html[data-theme] body,
 html[data-theme] #root,
@@ -65,7 +87,14 @@ html[data-theme] .text-gray-700,
 html[data-theme] .text-gray-600,
 html[data-theme] .text-gray-500,
 html[data-theme] .border-gray-200,
-html[data-theme] .border-gray-300 {
+html[data-theme] .border-gray-300,
+html[data-theme] .bg-surface,
+html[data-theme] .bg-app,
+html[data-theme] .bg-surface-muted,
+html[data-theme] .text-fg,
+html[data-theme] .text-fg-muted,
+html[data-theme] .text-fg-subtle,
+html[data-theme] .border-line {
   transition:
     background-color 280ms ease,
     color 220ms ease,
@@ -163,15 +192,50 @@ html[data-theme] textarea {
 html.theme-dark {
   color-scheme: dark;
 }
-html.theme-dark .bg-red-50 {
-  background-color: rgba(239, 68, 68, 0.15) !important;
-}
-html.theme-dark .text-red-600 {
-  color: #f87171 !important;
-}
-html.theme-dark .hover\:bg-red-100:hover {
-  background-color: rgba(239, 68, 68, 0.2) !important;
-}
+
+/* Theme tối: chip/nhãn màu nhạt chuyển sang nền trong mờ, chữ sáng (sinh tự động cho các màu đang dùng) */
+html.theme-dark :is(.bg-red-50, .bg-red-100, .hover\:bg-red-50:hover, .hover\:bg-red-100:hover) { background-color: color-mix(in srgb, #ef4444 16%, transparent) !important; }
+html.theme-dark :is(.text-red-600, .text-red-700, .text-red-800, .text-red-900) { color: #fca5a5 !important; }
+html.theme-dark :is(.border-red-100, .border-red-200) { border-color: color-mix(in srgb, #ef4444 35%, transparent) !important; }
+html.theme-dark :is(.bg-green-50, .bg-green-100, .hover\:bg-green-50:hover, .hover\:bg-green-100:hover) { background-color: color-mix(in srgb, #22c55e 16%, transparent) !important; }
+html.theme-dark :is(.text-green-600, .text-green-700, .text-green-800, .text-green-900) { color: #86efac !important; }
+html.theme-dark :is(.border-green-100, .border-green-200) { border-color: color-mix(in srgb, #22c55e 35%, transparent) !important; }
+html.theme-dark :is(.bg-yellow-50, .bg-yellow-100, .hover\:bg-yellow-50:hover, .hover\:bg-yellow-100:hover) { background-color: color-mix(in srgb, #eab308 16%, transparent) !important; }
+html.theme-dark :is(.text-yellow-600, .text-yellow-700, .text-yellow-800, .text-yellow-900) { color: #fde047 !important; }
+html.theme-dark :is(.border-yellow-100, .border-yellow-200) { border-color: color-mix(in srgb, #eab308 35%, transparent) !important; }
+html.theme-dark :is(.bg-purple-50, .bg-purple-100, .hover\:bg-purple-50:hover, .hover\:bg-purple-100:hover) { background-color: color-mix(in srgb, #a855f7 16%, transparent) !important; }
+html.theme-dark :is(.text-purple-600, .text-purple-700, .text-purple-800, .text-purple-900) { color: #d8b4fe !important; }
+html.theme-dark :is(.border-purple-100, .border-purple-200) { border-color: color-mix(in srgb, #a855f7 35%, transparent) !important; }
+html.theme-dark :is(.bg-indigo-50, .bg-indigo-100, .hover\:bg-indigo-50:hover, .hover\:bg-indigo-100:hover) { background-color: color-mix(in srgb, #6366f1 16%, transparent) !important; }
+html.theme-dark :is(.text-indigo-600, .text-indigo-700, .text-indigo-800, .text-indigo-900) { color: #a5b4fc !important; }
+html.theme-dark :is(.border-indigo-100, .border-indigo-200) { border-color: color-mix(in srgb, #6366f1 35%, transparent) !important; }
+html.theme-dark :is(.bg-pink-50, .bg-pink-100, .hover\:bg-pink-50:hover, .hover\:bg-pink-100:hover) { background-color: color-mix(in srgb, #ec4899 16%, transparent) !important; }
+html.theme-dark :is(.text-pink-600, .text-pink-700, .text-pink-800, .text-pink-900) { color: #f9a8d4 !important; }
+html.theme-dark :is(.border-pink-100, .border-pink-200) { border-color: color-mix(in srgb, #ec4899 35%, transparent) !important; }
+html.theme-dark :is(.bg-orange-50, .bg-orange-100, .hover\:bg-orange-50:hover, .hover\:bg-orange-100:hover) { background-color: color-mix(in srgb, #f97316 16%, transparent) !important; }
+html.theme-dark :is(.text-orange-600, .text-orange-700, .text-orange-800, .text-orange-900) { color: #fdba74 !important; }
+html.theme-dark :is(.border-orange-100, .border-orange-200) { border-color: color-mix(in srgb, #f97316 35%, transparent) !important; }
+html.theme-dark :is(.bg-emerald-50, .bg-emerald-100, .hover\:bg-emerald-50:hover, .hover\:bg-emerald-100:hover) { background-color: color-mix(in srgb, #10b981 16%, transparent) !important; }
+html.theme-dark :is(.text-emerald-600, .text-emerald-700, .text-emerald-800, .text-emerald-900) { color: #6ee7b7 !important; }
+html.theme-dark :is(.border-emerald-100, .border-emerald-200) { border-color: color-mix(in srgb, #10b981 35%, transparent) !important; }
+html.theme-dark :is(.bg-amber-50, .bg-amber-100, .hover\:bg-amber-50:hover, .hover\:bg-amber-100:hover) { background-color: color-mix(in srgb, #f59e0b 16%, transparent) !important; }
+html.theme-dark :is(.text-amber-600, .text-amber-700, .text-amber-800, .text-amber-900) { color: #fcd34d !important; }
+html.theme-dark :is(.border-amber-100, .border-amber-200) { border-color: color-mix(in srgb, #f59e0b 35%, transparent) !important; }
+html.theme-dark :is(.bg-sky-50, .bg-sky-100, .hover\:bg-sky-50:hover, .hover\:bg-sky-100:hover) { background-color: color-mix(in srgb, #0ea5e9 16%, transparent) !important; }
+html.theme-dark :is(.text-sky-600, .text-sky-700, .text-sky-800, .text-sky-900) { color: #7dd3fc !important; }
+html.theme-dark :is(.border-sky-100, .border-sky-200) { border-color: color-mix(in srgb, #0ea5e9 35%, transparent) !important; }
+html.theme-dark :is(.bg-teal-50, .bg-teal-100, .hover\:bg-teal-50:hover, .hover\:bg-teal-100:hover) { background-color: color-mix(in srgb, #14b8a6 16%, transparent) !important; }
+html.theme-dark :is(.text-teal-600, .text-teal-700, .text-teal-800, .text-teal-900) { color: #5eead4 !important; }
+html.theme-dark :is(.border-teal-100, .border-teal-200) { border-color: color-mix(in srgb, #14b8a6 35%, transparent) !important; }
+html.theme-dark :is(.bg-rose-50, .bg-rose-100, .hover\:bg-rose-50:hover, .hover\:bg-rose-100:hover) { background-color: color-mix(in srgb, #f43f5e 16%, transparent) !important; }
+html.theme-dark :is(.text-rose-600, .text-rose-700, .text-rose-800, .text-rose-900) { color: #fda4af !important; }
+html.theme-dark :is(.border-rose-100, .border-rose-200) { border-color: color-mix(in srgb, #f43f5e 35%, transparent) !important; }
+html.theme-dark :is(.bg-violet-50, .bg-violet-100, .hover\:bg-violet-50:hover, .hover\:bg-violet-100:hover) { background-color: color-mix(in srgb, #8b5cf6 16%, transparent) !important; }
+html.theme-dark :is(.text-violet-600, .text-violet-700, .text-violet-800, .text-violet-900) { color: #c4b5fd !important; }
+html.theme-dark :is(.border-violet-100, .border-violet-200) { border-color: color-mix(in srgb, #8b5cf6 35%, transparent) !important; }
+html.theme-dark :is(.bg-fuchsia-50, .bg-fuchsia-100, .hover\:bg-fuchsia-50:hover, .hover\:bg-fuchsia-100:hover) { background-color: color-mix(in srgb, #d946ef 16%, transparent) !important; }
+html.theme-dark :is(.text-fuchsia-600, .text-fuchsia-700, .text-fuchsia-800, .text-fuchsia-900) { color: #f0abfc !important; }
+html.theme-dark :is(.border-fuchsia-100, .border-fuchsia-200) { border-color: color-mix(in srgb, #d946ef 35%, transparent) !important; }
 html.theme-dark .shadow-sm {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
@@ -189,6 +253,7 @@ html[data-theme] .shadow-lg {
 }
 
 html[data-theme] .bg-white,
+html[data-theme] .bg-surface,
 html[data-theme] .bg-\[var\(--bg-card\)\] {
   border-color: var(--theme-surface-border) !important;
 }

@@ -77,7 +77,7 @@ export default function CounselingPage() {
                 {isExpert ? (
                     <button
                         onClick={() => navigate('/counseling/expert')}
-                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition shadow"
+                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-brand text-white hover:bg-brand-hover transition shadow"
                     >
                         <Stethoscope size={13} /> Bảng chuyên gia
                     </button>
@@ -154,7 +154,7 @@ export default function CounselingPage() {
                                             <p className="font-semibold text-[15px] truncate pr-3" style={{ color: 'var(--color-primary)' }}>
                                                 {session.title || 'Phiên tư vấn'}
                                             </p>
-                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 ${session.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 ${session.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-surface-muted text-fg-muted'}`}>
                                                 {session.status === 'active' ? 'Đang mở' : 'Đã đóng'}
                                             </span>
                                         </div>

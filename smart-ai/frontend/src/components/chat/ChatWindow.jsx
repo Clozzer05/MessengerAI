@@ -703,64 +703,64 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
 
     if (!roomId) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-gray-50 px-4">
+            <div className="flex-1 flex items-center justify-center bg-app px-4">
                 <div className="w-full max-w-xl text-center">
                     <div className="text-6xl mb-4">💬</div>
-                    <p className="text-xl font-semibold text-gray-700">Chọn cuộc trò chuyện để bắt đầu</p>
-                    <p className="text-sm mt-1 text-gray-400">Hoặc mở nhanh theo gợi ý bên dưới</p>
+                    <p className="text-xl font-semibold text-fg-muted">Chọn cuộc trò chuyện để bắt đầu</p>
+                    <p className="text-sm mt-1 text-fg-subtle">Hoặc mở nhanh theo gợi ý bên dưới</p>
 
                     <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <button
                             onClick={() => onOpenStartAction?.('topics')}
-                            className="px-3 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 transition text-left"
+                            className="px-3 py-2.5 rounded-xl border border-line bg-surface hover:border-emerald-300 hover:bg-emerald-50 transition text-left"
                         >
                             <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-emerald-700">
                                 <Compass size={14} />
                                 Khám phá chủ đề
                             </span>
-                            <p className="text-[11px] text-gray-400 mt-1">Mở danh sách phòng chủ đề</p>
+                            <p className="text-[11px] text-fg-subtle mt-1">Mở danh sách phòng chủ đề</p>
                         </button>
 
                         <button
                             onClick={() => onOpenStartAction?.('chats-search')}
-                            className="px-3 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 transition text-left"
+                            className="px-3 py-2.5 rounded-xl border border-line bg-surface hover:border-indigo-300 hover:bg-indigo-50 transition text-left"
                         >
                             <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-indigo-700">
                                 <Search size={14} />
                                 Tìm cuộc trò chuyện
                             </span>
-                            <p className="text-[11px] text-gray-400 mt-1">Focus vào ô tìm kiếm chat</p>
+                            <p className="text-[11px] text-fg-subtle mt-1">Focus vào ô tìm kiếm chat</p>
                         </button>
 
                         <button
                             onClick={() => onOpenStartAction?.('counseling')}
-                            className="px-3 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-rose-300 hover:bg-rose-50 transition text-left"
+                            className="px-3 py-2.5 rounded-xl border border-line bg-surface hover:border-rose-300 hover:bg-rose-50 transition text-left"
                         >
                             <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose-700">
                                 <HeartHandshake size={14} />
                                 Tư vấn
                             </span>
-                            <p className="text-[11px] text-gray-400 mt-1">Mở trang tư vấn hỗ trợ</p>
+                            <p className="text-[11px] text-fg-subtle mt-1">Mở trang tư vấn hỗ trợ</p>
                         </button>
                     </div>
 
-                    <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-3 text-left">
-                        <p className="text-sm font-semibold text-gray-700 inline-flex items-center gap-1.5">
+                    <div className="mt-4 rounded-2xl border border-line bg-surface p-3 text-left">
+                        <p className="text-sm font-semibold text-fg-muted inline-flex items-center gap-1.5">
                             <UserPlus size={14} className="text-[var(--color-primary)]" />
                             Gợi ý bạn bè cho bạn
                         </p>
 
                         {startSuggestionLoading ? (
-                            <div className="py-6 text-center text-xs text-gray-400">
+                            <div className="py-6 text-center text-xs text-fg-subtle">
                                 <Loader2 size={14} className="animate-spin mx-auto mb-2" />
                                 Đang tải gợi ý...
                             </div>
                         ) : startSuggestions.length === 0 ? (
-                            <p className="py-4 text-xs text-gray-400 text-center">Hiện chưa có gợi ý phù hợp.</p>
+                            <p className="py-4 text-xs text-fg-subtle text-center">Hiện chưa có gợi ý phù hợp.</p>
                         ) : (
                             <div className="mt-2 space-y-2">
                                 {startSuggestions.map((item) => (
-                                    <div key={item._id} className="flex items-center gap-2 rounded-lg border border-gray-100 px-2.5 py-2">
+                                    <div key={item._id} className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-2">
                                         <div 
                                             className="w-8 h-8 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center text-sm font-semibold overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[var(--color-primary-ring)] transition"
                                             onClick={() => navigate(`/profile/${item._id}`)}
@@ -773,13 +773,13 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-gray-800 truncate flex items-center gap-2">
+                                            <p className="text-sm font-medium text-fg truncate flex items-center gap-2">
                                                 {item.username}
                                                 <span className="text-[10px] font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded-full border border-green-200">
                                                     {item.similarityScore || item.topicAffinityScore || 0}%
                                                 </span>
                                             </p>
-                                            <p className="text-[11px] text-gray-400 truncate">
+                                            <p className="text-[11px] text-fg-subtle truncate">
                                                 {(item.reasonBadges || []).slice(0, 1).join(' • ') || 'Có điểm tương đồng với bạn'}
                                             </p>
                                         </div>
@@ -801,13 +801,13 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
     }
 
     return (
-        <div className="flex-1 flex flex-col h-full min-h-0 bg-white relative">
+        <div className="flex-1 flex flex-col h-full min-h-0 bg-surface relative">
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-line bg-surface">
                 {/* Back button (mobile) */}
                 <button
                     onClick={onBack}
-                    className="md:hidden p-1 hover:bg-gray-100 rounded-full shrink-0"
+                    className="md:hidden p-1 hover:bg-hover rounded-full shrink-0"
                 >
                     <ArrowLeft size={20} />
                 </button>
@@ -838,7 +838,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate flex items-center gap-2">
+                    <h3 className="font-semibold text-fg truncate flex items-center gap-2">
                         {display.name}
                         {room?.type === 'counseling' && counselingSession && (
                             counselingSession.expert ? (
@@ -852,7 +852,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                             )
                         )}
                     </h3>
-                    <p className={`text-xs ${display.isOnline ? 'text-green-500' : 'text-gray-400'}`}>
+                    <p className={`text-xs ${display.isOnline ? 'text-green-500' : 'text-fg-subtle'}`}>
                         {typingUsers.length > 0
                             ? `${typingUsers.map((u) => u.username).join(', ')} đang nhập...`
                             : display.subtitle}
@@ -863,7 +863,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                 <div className="flex items-center gap-1 max-w-[50vw] md:max-w-none overflow-x-auto scrollbar-hide">
                     <button
                         onClick={() => onOpenStartAction?.('home')}
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-600 shrink-0"
+                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
                         title="Về trang chọn cuộc trò chuyện"
                     >
                         <House size={18} />
@@ -878,7 +878,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                 setSelectedMessageIds(new Set());
                             }
                         }}
-                        className={`p-2 rounded-full transition shrink-0 ${selectionMode ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'hover:bg-gray-100 text-gray-600'}`}
+                        className={`p-2 rounded-full transition shrink-0 ${selectionMode ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'hover:bg-hover text-fg-muted'}`}
                         title="Chọn nhiều tin để sao chép"
                     >
                         <CheckSquare size={18} />
@@ -894,7 +894,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                     <button
                         onClick={() => handleCall('audio')}
                         disabled={!display.isGroup && friendshipStatus !== 'accepted'}
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-600 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         title={!display.isGroup && friendshipStatus !== 'accepted' ? 'Chỉ gọi được khi đã là bạn bè' : 'Gọi thoại'}
                     >
                         <Phone size={18} />
@@ -902,7 +902,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                     <button
                         onClick={() => handleCall('video')}
                         disabled={!display.isGroup && friendshipStatus !== 'accepted'}
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-600 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                         title={!display.isGroup && friendshipStatus !== 'accepted' ? 'Chỉ gọi được khi đã là bạn bè' : 'Gọi video'}
                     >
                         <Video size={18} />
@@ -910,14 +910,14 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
 
                     <button
                         onClick={() => setShowPollCreator(true)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-600 shrink-0"
+                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
                         title="Tạo bình chọn"
                     >
                         <BarChart3 size={18} />
                     </button>
                     <button
                         onClick={() => navigate('/office')}
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-600 shrink-0"
+                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
                         title="SkyOffice"
                     >
                         <Building2 size={18} />
@@ -925,7 +925,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                     
                     <button
                         onClick={() => onToggleInfo?.(room)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-600 shrink-0"
+                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
                         title="Thông tin"
                     >
                         <Info size={18} />
@@ -943,7 +943,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             <div
                 ref={containerRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin bg-gray-50 conversation-bg"
+                className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin bg-app conversation-bg"
             >
                 {/* Empty conversation — Profile Header */}
                 {loading && allRenderableMessages.length === 0 ? (
@@ -978,10 +978,10 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         </div>
 
                         {/* Name */}
-                        <h2 className="text-xl font-bold text-gray-900 mb-1">{display.name}</h2>
+                        <h2 className="text-xl font-bold text-fg mb-1">{display.name}</h2>
 
                         {/* Subtitle */}
-                        <p className="text-sm text-gray-500 text-center max-w-xs leading-relaxed">
+                        <p className="text-sm text-fg-subtle text-center max-w-xs leading-relaxed">
                             {display.isGroup
                                 ? `Chào mừng mọi người đến với nhóm ${display.name}! 🎉\n${room?.members?.length || 0} thành viên`
                                 : 'Các bạn giờ đã là bạn bè trên SmartAI 🎉\nHãy bắt đầu trò chuyện ngay!'}
@@ -1062,11 +1062,11 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                 {/* Typing indicator */}
                 {typingUsers.length > 0 && (
                     <div className="flex justify-start mb-2">
-                        <div className="bg-gray-100 px-4 py-3 rounded-2xl">
+                        <div className="bg-surface-muted px-4 py-3 rounded-2xl">
                             <div className="flex gap-1">
-                                <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot" />
-                                <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot" />
-                                <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot" />
+                                <div className="w-2 h-2 bg-fg-subtle rounded-full typing-dot" />
+                                <div className="w-2 h-2 bg-fg-subtle rounded-full typing-dot" />
+                                <div className="w-2 h-2 bg-fg-subtle rounded-full typing-dot" />
                             </div>
                         </div>
                     </div>
@@ -1076,7 +1076,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             </div>
 
             {selectionMode && (
-                <div className="px-4 py-2 border-t border-gray-200 bg-[var(--color-primary-light)] flex flex-wrap items-center justify-between gap-2">
+                <div className="px-4 py-2 border-t border-line bg-[var(--color-primary-light)] flex flex-wrap items-center justify-between gap-2">
                     <div className="text-sm text-[var(--color-primary-dark)] flex items-center gap-1.5">
                         <Reply size={14} className="opacity-70" />
                         <span>Đã chọn {selectedMessageIds.size} tin nhắn</span>
@@ -1085,14 +1085,14 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         <button
                             onClick={copySelectedMessages}
                             disabled={selectedMessageIds.size === 0}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-gray-200 text-[var(--color-primary)] hover:bg-gray-50 disabled:opacity-50"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface border border-line text-[var(--color-primary)] hover:bg-hover disabled:opacity-50"
                         >
                             <Copy size={13} />
                             {copiedSelection ? 'Đã sao chép' : 'Sao chép'}
                         </button>
                         <button
                             onClick={clearSelectionMode}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-surface border border-line text-fg-subtle hover:bg-hover"
                         >
                             <X size={13} />
                             Hủy
@@ -1103,8 +1103,8 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
 
             {/* Input or Block notice */}
             {iBlockedThem ? (
-                <div className="px-4 py-4 border-t border-gray-200 bg-gray-50 text-center">
-                    <div className="flex items-center justify-center gap-2 text-gray-500 mb-2">
+                <div className="px-4 py-4 border-t border-line bg-app text-center">
+                    <div className="flex items-center justify-center gap-2 text-fg-subtle mb-2">
                         <Ban size={16} />
                         <span className="text-sm">Bạn đã chặn người dùng này</span>
                     </div>
@@ -1123,8 +1123,8 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                     </button>
                 </div>
             ) : theyBlockedMe ? (
-                <div className="px-4 py-4 border-t border-gray-200 bg-gray-50 text-center">
-                    <p className="text-sm text-gray-500">Bạn không thể gửi tin nhắn cho người này</p>
+                <div className="px-4 py-4 border-t border-line bg-app text-center">
+                    <p className="text-sm text-fg-subtle">Bạn không thể gửi tin nhắn cho người này</p>
                 </div>
             ) : (
                 <MessageInput
@@ -1172,18 +1172,18 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             {/* Lock Overlay — shown when admin locks this account in real time */}
             {lockOverlay && (
                 <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 rounded-none">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 mx-6 max-w-sm w-full text-center">
+                    <div className="bg-surface rounded-2xl shadow-2xl p-6 mx-6 max-w-sm w-full text-center">
                         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 mx-auto mb-4">
                             <Lock size={28} className="text-orange-500" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">Tài khoản bị khóa</h3>
-                        <p className="text-sm text-gray-600 mb-1">
+                        <h3 className="text-lg font-bold text-fg mb-2">Tài khoản bị khóa</h3>
+                        <p className="text-sm text-fg-muted mb-1">
                             Tài khoản của bạn đã bị khóa
                             {user?.lockUntil
                                 ? ` đến ${format(new Date(user.lockUntil), 'HH:mm - dd/MM/yyyy')}`
                                 : ''}.
                         </p>
-                        <p className="text-xs text-gray-400 mb-5">Bạn sẽ bị hạn chế tính năng trong thời gian này.</p>
+                        <p className="text-xs text-fg-subtle mb-5">Bạn sẽ bị hạn chế tính năng trong thời gian này.</p>
                         <button
                             onClick={() => setLockOverlay(false)}
                             className="w-full py-2 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition"

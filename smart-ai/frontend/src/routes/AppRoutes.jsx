@@ -31,9 +31,9 @@ const JoinGroupPage = lazy(() => import('../pages/JoinGroupPage'));
 // ── Loading fallback ───────────────────────────────────────────
 function LoadingScreen() {
     return (
-        <div className="h-dvh p-4 md:p-6 bg-gray-50">
+        <div className="h-dvh p-4 md:p-6 bg-app">
             <div className="mx-auto h-full max-w-6xl grid gap-4 md:grid-cols-[20rem_1fr]">
-                <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-3">
+                <div className="rounded-2xl border border-line bg-surface p-4 space-y-3">
                     <div className="skeleton-shimmer h-8 w-36 rounded-lg" />
                     <div className="skeleton-shimmer h-10 w-full rounded-xl" />
                     {Array.from({ length: 6 }).map((_, idx) => (
@@ -47,7 +47,7 @@ function LoadingScreen() {
                     ))}
                 </div>
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5 flex flex-col gap-4">
+                <div className="rounded-2xl border border-line bg-surface p-4 md:p-5 flex flex-col gap-4">
                     <div className="flex items-center gap-3">
                         <div className="skeleton-shimmer h-10 w-10 rounded-full" />
                         <div className="space-y-2">

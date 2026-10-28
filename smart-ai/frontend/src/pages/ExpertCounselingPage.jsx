@@ -105,10 +105,10 @@ export default function ExpertCounselingPage() {
     if (!isExpert) {
         return (
             <div className="h-dvh flex flex-col items-center justify-center theme-muted-surface">
-                <Stethoscope size={48} className="text-gray-400 mb-4" />
+                <Stethoscope size={48} className="text-fg-subtle mb-4" />
                 <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Chỉ chuyên gia mới truy cập được</h2>
                 <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Tài khoản của bạn không có quyền truy cập trang này.</p>
-                <button onClick={() => navigate('/')} className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">Về trang chủ</button>
+                <button onClick={() => navigate('/')} className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover">Về trang chủ</button>
             </div>
         );
     }
@@ -126,7 +126,7 @@ export default function ExpertCounselingPage() {
                 </div>
                 <button
                     onClick={reload}
-                    className="text-xs px-3 py-1 rounded-full border hover:bg-gray-100 transition"
+                    className="text-xs px-3 py-1 rounded-full border hover:bg-hover transition"
                     style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
                 >
                     Làm mới
@@ -137,17 +137,17 @@ export default function ExpertCounselingPage() {
                 <div className="max-w-4xl mx-auto flex gap-2">
                     <button
                         onClick={() => setTab('pending')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition ${tab === 'pending' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition ${tab === 'pending' ? 'bg-brand text-white' : 'bg-surface text-fg-muted border border-line hover:bg-hover'}`}
                     >
                         <Inbox size={15} /> Đang chờ
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${tab === 'pending' ? 'bg-white/20' : 'bg-blue-100 text-blue-700'}`}>{pending.length}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${tab === 'pending' ? 'bg-white/20' : 'bg-brand-medium text-brand-strong'}`}>{pending.length}</span>
                     </button>
                     <button
                         onClick={() => setTab('mine')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition ${tab === 'mine' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition ${tab === 'mine' ? 'bg-brand text-white' : 'bg-surface text-fg-muted border border-line hover:bg-hover'}`}
                     >
                         <ClipboardList size={15} /> Đang phụ trách
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${tab === 'mine' ? 'bg-white/20' : 'bg-gray-100 text-gray-700'}`}>{mine.length}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${tab === 'mine' ? 'bg-white/20' : 'bg-surface-muted text-fg-muted'}`}>{mine.length}</span>
                     </button>
                 </div>
                 <p className="max-w-4xl mx-auto mt-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>
@@ -160,7 +160,7 @@ export default function ExpertCounselingPage() {
             <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6">
                 <div className="max-w-4xl mx-auto space-y-3">
                     {loading ? (
-                        <div className="flex items-center justify-center py-20 text-gray-500">
+                        <div className="flex items-center justify-center py-20 text-fg-subtle">
                             <Loader2 size={20} className="animate-spin mr-2" /> Đang tải...
                         </div>
                     ) : list.length === 0 ? (
@@ -172,17 +172,17 @@ export default function ExpertCounselingPage() {
                             const u = session.user || {};
                             const avatarUrl = resolveMediaUrl(u.avatar || u.googlePicture);
                             return (
-                                <div key={session._id} className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
-                                    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                                <div key={session._id} className="bg-surface border border-line rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
+                                    <div className="w-12 h-12 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
                                         {avatarUrl ? <img src={avatarUrl} alt={u.username} className="w-full h-full object-cover" /> : session.isAnonymous ? '?' : (u.username || '?').charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
-                                            <span className="font-medium text-gray-900 truncate">{session.isAnonymous ? 'Người dùng ẩn danh' : (u.username || 'Người dùng')}</span>
-                                            <span className="px-2 py-0.5 text-xs rounded-full bg-blue-50 text-blue-700 border border-blue-100">{CATEGORY_LABEL[session.category] || session.category}</span>
+                                            <span className="font-medium text-fg truncate">{session.isAnonymous ? 'Người dùng ẩn danh' : (u.username || 'Người dùng')}</span>
+                                            <span className="px-2 py-0.5 text-xs rounded-full bg-brand-soft text-brand-strong border border-brand-medium">{CATEGORY_LABEL[session.category] || session.category}</span>
                                         </div>
-                                        <div className="text-sm text-gray-500 truncate">{session.title || session.room?.name || 'Phiên tư vấn'}</div>
-                                        <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                        <div className="text-sm text-fg-subtle truncate">{session.title || session.room?.name || 'Phiên tư vấn'}</div>
+                                        <div className="text-xs text-fg-subtle flex items-center gap-1 mt-0.5">
                                             <Clock size={11} /> {formatTime(session.createdAt || session.updatedAt)}
                                         </div>
                                     </div>
@@ -190,7 +190,7 @@ export default function ExpertCounselingPage() {
                                         <button
                                             onClick={() => handleClaim(session._id)}
                                             disabled={claimingId === session._id}
-                                            className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-1.5"
+                                            className="px-4 py-2 rounded-full bg-brand hover:bg-brand-hover text-white text-sm font-semibold shadow disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-1.5"
                                         >
                                             {claimingId === session._id ? <Loader2 size={14} className="animate-spin" /> : <Stethoscope size={14} />}
                                             Nhận tư vấn
@@ -198,7 +198,7 @@ export default function ExpertCounselingPage() {
                                     ) : (
                                         <button
                                             onClick={() => handleOpen(session)}
-                                            className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition"
+                                            className="px-4 py-2 rounded-full bg-surface-muted hover:bg-hover text-fg-muted text-sm font-semibold transition"
                                         >
                                             Mở chat
                                         </button>

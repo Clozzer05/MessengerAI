@@ -109,11 +109,11 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-app">
             {/* Header */}
-            <div className="bg-white border-b">
+            <div className="bg-surface border-b">
                 <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => navigate('/')} className="p-1 hover:bg-gray-100 rounded-full" title={t('settings.backToChat')}>
+                    <button onClick={() => navigate('/')} className="p-1 hover:bg-hover rounded-full" title={t('settings.backToChat')}>
                         <ArrowLeft size={20} />
                     </button>
                     <h1 className="text-lg font-semibold">{t('settings.title')}</h1>
@@ -122,44 +122,44 @@ export default function SettingsPage() {
 
             <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
                 {/* Profile section */}
-                <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
-                    <h2 className="font-semibold text-gray-900">{t('settings.profileSection')}</h2>
+                <div className="bg-surface rounded-xl p-6 shadow-sm space-y-4">
+                    <h2 className="font-semibold text-fg">{t('settings.profileSection')}</h2>
 
                     {error && (
                         <div className="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-sm">{error}</div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.displayName')}</label>
+                        <label className="block text-sm font-medium text-fg-muted mb-1">{t('settings.displayName')}</label>
                         <input
                             type="text"
                             value={form.username}
                             onChange={(e) => setForm({ ...form, username: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.email')}</label>
+                        <label className="block text-sm font-medium text-fg-muted mb-1">{t('settings.email')}</label>
                         <input
                             type="email"
                             value={user?.email || ''}
                             disabled
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
+                            className="w-full px-4 py-2.5 border border-line rounded-lg bg-app text-fg-subtle"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.phoneNumber')}</label>
+                        <label className="block text-sm font-medium text-fg-muted mb-1">{t('settings.phoneNumber')}</label>
                         <div className="relative">
                             <input
                                 type="tel"
                                 value={form.phoneNumber}
                                 onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-                                className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                                 placeholder="0912 345 678"
                             />
-                            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
                         </div>
                     </div>
 
@@ -239,13 +239,13 @@ export default function SettingsPage() {
                                 )}
 
                                 {isActive && !isPending && (
-                                    <Check size={18} className={theme.id === 'light' ? 'text-gray-800' : 'text-white'} />
+                                    <Check size={18} className={theme.id === 'light' ? 'text-fg' : 'text-white'} />
                                 )}
 
                                 {isPending && (
                                     <Loader2
                                         size={14}
-                                        className={`absolute animate-spin ${theme.id === 'light' ? 'text-gray-800' : 'text-white'}`}
+                                        className={`absolute animate-spin ${theme.id === 'light' ? 'text-fg' : 'text-white'}`}
                                     />
                                 )}
                             </motion.button>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Danger zone */}
-                <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="bg-surface rounded-xl p-6 shadow-sm">
                     <h2 className="font-semibold text-red-600 mb-3">{t('settings.logoutSection')}</h2>
                     <button
                         onClick={() => {

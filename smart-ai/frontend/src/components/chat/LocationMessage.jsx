@@ -16,7 +16,7 @@ export default function LocationMessage({ location, isOwn }) {
                 href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`relative block w-full h-[150px] ${isOwn ? 'bg-white/15' : 'bg-gray-200'}`}
+                className={`relative block w-full h-[150px] ${isOwn ? 'bg-white/15' : 'bg-hover'}`}
             >
                 <img
                     src={staticMapUrl}
@@ -33,9 +33,9 @@ export default function LocationMessage({ location, isOwn }) {
             </a>
 
             {/* Info section */}
-            <div className={`flex flex-col gap-2 p-3 ${isOwn ? 'bg-black/10' : 'bg-white'}`}>
+            <div className={`flex flex-col gap-2 p-3 ${isOwn ? 'bg-black/10' : 'bg-surface'}`}>
                 {address && (
-                    <p className={`text-xs leading-relaxed ${isOwn ? 'text-white/85' : 'text-gray-600'}`}>
+                    <p className={`text-xs leading-relaxed ${isOwn ? 'text-white/85' : 'text-fg-muted'}`}>
                         {address}
                     </p>
                 )}

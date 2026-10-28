@@ -50,7 +50,7 @@ export default function MemberList({ members, nicknames, myRole, onSetNickname, 
                 const initial = m.originalName.charAt(0).toUpperCase();
 
                 return (
-                    <div key={m.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-50 transition group relative">
+                    <div key={m.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-hover transition group relative">
                         {/* Avatar */}
                         <div
                             className="relative cursor-pointer shrink-0"
@@ -71,24 +71,24 @@ export default function MemberList({ members, nicknames, myRole, onSetNickname, 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5">
-                                <span className="text-sm font-medium text-gray-900 truncate">{m.name}</span>
+                                <span className="text-sm font-medium text-fg truncate">{m.name}</span>
                                 {m.hasNickname && (
-                                    <span className="text-xs text-gray-400 truncate">({m.originalName})</span>
+                                    <span className="text-xs text-fg-subtle truncate">({m.originalName})</span>
                                 )}
                                 {m.role === 'admin' && (
                                     <Crown size={12} className="text-yellow-500 shrink-0" />
                                 )}
                                 {m.role === 'deputy' && (
-                                    <span className="flex items-center gap-0.5 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full shrink-0">
+                                    <span className="flex items-center gap-0.5 text-[10px] text-brand bg-brand-soft px-1.5 py-0.5 rounded-full shrink-0">
                                         <Shield size={10} />
                                         Phó nhóm
                                     </span>
                                 )}
                                 {m.isSelf && (
-                                    <span className="text-xs text-gray-400">(Bạn)</span>
+                                    <span className="text-xs text-fg-subtle">(Bạn)</span>
                                 )}
                             </div>
-                            <p className={`text-xs ${m.isOnline ? 'text-green-500' : 'text-gray-400'}`}>
+                            <p className={`text-xs ${m.isOnline ? 'text-green-500' : 'text-fg-subtle'}`}>
                                 {m.isOnline ? 'Đang hoạt động' : 'Offline'}
                             </p>
                         </div>
@@ -98,18 +98,18 @@ export default function MemberList({ members, nicknames, myRole, onSetNickname, 
                             <div className="relative">
                                 <button
                                     onClick={() => setMenuOpen(menuOpen === m.id ? null : m.id)}
-                                    className="p-1 hover:bg-gray-200 rounded-full transition opacity-0 group-hover:opacity-100"
+                                    className="p-1 hover:bg-hover rounded-full transition opacity-0 group-hover:opacity-100"
                                 >
-                                    <MoreVertical size={14} className="text-gray-400" />
+                                    <MoreVertical size={14} className="text-fg-subtle" />
                                 </button>
 
                                 {menuOpen === m.id && (
                                     <>
                                         <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(null)} />
-                                        <div className="absolute right-0 top-8 z-20 bg-white border border-gray-200 rounded-xl shadow-lg py-1 w-44">
+                                        <div className="absolute right-0 top-8 z-20 bg-surface border border-line rounded-xl shadow-lg py-1 w-44">
                                             <button
                                                 onClick={() => { setMenuOpen(null); onSetNickname?.(member); }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                                className="w-full text-left px-4 py-2 text-sm text-fg-muted hover:bg-hover flex items-center gap-2"
                                             >
                                                 <Edit3 size={14} />
                                                 Đặt biệt danh
@@ -117,7 +117,7 @@ export default function MemberList({ members, nicknames, myRole, onSetNickname, 
                                             {myRole === 'admin' && m.role !== 'admin' && (
                                                 <button
                                                     onClick={() => { setMenuOpen(null); onSetRole?.(m.id, m.role === 'deputy' ? 'member' : 'deputy'); }}
-                                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                                    className="w-full text-left px-4 py-2 text-sm text-fg-muted hover:bg-hover flex items-center gap-2"
                                                 >
                                                     <Shield size={14} />
                                                     {m.role === 'deputy' ? 'Bỏ phó nhóm' : 'Đặt làm phó nhóm'}

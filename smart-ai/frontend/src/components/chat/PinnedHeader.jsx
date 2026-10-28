@@ -37,7 +37,7 @@ export default function PinnedHeader({ pinnedMessages, onScrollToMessage, onUnpi
     };
 
     return (
-        <div className="relative border-b border-gray-200 bg-amber-50/60">
+        <div className="relative border-b border-line bg-amber-50/60">
             <div className="flex items-center gap-2 px-4 py-2">
                 {/* Pin icon */}
                 <Pin size={14} className="text-amber-600 shrink-0" />
@@ -50,7 +50,7 @@ export default function PinnedHeader({ pinnedMessages, onScrollToMessage, onUnpi
                     <p className="text-xs font-medium text-amber-800 truncate">
                         {latest.sender?.username || 'Unknown'}
                     </p>
-                    <p className="text-xs text-gray-600 truncate">{getSnippet(latest)}</p>
+                    <p className="text-xs text-fg-muted truncate">{getSnippet(latest)}</p>
                 </button>
 
                 {/* "+N ghim" button with dropdown arrow */}
@@ -67,15 +67,15 @@ export default function PinnedHeader({ pinnedMessages, onScrollToMessage, onUnpi
             {showDropdown && (
                 <div
                     ref={dropdownRef}
-                    className="absolute top-full right-2 z-50 w-80 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-lg mt-1"
+                    className="absolute top-full right-2 z-50 w-80 max-h-64 overflow-y-auto bg-surface border border-line rounded-xl shadow-lg mt-1"
                 >
-                    <div className="px-3 py-2 border-b border-gray-100">
-                        <p className="text-xs font-semibold text-gray-700">Tin nhắn đã ghim ({pinnedMessages.length})</p>
+                    <div className="px-3 py-2 border-b border-line">
+                        <p className="text-xs font-semibold text-fg-muted">Tin nhắn đã ghim ({pinnedMessages.length})</p>
                     </div>
                     {sorted.map((msg) => (
                         <div
                             key={msg._id}
-                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition"
+                            className="flex items-center gap-2 px-3 py-2 hover:bg-hover transition"
                         >
                             <button
                                 className="flex-1 min-w-0 text-left"
@@ -84,15 +84,15 @@ export default function PinnedHeader({ pinnedMessages, onScrollToMessage, onUnpi
                                     setShowDropdown(false);
                                 }}
                             >
-                                <p className="text-xs font-medium text-gray-800 truncate">
+                                <p className="text-xs font-medium text-fg truncate">
                                     {msg.sender?.username || 'Unknown'}
                                 </p>
-                                <p className="text-xs text-gray-500 truncate">{getSnippet(msg)}</p>
+                                <p className="text-xs text-fg-subtle truncate">{getSnippet(msg)}</p>
                             </button>
                             {onUnpin && (
                                 <button
                                     onClick={() => onUnpin(msg)}
-                                    className="p-1 text-gray-400 hover:text-red-500 transition shrink-0"
+                                    className="p-1 text-fg-subtle hover:text-red-500 transition shrink-0"
                                     title="Bỏ ghim"
                                 >
                                     <X size={14} />

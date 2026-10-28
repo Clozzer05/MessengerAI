@@ -42,28 +42,28 @@ export default function ForgotPasswordPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Quên mật khẩu</h1>
-                    <p className="text-gray-500 mt-1">Nhập email để nhận mã xác nhận</p>
+                    <h1 className="text-2xl font-bold text-fg">Quên mật khẩu</h1>
+                    <p className="text-fg-subtle mt-1">Nhập email để nhận mã xác nhận</p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8 space-y-5">
+                <form onSubmit={handleSubmit} className="bg-surface rounded-2xl shadow-lg p-8 space-y-5">
                     {error && (
                         <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-fg-muted mb-1">Email</label>
                         <div className="relative">
                             <input
                                 type="email"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                                 placeholder="you@example.com"
                             />
-                            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
                         </div>
                     </div>
 
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
                         {cooldown > 0 ? `Gửi lại mã sau ${cooldown}s` : 'Gửi mã xác nhận'}
                     </button>
 
-                    <p className="text-center text-sm text-gray-500">
+                    <p className="text-center text-sm text-fg-subtle">
                         <Link to="/login" className="text-[var(--color-primary)] hover:underline font-medium inline-flex items-center gap-1">
                             <ArrowLeft size={14} />
                             Quay lại đăng nhập

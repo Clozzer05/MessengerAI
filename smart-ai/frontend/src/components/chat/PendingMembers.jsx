@@ -31,7 +31,7 @@ export default function PendingMembers({ roomId, pendingMembers, onApproved, onR
 
     if (!pendingMembers?.length) {
         return (
-            <div className="text-center py-4 text-sm text-gray-400">
+            <div className="text-center py-4 text-sm text-fg-subtle">
                 Không có yêu cầu tham gia nào
             </div>
         );
@@ -57,7 +57,7 @@ export default function PendingMembers({ roomId, pendingMembers, onApproved, onR
                         </div>
 
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{username}</p>
+                            <p className="text-sm font-medium text-fg truncate">{username}</p>
                             <p className="text-xs text-yellow-600 flex items-center gap-1">
                                 <Clock size={10} />
                                 Đang chờ duyệt

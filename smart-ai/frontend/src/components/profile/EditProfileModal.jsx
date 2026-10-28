@@ -90,13 +90,13 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={onClose}>
             <div
-                className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4 shadow-2xl"
+                className="bg-surface rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl z-10">
-                    <h2 className="text-lg font-bold text-gray-900">Chỉnh sửa trang cá nhân</h2>
-                    <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-full transition">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-line sticky top-0 bg-surface rounded-t-2xl z-10">
+                    <h2 className="text-lg font-bold text-fg">Chỉnh sửa trang cá nhân</h2>
+                    <button onClick={onClose} className="p-1.5 hover:bg-hover rounded-full transition">
                         <X size={20} />
                     </button>
                 </div>
@@ -104,7 +104,7 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
                 <form onSubmit={handleSubmit} className="p-5 space-y-5">
                     {/* Cover Photo */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Ảnh bìa</label>
+                        <label className="text-sm font-medium text-fg-muted mb-2 block">Ảnh bìa</label>
                         <div
                             className="h-32 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-gradient-to)] rounded-xl overflow-hidden relative cursor-pointer group"
                             onClick={() => coverInputRef.current?.click()}
@@ -127,7 +127,7 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
 
                     {/* Avatar */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Ảnh đại diện</label>
+                        <label className="text-sm font-medium text-fg-muted mb-2 block">Ảnh đại diện</label>
                         <div
                             className="w-24 h-24 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-3xl font-bold overflow-hidden relative cursor-pointer group mx-auto"
                             onClick={() => avatarInputRef.current?.click()}
@@ -152,69 +152,69 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
 
                     {/* Username */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Tên hiển thị</label>
+                        <label className="text-sm font-medium text-fg-muted mb-1 block">Tên hiển thị</label>
                         <input
                             type="text"
                             value={form.username}
                             onChange={handleChange('username')}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
                             maxLength={30}
                         />
                     </div>
 
                     {/* Bio */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Tiểu sử</label>
+                        <label className="text-sm font-medium text-fg-muted mb-1 block">Tiểu sử</label>
                         <textarea
                             value={form.bio}
                             onChange={handleChange('bio')}
                             rows={2}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition resize-none"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition resize-none"
                             maxLength={200}
                             placeholder="Giới thiệu về bạn..."
                         />
-                        <p className="text-xs text-gray-400 text-right">{form.bio.length}/200</p>
+                        <p className="text-xs text-fg-subtle text-right">{form.bio.length}/200</p>
                     </div>
 
                     {/* Phone */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Số điện thoại</label>
+                        <label className="text-sm font-medium text-fg-muted mb-1 block">Số điện thoại</label>
                         <input
                             type="tel"
                             value={form.phoneNumber}
                             onChange={handleChange('phoneNumber')}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
                             placeholder="0123 456 789"
                         />
                     </div>
 
                     {/* Address */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Địa chỉ</label>
+                        <label className="text-sm font-medium text-fg-muted mb-1 block">Địa chỉ</label>
                         <input
                             type="text"
                             value={form.address}
                             onChange={handleChange('address')}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
                             placeholder="Thành phố, Quốc gia"
                         />
                     </div>
 
                     {/* Education */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Học vấn</label>
+                        <label className="text-sm font-medium text-fg-muted mb-1 block">Học vấn</label>
                         <input
                             type="text"
                             value={form.education}
                             onChange={handleChange('education')}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
                             placeholder="Trường, ngành học..."
                         />
                     </div>
 
                     {/* Hobbies */}
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-1 block">Sở thích</label>
+                        <label className="text-sm font-medium text-fg-muted mb-1 block">Sở thích</label>
                         <div className="flex flex-wrap gap-2 mb-2">
                             {form.hobbies.map((h, i) => (
                                 <span key={i} className="flex items-center gap-1 px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] rounded-full text-sm">
@@ -231,7 +231,7 @@ export default function EditProfileModal({ profile, onClose, onSaved }) {
                                 value={hobbyInput}
                                 onChange={(e) => setHobbyInput(e.target.value)}
                                 onKeyDown={handleHobbyKeyDown}
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                                className="flex-1 px-4 py-2 border border-line-strong rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
                                 placeholder="Thêm sở thích..."
                             />
                             <button

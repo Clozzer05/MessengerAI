@@ -65,11 +65,11 @@ export default function CreateRoomModal({ onClose, onCreated }) {
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col shadow-xl fade-in">
+            <div className="bg-surface rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col shadow-xl fade-in">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b">
                     <h3 className="text-lg font-semibold">Cuộc trò chuyện mới</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full">
+                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full">
                         <X size={20} />
                     </button>
                 </div>
@@ -80,7 +80,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
                         onClick={() => { setTab('direct'); setSelectedUsers([]); }}
                         className={`flex-1 py-2.5 text-sm font-medium transition ${tab === 'direct'
                             ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-                            : 'text-gray-500 hover:text-gray-700'
+                            : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
                         <UserPlus size={16} className="inline mr-1" />
@@ -90,7 +90,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
                         onClick={() => { setTab('group'); setSelectedUsers([]); }}
                         className={`flex-1 py-2.5 text-sm font-medium transition ${tab === 'group'
                             ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-                            : 'text-gray-500 hover:text-gray-700'
+                            : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
                         <Users size={16} className="inline mr-1" />
@@ -111,7 +111,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
                             value={groupName}
                             onChange={(e) => setGroupName(e.target.value)}
                             placeholder="Tên nhóm (tùy chọn)"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none"
+                            className="w-full px-3 py-2 border border-line-strong rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none"
                         />
                     )}
 
@@ -124,7 +124,7 @@ export default function CreateRoomModal({ onClose, onCreated }) {
                                     className="inline-flex items-center gap-1 bg-[var(--color-primary-medium)] text-[var(--color-primary-dark)] px-2.5 py-1 rounded-full text-sm"
                                 >
                                     {u.username}
-                                    <button onClick={() => toggleUser(u)} className="hover:text-blue-900">
+                                    <button onClick={() => toggleUser(u)} className="hover:text-brand-strong">
                                         <X size={14} />
                                     </button>
                                 </span>
@@ -134,13 +134,13 @@ export default function CreateRoomModal({ onClose, onCreated }) {
 
                     {/* Search */}
                     <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => handleSearch(e.target.value)}
                             placeholder="Tìm người dùng..."
-                            className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)]"
+                            className="w-full pl-9 pr-4 py-2 bg-surface-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)]"
                         />
                     </div>
 
@@ -157,15 +157,15 @@ export default function CreateRoomModal({ onClose, onCreated }) {
                             <button
                                 key={u._id}
                                 onClick={() => toggleUser(u)}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-left ${selected ? 'bg-[var(--color-primary-light)] ring-1 ring-[var(--color-primary-medium)]' : 'hover:bg-gray-50'
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-left ${selected ? 'bg-[var(--color-primary-light)] ring-1 ring-[var(--color-primary-medium)]' : 'hover:bg-hover'
                                     }`}
                             >
                                 <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white font-medium">
                                     {u.username.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 truncate">{u.username}</p>
-                                    <p className="text-xs text-gray-500">{u.preferredLanguageLabel || u.preferredLanguage}</p>
+                                    <p className="font-medium text-fg truncate">{u.username}</p>
+                                    <p className="text-xs text-fg-subtle">{u.preferredLanguageLabel || u.preferredLanguage}</p>
                                 </div>
                                 {selected && (
                                     <div className="w-5 h-5 bg-[var(--color-primary)] rounded-full flex items-center justify-center">

@@ -60,28 +60,28 @@ export default function AddMemberModal({ roomId, existingMemberIds, canAddDirect
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-            <div className="bg-white rounded-2xl w-full max-w-sm mx-4 shadow-xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                    <h3 className="font-semibold text-gray-900">{canAddDirectly ? 'Thêm thành viên' : 'Mời thành viên'}</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
+            <div className="bg-surface rounded-2xl w-full max-w-sm mx-4 shadow-xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+                    <h3 className="font-semibold text-fg">{canAddDirectly ? 'Thêm thành viên' : 'Mời thành viên'}</h3>
+                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full transition">
                         <X size={18} />
                     </button>
                 </div>
 
                 {!canAddDirectly && (
-                    <p className="px-5 pt-3 text-xs text-gray-500">Người bạn mời sẽ vào danh sách chờ, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
+                    <p className="px-5 pt-3 text-xs text-fg-subtle">Người bạn mời sẽ vào danh sách chờ, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
                 )}
 
                 {/* Search */}
                 <div className="px-5 py-3">
                     <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Tìm bạn bè..."
-                            className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
+                            className="w-full pl-9 pr-4 py-2 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
                             autoFocus
                         />
                     </div>
@@ -94,7 +94,7 @@ export default function AddMemberModal({ roomId, existingMemberIds, canAddDirect
                             <Loader2 size={24} className="animate-spin text-[var(--color-primary)]" />
                         </div>
                     ) : filtered.length === 0 ? (
-                        <p className="text-center text-sm text-gray-400 py-8">
+                        <p className="text-center text-sm text-fg-subtle py-8">
                             {search ? 'Không tìm thấy' : 'Không có bạn bè để thêm'}
                         </p>
                     ) : (
@@ -102,7 +102,7 @@ export default function AddMemberModal({ roomId, existingMemberIds, canAddDirect
                             const u = getFriendUser(f);
                             const initial = u.username?.charAt(0).toUpperCase() || '?';
                             return (
-                                <div key={u._id} className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-gray-50">
+                                <div key={u._id} className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-hover">
                                     <div className="w-9 h-9 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-sm font-semibold overflow-hidden shrink-0">
                                         {u.avatar ? (
                                             <img src={u.avatar} alt={u.username} className="w-full h-full object-cover" />
@@ -110,7 +110,7 @@ export default function AddMemberModal({ roomId, existingMemberIds, canAddDirect
                                             initial
                                         )}
                                     </div>
-                                    <span className="flex-1 text-sm font-medium text-gray-900 truncate">{u.username}</span>
+                                    <span className="flex-1 text-sm font-medium text-fg truncate">{u.username}</span>
                                     <button
                                         onClick={() => handleAdd(u._id)}
                                         disabled={addingId === u._id}

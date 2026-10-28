@@ -90,7 +90,7 @@ export default function GroupProfilePage() {
 
     if (loading) {
         return (
-            <div className="h-screen flex items-center justify-center bg-gray-50">
+            <div className="h-screen flex items-center justify-center bg-app">
                 <Loader2 size={32} className="animate-spin text-[var(--color-primary)]" />
             </div>
         );
@@ -98,8 +98,8 @@ export default function GroupProfilePage() {
 
     if (!room) {
         return (
-            <div className="h-screen flex flex-col items-center justify-center bg-gray-50">
-                <p className="text-gray-500 mb-4">Không tìm thấy nhóm</p>
+            <div className="h-screen flex flex-col items-center justify-center bg-app">
+                <p className="text-fg-subtle mb-4">Không tìm thấy nhóm</p>
                 <button onClick={() => navigate('/')} className="text-[var(--color-primary)] hover:underline">
                     Quay lại
                 </button>
@@ -111,14 +111,14 @@ export default function GroupProfilePage() {
     const memberCount = room.members?.length || 0;
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-surface-muted">
             {/* Top navigation */}
-            <div className="bg-white shadow-sm sticky top-0 z-10">
+            <div className="bg-surface shadow-sm sticky top-0 z-10">
                 <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => navigate(-1)} className="p-1.5 hover:bg-gray-100 rounded-full transition">
+                    <button onClick={() => navigate(-1)} className="p-1.5 hover:bg-hover rounded-full transition">
                         <ArrowLeft size={20} />
                     </button>
-                    <h1 className="font-semibold text-gray-900">{room.name}</h1>
+                    <h1 className="font-semibold text-fg">{room.name}</h1>
                 </div>
             </div>
 
@@ -200,16 +200,16 @@ export default function GroupProfilePage() {
                 </div>
 
                 {/* ─── Name + Description + Actions ─── */}
-                <div className="bg-white rounded-2xl mt-0 px-6 pt-20 pb-6 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900">{room.name}</h2>
+                <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6 shadow-sm">
+                    <h2 className="text-2xl font-bold text-fg">{room.name}</h2>
                     {room.description && (
-                        <p className="text-gray-600 mt-1">{room.description}</p>
+                        <p className="text-fg-muted mt-1">{room.description}</p>
                     )}
-                    <p className="text-sm text-gray-400 mt-1 flex items-center gap-1">
+                    <p className="text-sm text-fg-subtle mt-1 flex items-center gap-1">
                         <Users size={14} />
                         {memberCount} thành viên
                     </p>
-                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-fg-subtle mt-1 flex items-center gap-1">
                         <Calendar size={12} />
                         Tạo ngày {room.createdAt ? format(new Date(room.createdAt), 'dd/MM/yyyy') : ''}
                     </p>
@@ -231,8 +231,8 @@ export default function GroupProfilePage() {
                 </div>
 
                 {/* ─── Members section ─── */}
-                <div className="bg-white rounded-2xl mt-4 px-6 py-5 shadow-sm mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-surface rounded-2xl mt-4 px-6 py-5 shadow-sm mb-8">
+                    <h3 className="text-lg font-semibold text-fg mb-4">
                         Thành viên ({memberCount})
                     </h3>
                     <div className="space-y-3">
@@ -244,7 +244,7 @@ export default function GroupProfilePage() {
                             return (
                                 <div
                                     key={userId}
-                                    className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-xl transition"
+                                    className="flex items-center gap-3 cursor-pointer hover:bg-hover p-2 -mx-2 rounded-xl transition"
                                     onClick={() => navigate(`/profile/${userId}`)}
                                 >
                                     <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white font-semibold overflow-hidden shrink-0">
@@ -255,14 +255,14 @@ export default function GroupProfilePage() {
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <span className="text-sm font-medium text-gray-900">{username}</span>
+                                        <span className="text-sm font-medium text-fg">{username}</span>
                                         {member.role === 'admin' && (
                                             <span className="ml-2 text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">
                                                 Admin
                                             </span>
                                         )}
                                         {member.role === 'deputy' && (
-                                            <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                            <span className="ml-2 text-xs text-brand bg-brand-soft px-2 py-0.5 rounded-full">
                                                 Phó nhóm
                                             </span>
                                         )}
@@ -306,7 +306,7 @@ function EditGroupButton({ room, onSaved }) {
         <>
             <button
                 onClick={() => { setName(room.name || ''); setDescription(room.description || ''); setShow(true); }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-xl transition"
+                className="flex items-center gap-2 px-5 py-2.5 bg-surface-muted hover:bg-hover text-fg font-medium rounded-xl transition"
             >
                 <Edit3 size={16} />
                 Chỉnh sửa thông tin
@@ -314,38 +314,38 @@ function EditGroupButton({ room, onSaved }) {
 
             {show && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShow(false)}>
-                    <div className="bg-white rounded-2xl w-full max-w-md mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-5 py-4 border-b border-gray-100">
-                            <h3 className="font-semibold text-gray-900">Chỉnh sửa thông tin nhóm</h3>
+                    <div className="bg-surface rounded-2xl w-full max-w-md mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="px-5 py-4 border-b border-line">
+                            <h3 className="font-semibold text-fg">Chỉnh sửa thông tin nhóm</h3>
                         </div>
                         <form onSubmit={handleSave} className="p-5 space-y-4">
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-1">Tên nhóm</label>
+                                <label className="text-sm font-medium text-fg-muted block mb-1">Tên nhóm</label>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
+                                    className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
                                     maxLength={100}
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700 block mb-1">Mô tả nhóm</label>
+                                <label className="text-sm font-medium text-fg-muted block mb-1">Mô tả nhóm</label>
                                 <textarea
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     rows={3}
                                     maxLength={500}
                                     placeholder="Mô tả nhóm của bạn..."
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
+                                    className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
                                 />
                             </div>
                             <div className="flex gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setShow(false)}
-                                    className="flex-1 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition"
+                                    className="flex-1 py-2.5 text-sm font-medium text-fg-muted bg-surface-muted hover:bg-hover rounded-xl transition"
                                 >
                                     Huỷ
                                 </button>

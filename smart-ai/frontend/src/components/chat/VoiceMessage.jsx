@@ -80,7 +80,7 @@ export default function VoiceMessage({ url, isOwn }) {
             {/* Waveform / progress */}
             <div className="flex-1 flex flex-col gap-1">
                 <div
-                    className={`relative h-2 rounded-full cursor-pointer ${isOwn ? 'bg-white/20' : 'bg-gray-300'}`}
+                    className={`relative h-2 rounded-full cursor-pointer ${isOwn ? 'bg-white/20' : 'bg-line-strong'}`}
                     onClick={handleSeek}
                 >
                     <div
@@ -88,7 +88,7 @@ export default function VoiceMessage({ url, isOwn }) {
                         style={{ width: `${progress}%` }}
                     />
                 </div>
-                <span className={`text-[10px] ${isOwn ? 'text-white/60' : 'text-gray-400'}`}>
+                <span className={`text-[10px] ${isOwn ? 'text-white/60' : 'text-fg-subtle'}`}>
                     {playing || currentTime > 0 ? formatTime(currentTime) : formatTime(duration)}
                 </span>
             </div>

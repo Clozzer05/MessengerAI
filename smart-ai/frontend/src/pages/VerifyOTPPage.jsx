@@ -112,14 +112,14 @@ export default function VerifyOTPPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Nhập mã OTP</h1>
-                    <p className="text-gray-500 mt-1">
-                        Mã xác nhận đã gửi đến <span className="font-medium text-gray-700">{email}</span>
+                    <h1 className="text-2xl font-bold text-fg">Nhập mã OTP</h1>
+                    <p className="text-fg-subtle mt-1">
+                        Mã xác nhận đã gửi đến <span className="font-medium text-fg-muted">{email}</span>
                     </p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+                <form onSubmit={handleSubmit} className="bg-surface rounded-2xl shadow-lg p-8 space-y-6">
                     {error && (
                         <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                     )}
@@ -137,7 +137,7 @@ export default function VerifyOTPPage() {
                                 onChange={(e) => handleChange(i, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(i, e)}
                                 onPaste={i === 0 ? handlePaste : undefined}
-                                className="w-12 h-14 text-center text-xl font-bold border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary)] outline-none transition"
+                                className="w-12 h-14 text-center text-xl font-bold border-2 border-line-strong rounded-xl focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary)] outline-none transition"
                             />
                         ))}
                     </div>
@@ -152,7 +152,7 @@ export default function VerifyOTPPage() {
                     </button>
 
                     {/* Gửi lại mã */}
-                    <div className="text-center text-sm text-gray-500">
+                    <div className="text-center text-sm text-fg-subtle">
                         Chưa nhận được mã?{' '}
                         <button
                             type="button"
@@ -164,7 +164,7 @@ export default function VerifyOTPPage() {
                         </button>
                     </div>
 
-                    <p className="text-center text-sm text-gray-500">
+                    <p className="text-center text-sm text-fg-subtle">
                         <Link to="/forgot-password" className="text-[var(--color-primary)] hover:underline font-medium inline-flex items-center gap-1">
                             <ArrowLeft size={14} />
                             Đổi email khác

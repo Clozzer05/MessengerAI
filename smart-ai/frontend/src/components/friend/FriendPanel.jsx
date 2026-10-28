@@ -279,7 +279,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
     const renderSuggestionItem = (u, score) => (
         <motion.div
             key={u._id}
-            className={`flex flex-col gap-2 p-3 rounded-xl border border-gray-100 ${isGlassTheme ? 'bg-white/40 hover:bg-white/60' : 'bg-gray-50 hover:bg-gray-100'} transition`}
+            className={`flex flex-col gap-2 p-3 rounded-xl border border-line ${isGlassTheme ? 'bg-white/40 hover:bg-white/60' : 'bg-app hover:bg-hover'} transition`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
         >
@@ -296,13 +296,13 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     )}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate flex items-center gap-2">
+                    <p className="font-medium text-fg text-sm truncate flex items-center gap-2">
                         {u.username}
                         <span className="text-[10px] font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded-full border border-green-200">
                             {score}%
                         </span>
                     </p>
-                    <p className="text-[11px] text-gray-500 truncate mt-0.5">
+                    <p className="text-[11px] text-fg-subtle truncate mt-0.5">
                         {u.preferredLanguageLabel || u.preferredLanguage}
                     </p>
                 </div>
@@ -338,7 +338,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
             {u.reasonBadges && u.reasonBadges.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pl-[52px]">
                     {u.reasonBadges.map((badge, idx) => (
-                        <span key={idx} className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 whitespace-nowrap">
+                        <span key={idx} className="text-[10px] bg-brand-soft text-brand px-1.5 py-0.5 rounded border border-brand-medium whitespace-nowrap">
                             {badge}
                         </span>
                     ))}
@@ -348,18 +348,18 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
     );
 
     return (
-        <div className={`h-full flex flex-col border-r border-gray-200 ${isGlassTheme ? 'glass-panel' : 'bg-white'} ${isPixelTheme ? 'font-pixel' : ''}`}>
+        <div className={`h-full flex flex-col border-r border-line ${isGlassTheme ? 'glass-panel' : 'bg-surface'} ${isPixelTheme ? 'font-pixel' : ''}`}>
             {/* Header */}
-            <div className={`p-4 border-b border-gray-100 ${isGlassTheme ? 'bg-white/5 backdrop-blur-xl' : ''}`}>
-                <h2 className="text-xl font-bold text-gray-900 mb-3">{t('friendPanel.title')}</h2>
+            <div className={`p-4 border-b border-line ${isGlassTheme ? 'bg-white/5 backdrop-blur-xl' : ''}`}>
+                <h2 className="text-xl font-bold text-fg mb-3">{t('friendPanel.title')}</h2>
 
                 {/* Tabs */}
-                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                <div className="flex gap-1 bg-surface-muted rounded-lg p-1">
                     <button
                         onClick={() => setTab('friends')}
                         className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${tab === 'friends'
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                            : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
                         <Users size={14} className="inline mr-1" />
@@ -368,8 +368,8 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     <button
                         onClick={() => setTab('requests')}
                         className={`flex-1 py-1.5 text-xs font-medium rounded-md transition relative ${tab === 'requests'
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                            : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
                         <Bell size={14} className="inline mr-1" />
@@ -388,8 +388,8 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     <button
                         onClick={() => setTab('search')}
                         className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${tab === 'search'
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                            : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
                         <UserPlus size={14} className="inline mr-1" />
@@ -398,8 +398,8 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     <button
                         onClick={() => setTab('suggestions')}
                         className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${tab === 'suggestions'
-                            ? 'bg-white text-[var(--color-primary)] shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                            : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
                         <Sparkles size={14} className="inline mr-1" />
@@ -423,7 +423,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                 {!loading && tab === 'friends' && (
                     <>
                         {friends.length === 0 ? (
-                            <div className="p-8 text-center text-gray-400">
+                            <div className="p-8 text-center text-fg-subtle">
                                 <Users size={40} className="mx-auto mb-2 opacity-50" />
                                 <p className="text-sm">{t('friendPanel.noFriends')}</p>
                                 <button
@@ -439,7 +439,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                                 return (
                                     <motion.div
                                         key={friend._id}
-                                        className={`flex items-center gap-3 px-4 py-3 transition ${isGlassTheme ? 'hover:bg-cyan-400/10 rounded-xl mx-1.5 my-0.5 border border-transparent hover:border-cyan-300/30' : 'hover:bg-gray-50'}`}
+                                        className={`flex items-center gap-3 px-4 py-3 transition ${isGlassTheme ? 'hover:bg-cyan-400/10 rounded-xl mx-1.5 my-0.5 border border-transparent hover:border-cyan-300/30' : 'hover:bg-hover'}`}
                                         whileHover={{ x: 2, scale: 1.01 }}
                                         transition={{ type: 'spring', stiffness: 310, damping: 22 }}
                                     >
@@ -460,10 +460,10 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 text-sm truncate">
+                                            <p className="font-medium text-fg text-sm truncate">
                                                 {friend.username}
                                             </p>
-                                            <p className="text-xs text-gray-400">
+                                            <p className="text-xs text-fg-subtle">
                                                 {isOnline ? t('common.online') : t('common.offline')}
                                             </p>
                                         </div>
@@ -487,22 +487,22 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                         {/* Incoming requests */}
                         {requests.length > 0 && (
                             <div>
-                                <p className="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">
+                                <p className="px-4 pt-3 pb-1 text-xs font-semibold text-fg-subtle uppercase">
                                     {t('friendPanel.incomingRequests')}
                                 </p>
                                 {requests.map((req) => (
                                     <div
                                         key={req._id}
-                                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
+                                        className="flex items-center gap-3 px-4 py-3 hover:bg-hover"
                                     >
                                         <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold shrink-0">
                                             {req.requester?.username?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 text-sm truncate">
+                                            <p className="font-medium text-fg text-sm truncate">
                                                 {req.requester?.username}
                                             </p>
-                                            <p className="text-xs text-gray-400">{t('friendPanel.wantsToConnect')}</p>
+                                            <p className="text-xs text-fg-subtle">{t('friendPanel.wantsToConnect')}</p>
                                         </div>
                                         <div className="flex gap-1.5">
                                             <button
@@ -542,19 +542,19 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                         {/* Sent requests */}
                         {sentRequests.length > 0 && (
                             <div>
-                                <p className="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase">
+                                <p className="px-4 pt-3 pb-1 text-xs font-semibold text-fg-subtle uppercase">
                                     {t('friendPanel.sentRequests')}
                                 </p>
                                 {sentRequests.map((req) => (
                                     <div
                                         key={req._id}
-                                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
+                                        className="flex items-center gap-3 px-4 py-3 hover:bg-hover"
                                     >
-                                        <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold shrink-0">
+                                        <div className="w-10 h-10 rounded-full bg-fg-subtle flex items-center justify-center text-white font-semibold shrink-0">
                                             {req.recipient?.username?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 text-sm truncate">
+                                            <p className="font-medium text-fg text-sm truncate">
                                                 {req.recipient?.username}
                                             </p>
                                             <div className="flex items-center gap-1 text-xs text-yellow-600">
@@ -580,7 +580,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                         )}
 
                         {requests.length === 0 && sentRequests.length === 0 && (
-                            <div className="p-8 text-center text-gray-400">
+                            <div className="p-8 text-center text-fg-subtle">
                                 <Bell size={40} className="mx-auto mb-2 opacity-50" />
                                 <p className="text-sm">{t('friendPanel.noRequests')}</p>
                             </div>
@@ -614,7 +614,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                         )}
 
                         {suggestions.topSimilarity?.length === 0 && suggestions.topicAffinity?.length === 0 && (
-                            <div className="p-8 text-center text-gray-400">
+                            <div className="p-8 text-center text-fg-subtle">
                                 <Sparkles size={40} className="mx-auto mb-2 opacity-50" />
                                 <p className="text-sm">Chưa có gợi ý phù hợp cho bạn lúc này.</p>
                                 <p className="text-xs mt-1">Hãy tham gia câu lạc bộ, trò chuyện, hoặc thiết lập sở thích của bạn để nhận gợi ý!</p>
@@ -629,14 +629,14 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                         <div className="relative">
                             <Search
                                 size={16}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle"
                             />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => handleSearch(e.target.value)}
                                 placeholder={t('friendPanel.searchPlaceholder')}
-                                className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)]"
+                                className="w-full pl-9 pr-4 py-2 bg-surface-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)]"
                             />
                         </div>
 
@@ -650,7 +650,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                             {searchResults.map((u) => (
                             <motion.div
                                 key={u._id}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg ${isGlassTheme ? 'hover:bg-cyan-400/10 border border-transparent hover:border-cyan-300/25' : 'hover:bg-gray-50'}`}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg ${isGlassTheme ? 'hover:bg-cyan-400/10 border border-transparent hover:border-cyan-300/25' : 'hover:bg-hover'}`}
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -6 }}
@@ -660,10 +660,10 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                                     {u.username.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 text-sm truncate">
+                                    <p className="font-medium text-fg text-sm truncate">
                                         {u.username}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-fg-subtle">
                                         {u.preferredLanguageLabel || u.preferredLanguage}
                                     </p>
                                 </div>
@@ -712,13 +712,13 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                         </AnimatePresence>
 
                         {!searching && searchQuery.length >= 2 && searchResults.length === 0 && (
-                            <p className="text-center text-sm text-gray-400 py-4">
+                            <p className="text-center text-sm text-fg-subtle py-4">
                                 {t('friendPanel.noUsersFound')}
                             </p>
                         )}
 
                         {searchQuery.length < 2 && (
-                            <p className="text-center text-sm text-gray-400 py-4">
+                            <p className="text-center text-sm text-fg-subtle py-4">
                                 {t('friendPanel.atLeastTwoChars')}
                             </p>
                         )}
