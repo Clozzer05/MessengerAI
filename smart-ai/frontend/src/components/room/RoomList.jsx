@@ -11,7 +11,9 @@ import SkeletonBlock from '../ui/SkeletonBlock';
 
 // Thời gian ngắn gọn ở danh sách phòng: "Vừa xong", "5 phút", "3 giờ", "2 ngày", quá 1 tuần thì ngày/tháng
 const formatShortTime = (date) => {
-    const minutes = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+    const time = new Date(date).getTime();
+    if (Number.isNaN(time)) return '';
+    const minutes = Math.floor((Date.now() - time) / 60000);
     if (minutes < 1) return 'Vừa xong';
     if (minutes < 60) return `${minutes} phút`;
     if (minutes < 24 * 60) return `${Math.floor(minutes / 60)} giờ`;
@@ -236,7 +238,8 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
     }, [focusSearch, navigateRoomsByShortcut]);
 
     const handleCreated = (newRoom) => {
-        setRooms((prev) => [newRoom, ...prev]);
+        // Chat 1-1 đã có thì server trả lại phòng cũ: chỉ mở phòng đó, không thêm trùng vào danh sách
+        setRooms((prev) => (prev.some((r) => r._id === newRoom._id) ? prev : [newRoom, ...prev]));
         setShowCreate(false);
         onSelectRoom(newRoom._id);
     };
@@ -328,7 +331,8 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                     const display = getRoomDisplay(room);
                     const isActive = room._id === activeRoomId;
                     const isOnline = display.otherUserId && onlineUsers.includes(display.otherUserId);
-                    const lastMsg = room.lastMessage;
+                    // lastMessage có thể chỉ là id (chưa populate): coi như chưa có tin để không lỗi khi hiện giờ
+                    const lastMsg = room.lastMessage && typeof room.lastMessage === 'object' ? room.lastMessage : null;
                     const unread = unreadCounts[room._id] || 0;
                     const lastFromMe = lastMsg && String(lastMsg.sender?._id || lastMsg.sender) === user?._id;
                     const lastPreview = !lastMsg
