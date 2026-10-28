@@ -4,11 +4,20 @@ import { useAuth } from '../../hooks/useAuth';
 import { useSocket } from '../../hooks/useSocket';
 import { emitToast } from '../../utils/toast';
 import { confirmDialog } from '../../utils/confirm';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import { Plus, Search, MessageCircle, Users, MoreVertical, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { Plus, Search, MessageCircle, Users, MoreHorizontal, Trash2 } from 'lucide-react';
 import CreateRoomModal from './CreateRoomModal';
 import SkeletonBlock from '../ui/SkeletonBlock';
+
+// Thời gian ngắn gọn ở danh sách phòng: "Vừa xong", "5 phút", "3 giờ", "2 ngày", quá 1 tuần thì ngày/tháng
+const formatShortTime = (date) => {
+    const minutes = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
+    if (minutes < 1) return 'Vừa xong';
+    if (minutes < 60) return `${minutes} phút`;
+    if (minutes < 24 * 60) return `${Math.floor(minutes / 60)} giờ`;
+    if (minutes < 7 * 24 * 60) return `${Math.floor(minutes / (24 * 60))} ngày`;
+    return format(new Date(date), 'dd/MM');
+};
 
 export default function RoomList({ activeRoomId, onSelectRoom }) {
     const { user } = useAuth();
@@ -291,7 +300,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
             </div>
 
             {/* Room List */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin">
+            <div className="flex-1 overflow-y-auto scrollbar-thin py-1">
                 {loading && (
                     <div className="p-4 space-y-3">
                         {Array.from({ length: 6 }).map((_, idx) => (
@@ -315,120 +324,114 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                 )}
 
                 {filtered.map((room) => {
-    const display = getRoomDisplay(room);
-    const isActive = room._id === activeRoomId;
-    const isOnline = display.otherUserId && onlineUsers.includes(display.otherUserId);
-    const lastMsg = room.lastMessage;
-    const unread = unreadCounts[room._id] || 0;
+                    const display = getRoomDisplay(room);
+                    const isActive = room._id === activeRoomId;
+                    const isOnline = display.otherUserId && onlineUsers.includes(display.otherUserId);
+                    const lastMsg = room.lastMessage;
+                    const unread = unreadCounts[room._id] || 0;
+                    const lastFromMe = lastMsg && String(lastMsg.sender?._id || lastMsg.sender) === user?._id;
+                    const lastPreview = !lastMsg
+                        ? ''
+                        : lastMsg.type === 'system'
+                            ? lastMsg.content
+                            : lastFromMe
+                                ? `Bạn: ${lastMsg.content}`
+                                : lastMsg.sender?.username
+                                    ? `${lastMsg.sender.username}: ${lastMsg.content}`
+                                    : lastMsg.content;
 
-    return (
-        <div key={room._id} className="relative group">
-            {/* div thay cho button: bên trong có nút 3 chấm, HTML không cho button lồng button */}
-            <div
-                role="button"
-                tabIndex={0}
-                onClick={() => onSelectRoom(room._id)}
-                onKeyDown={(e) => {
-                    if (e.target !== e.currentTarget) return;
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onSelectRoom(room._id);
-                    }
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-hover transition text-left cursor-pointer ${
-                    isActive ? 'bg-[var(--color-primary-light)] border-r-2 border-[var(--color-primary-ring)]' : ''
-                }`}
-            >
-                {/* 1. Avatar */}
-                <div className="relative shrink-0">
-                    <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg overflow-hidden ${
-                            display.isGroup ? 'bg-purple-500' : 'bg-[var(--color-primary)]'
-                        }`}
-                    >
-                        {display.isGroup ? (
-                            <Users size={20} />
-                        ) : display.avatar ? (
-                            <img src={display.avatar} alt={display.name} className="w-full h-full object-cover" />
-                        ) : (
-                            display.name.charAt(0).toUpperCase()
-                        )}
-                    </div>
-                    {isOnline && (
-                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full" />
-                    )}
-                </div>
+                    return (
+                        <div key={room._id} className="relative group px-2">
+                            {/* div thay cho button: bên trong có nút 3 chấm, HTML không cho button lồng button */}
+                            <div
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => onSelectRoom(room._id)}
+                                onKeyDown={(e) => {
+                                    if (e.target !== e.currentTarget) return;
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        onSelectRoom(room._id);
+                                    }
+                                }}
+                                className={`w-full flex items-center gap-3 px-2 py-2.5 rounded-xl transition text-left cursor-pointer ${
+                                    isActive ? 'bg-brand-soft' : 'hover:bg-hover'
+                                }`}
+                            >
+                                {/* Avatar */}
+                                <div className="relative shrink-0">
+                                    <div
+                                        className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg overflow-hidden ${
+                                            display.isGroup ? 'bg-purple-500' : 'bg-[var(--color-primary)]'
+                                        }`}
+                                    >
+                                        {display.avatar ? (
+                                            <img src={display.avatar} alt={display.name} className="w-full h-full object-cover" />
+                                        ) : display.isGroup ? (
+                                            <Users size={20} />
+                                        ) : (
+                                            display.name.charAt(0).toUpperCase()
+                                        )}
+                                    </div>
+                                    {isOnline && (
+                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[var(--bg-card)] rounded-full" />
+                                    )}
+                                </div>
 
-                {/* 2. Container chính: Chứa text và các thành phần bên phải */}
-                <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
-                    
-                    {/* Info (Tên & Tin nhắn) - Phần này sẽ co dãn và hiện dấu ... */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                            <span className="font-medium truncate text-fg flex-1">
-                                {display.name}
-                            </span>
-                            {unread > 0 && (
-                                <span className="bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shrink-0">
-                                    {unread > 99 ? '99+' : unread}
-                                </span>
-                            )}
-                        </div>
-                        {lastMsg && (
-                            <p className={`text-sm truncate mt-0.5 ${unread > 0 ? 'text-fg font-semibold' : 'text-fg-subtle'}`}>
-                                {lastMsg.type === 'system'
-                                    ? lastMsg.content
-                                    : lastMsg.sender?.username
-                                        ? `${lastMsg.sender.username}: ${lastMsg.content}`
-                                        : lastMsg.content}
-                            </p>
-                        )}
-                    </div>
+                                {/* Tên + giờ ở dòng trên, tin cuối + số chưa đọc ở dòng dưới */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className={`flex-1 truncate text-fg ${unread > 0 ? 'font-semibold' : 'font-medium'}`}>
+                                            {display.name}
+                                        </span>
+                                        {lastMsg && (
+                                            <span className={`text-xs whitespace-nowrap shrink-0 ${unread > 0 ? 'text-brand font-semibold' : 'text-fg-subtle'}`}>
+                                                {formatShortTime(lastMsg.createdAt)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <p className={`flex-1 text-sm truncate ${unread > 0 ? 'text-fg font-semibold' : 'text-fg-subtle'}`}>
+                                            {lastPreview || '\u00a0'}
+                                        </p>
+                                        {unread > 0 && (
+                                            <span className="bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shrink-0">
+                                                {unread > 99 ? '99+' : unread}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
 
-                    {/* Right Side: Thời gian và Nút 3 chấm */}
-                    <div className="flex flex-col items-end shrink-0 self-stretch justify-between relative">
-                        {lastMsg && (
-                            <span className="text-xs text-fg-subtle whitespace-nowrap pt-1">
-                                {formatDistanceToNow(new Date(lastMsg.createdAt), {
-                                    addSuffix: false,
-                                    locale: vi,
-                                })}
-                            </span>
-                        )}
-
-                        {/* Nút 3 chấm: Chỉ hiện khi hover hoặc menu đang mở */}
-                        <div className="h-6 flex items-center">
+                            {/* Nút 3 chấm: hiện khi rê chuột vào phòng hoặc khi menu đang mở */}
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setMenuOpenId(menuOpenId === room._id ? null : room._id);
                                 }}
-                                className={`p-1 rounded-full text-fg-subtle hover:bg-hover hover:text-fg-muted transition
-                                ${menuOpenId === room._id ? 'opacity-100 bg-hover' : 'opacity-0 group-hover:opacity-100'}`}
+                                aria-label="Tùy chọn cuộc trò chuyện"
+                                className={`absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full border border-line bg-surface text-fg-muted shadow-sm hover:bg-hover transition
+                                ${menuOpenId === room._id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`}
                             >
-                                <MoreVertical size={16} />
+                                <MoreHorizontal size={16} />
                             </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Dropdown Menu - Đưa ra ngoài button để tránh lỗi click */}
-            {menuOpenId === room._id && (
-                <div className="absolute right-4 top-[70%] w-48 bg-surface rounded-lg shadow-xl border border-line py-1 z-50 animate-fade-in-up">
-                    <button
-                        onClick={(e) => handleDeleteChat(room._id, e)}
-                        disabled={deleteLoading}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition disabled:opacity-50"
-                    >
-                        <Trash2 size={16} />
-                        {deleteLoading ? 'Đang xóa...' : 'Xóa đoạn chat'}
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-})}
+                            {/* Dropdown Menu - Đưa ra ngoài button để tránh lỗi click */}
+                            {menuOpenId === room._id && (
+                                <div className="absolute right-4 top-[calc(50%+20px)] w-48 bg-surface rounded-lg shadow-xl border border-line py-1 z-50 animate-fade-in">
+                                    <button
+                                        onClick={(e) => handleDeleteChat(room._id, e)}
+                                        disabled={deleteLoading}
+                                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition disabled:opacity-50"
+                                    >
+                                        <Trash2 size={16} />
+                                        {deleteLoading ? 'Đang xóa...' : 'Xóa đoạn chat'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Create Room Modal */}

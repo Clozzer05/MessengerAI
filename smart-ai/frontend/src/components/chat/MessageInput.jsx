@@ -317,7 +317,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
     };
 
     return (
-        <div className="border-t theme-border theme-surface p-3">
+        <div className="border-t theme-border theme-surface px-3 py-2.5">
             {/* Lock countdown banner */}
             {isLocked && (
                 <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
@@ -373,7 +373,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                     <button
                         type="button"
                         onClick={cancelRecording}
-                        className="p-2 text-[var(--text-tertiary)] hover:text-red-500 hover:bg-[var(--bg-hover)] rounded-full transition shrink-0"
+                        className="w-10 h-10 flex items-center justify-center text-[var(--text-tertiary)] hover:text-red-500 hover:bg-[var(--bg-hover)] rounded-full transition shrink-0"
                         title="Hủy ghi âm"
                     >
                         <X size={20} />
@@ -388,7 +388,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                     <button
                         type="button"
                         onClick={sendRecording}
-                        className="p-2.5 bg-[var(--color-primary)] text-white rounded-full hover:bg-[var(--color-primary-hover)] transition shrink-0"
+                        className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] text-white rounded-full hover:bg-[var(--color-primary-hover)] transition shrink-0"
                         title="Gửi ghi âm"
                     >
                         <Send size={18} />
@@ -397,14 +397,14 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
             ) : (
                 <form
                     onSubmit={handleSubmit}
-                    className={`relative flex items-end gap-2 rounded-2xl transition ${isDraggingFile ? 'ring-2 ring-[var(--color-primary-ring)] bg-[var(--color-primary-light)]/40 p-1.5' : ''}`}
+                    className={`relative flex items-end gap-1 rounded-2xl transition ${isDraggingFile ? 'ring-2 ring-[var(--color-primary-ring)] bg-[var(--color-primary-light)]/40 p-1.5' : ''}`}
                     onDragEnter={handleDragEnter}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                 >
                     {isDraggingFile && (
-                        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-[var(--color-primary)] bg-white/90 text-sm font-medium text-[var(--color-primary)] pointer-events-none">
+                        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-[var(--color-primary)] bg-surface/90 text-sm font-medium text-[var(--color-primary)] pointer-events-none">
                             Thả file vào đây để gửi
                         </div>
                     )}
@@ -412,7 +412,9 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0"
+                        title="Đính kèm tệp"
+                        aria-label="Đính kèm tệp"
+                        className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0 disabled:opacity-50"
                         disabled={disabled}
                     >
                         <Paperclip size={20} />
@@ -447,7 +449,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                                 { enableHighAccuracy: true, timeout: 10000 }
                             );
                         }}
-                        className="p-2 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0"
+                        className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0 disabled:opacity-50"
                         disabled={disabled}
                         title="Chia sẻ vị trí"
                     >
@@ -458,7 +460,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                     <button
                         type="button"
                         onClick={startRecording}
-                        className="p-2 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0"
+                        className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0 disabled:opacity-50"
                         disabled={disabled}
                         title="Ghi âm giọng nói"
                     >
@@ -466,7 +468,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                     </button>
 
                     {/* Text input */}
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative ml-1">
                         <textarea
                             ref={inputRef}
                             value={text}
@@ -476,8 +478,8 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                             placeholder={replyContext ? `Trả lời ${replyContext.senderName}...` : 'Nhập tin nhắn...'}
                             disabled={disabled}
                             rows={1}
-                            className="w-full resize-none px-4 py-2.5 theme-input-field rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition max-h-32 disabled:opacity-50"
-                            style={{ minHeight: '42px' }}
+                            className="block w-full resize-none px-4 py-2.5 theme-input-field rounded-[20px] text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition max-h-32 disabled:opacity-50"
+                            style={{ minHeight: '40px' }}
                         />
                     </div>
 
@@ -486,7 +488,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                         <button
                             type="submit"
                             disabled={disabled || uploading}
-                            className="p-2.5 bg-[var(--color-primary)] text-white rounded-full hover:bg-[var(--color-primary-hover)] transition disabled:opacity-50 disabled:hover:bg-[var(--color-primary)] shrink-0"
+                            className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] text-white rounded-full shadow-sm hover:bg-[var(--color-primary-hover)] transition disabled:opacity-50 disabled:hover:bg-[var(--color-primary)] shrink-0"
                         >
                             {uploading ? (
                                 <Loader2 size={18} className="animate-spin" />
@@ -549,7 +551,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                                 type="button"
                                 onClick={() => onSend('👍', 'text')}
                                 disabled={disabled}
-                                className="p-2.5 text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition disabled:opacity-50 shrink-0"
+                                className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition disabled:opacity-50 shrink-0"
                                 title="Gửi like"
                             >
                                 <ThumbsUp size={22} />

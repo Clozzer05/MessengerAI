@@ -182,28 +182,28 @@ export default function ChatPage() {
                     <button
                         data-tour="tab-chats"
                         onClick={() => setSidebarTab('chats')}
-                        className={`flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 ${sidebarTab === 'chats'
-                            ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-                            : 'hover:opacity-90'
+                        className={`flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 ${sidebarTab === 'chats'
+                            ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
+                            : 'border-transparent hover:bg-hover'
                             }`}
                         style={sidebarTab === 'chats' ? undefined : { color: 'var(--text-secondary)' }}
                     >
-                        <MessageCircle size={16} />
+                        <MessageCircle size={20} />
                         {t('chatPage.messages')}
                     </button>
                     <button
                         data-tour="tab-friends"
                         onClick={() => setSidebarTab('friends')}
-                        className={`flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 relative ${sidebarTab === 'friends'
-                            ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-                            : 'hover:opacity-90'
+                        className={`flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 relative ${sidebarTab === 'friends'
+                            ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
+                            : 'border-transparent hover:bg-hover'
                             }`}
                         style={sidebarTab === 'friends' ? undefined : { color: 'var(--text-secondary)' }}
                     >
-                        <Users size={16} />
+                        <Users size={20} />
                         {t('chatPage.friends')}
                         {pendingRequestCount > 0 && (
-                            <span className="absolute -top-0.5 right-2 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                            <span className="absolute top-1 left-1/2 ml-1.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
                                 {pendingRequestCount > 99 ? '99+' : pendingRequestCount}
                             </span>
                         )}
@@ -211,22 +211,22 @@ export default function ChatPage() {
                     <button
                         data-tour="tab-topics"
                         onClick={() => setSidebarTab('topics')}
-                        className={`flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 ${sidebarTab === 'topics'
-                            ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]'
-                            : 'hover:opacity-90'
+                        className={`flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 ${sidebarTab === 'topics'
+                            ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
+                            : 'border-transparent hover:bg-hover'
                             }`}
                         style={sidebarTab === 'topics' ? undefined : { color: 'var(--text-secondary)' }}
                     >
-                        <Compass size={16} />
+                        <Compass size={20} />
                         Chủ đề
                     </button>
                     <button
                         data-tour="tab-counseling"
                         onClick={() => navigate('/counseling')}
-                        className="flex-1 py-2.5 text-sm font-medium transition flex items-center justify-center gap-1.5 hover:opacity-90"
+                        className="flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 border-transparent hover:bg-hover"
                         style={{ color: 'var(--text-secondary)' }}
                     >
-                        <HeartHandshake size={16} />
+                        <HeartHandshake size={20} />
                         {t('chatPage.counseling')}
                     </button>
                 </div>

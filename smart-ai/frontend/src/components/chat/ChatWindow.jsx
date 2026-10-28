@@ -9,7 +9,7 @@ import { useAI } from '../../hooks/useAI';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
-import AIToggle from './AIToggle';
+import ChatMoreMenu from './ChatMoreMenu';
 import ForwardModal from './ForwardModal';
 import ReportModal from './ReportModal';
 import PollCreator from './PollCreator';
@@ -27,16 +27,12 @@ import {
     Info,
     Ban,
     Pin,
-    BarChart3,
     Lock,
-    Building2,
-    CheckSquare,
     Copy,
     X,
     Reply,
     Compass,
     HeartHandshake,
-    House,
     Search,
     UserPlus,
 } from 'lucide-react';
@@ -832,7 +828,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         )}
                     </div>
                     {display.isOnline && (
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[var(--bg-card)] rounded-full" />
                     )}
                 </div>
 
@@ -859,18 +855,41 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                     </p>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1 max-w-[50vw] md:max-w-none overflow-x-auto scrollbar-hide">
+                {/* Actions: gọi, video, thông tin; thao tác khác nằm trong menu "..." */}
+                <div className="flex items-center shrink-0">
+                    {/* Call buttons - available for both 1-1 and group */}
                     <button
-                        onClick={() => onOpenStartAction?.('home')}
-                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
-                        title="Về trang chọn cuộc trò chuyện"
+                        onClick={() => handleCall('audio')}
+                        disabled={!display.isGroup && friendshipStatus !== 'accepted'}
+                        className="w-10 h-10 flex items-center justify-center hover:bg-hover rounded-full transition text-brand shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                        title={!display.isGroup && friendshipStatus !== 'accepted' ? 'Chỉ gọi được khi đã là bạn bè' : 'Gọi thoại'}
+                        aria-label="Gọi thoại"
                     >
-                        <House size={18} />
+                        <Phone size={20} />
                     </button>
-
                     <button
-                        onClick={() => {
+                        onClick={() => handleCall('video')}
+                        disabled={!display.isGroup && friendshipStatus !== 'accepted'}
+                        className="w-10 h-10 flex items-center justify-center hover:bg-hover rounded-full transition text-brand shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                        title={!display.isGroup && friendshipStatus !== 'accepted' ? 'Chỉ gọi được khi đã là bạn bè' : 'Gọi video'}
+                        aria-label="Gọi video"
+                    >
+                        <Video size={20} />
+                    </button>
+                    <button
+                        onClick={() => onToggleInfo?.(room)}
+                        className="w-10 h-10 flex items-center justify-center hover:bg-hover rounded-full transition text-brand shrink-0"
+                        title="Thông tin"
+                        aria-label="Thông tin cuộc trò chuyện"
+                    >
+                        <Info size={20} />
+                    </button>
+                    <ChatMoreMenu
+                        aiEnabled={aiBotEnabled}
+                        onToggleAI={handleToggleAI}
+                        onSummarize={() => summarize(20)}
+                        selectionMode={selectionMode}
+                        onToggleSelection={() => {
                             if (selectionMode) {
                                 clearSelectionMode();
                             } else {
@@ -878,58 +897,10 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                 setSelectedMessageIds(new Set());
                             }
                         }}
-                        className={`p-2 rounded-full transition shrink-0 ${selectionMode ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' : 'hover:bg-hover text-fg-muted'}`}
-                        title="Chọn nhiều tin để sao chép"
-                    >
-                        <CheckSquare size={18} />
-                    </button>
-
-                    <AIToggle
-                        enabled={aiBotEnabled}
-                        onToggle={handleToggleAI}
-                        onSummarize={() => summarize(20)}
+                        onCreatePoll={() => setShowPollCreator(true)}
+                        onOpenOffice={() => navigate('/office')}
+                        onGoHome={() => onOpenStartAction?.('home')}
                     />
-
-                    {/* Call buttons - available for both 1-1 and group */}
-                    <button
-                        onClick={() => handleCall('audio')}
-                        disabled={!display.isGroup && friendshipStatus !== 'accepted'}
-                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                        title={!display.isGroup && friendshipStatus !== 'accepted' ? 'Chỉ gọi được khi đã là bạn bè' : 'Gọi thoại'}
-                    >
-                        <Phone size={18} />
-                    </button>
-                    <button
-                        onClick={() => handleCall('video')}
-                        disabled={!display.isGroup && friendshipStatus !== 'accepted'}
-                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                        title={!display.isGroup && friendshipStatus !== 'accepted' ? 'Chỉ gọi được khi đã là bạn bè' : 'Gọi video'}
-                    >
-                        <Video size={18} />
-                    </button>
-
-                    <button
-                        onClick={() => setShowPollCreator(true)}
-                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
-                        title="Tạo bình chọn"
-                    >
-                        <BarChart3 size={18} />
-                    </button>
-                    <button
-                        onClick={() => navigate('/office')}
-                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
-                        title="SkyOffice"
-                    >
-                        <Building2 size={18} />
-                    </button>
-                    
-                    <button
-                        onClick={() => onToggleInfo?.(room)}
-                        className="p-2 hover:bg-hover rounded-full transition text-fg-muted shrink-0"
-                        title="Thông tin"
-                    >
-                        <Info size={18} />
-                    </button>
                 </div>
             </div>
             {/* Pinned Messages Bar */}
@@ -1014,8 +985,8 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         <AnimatePresence initial={false}>
                             {allRenderableMessages
                                 .map((msg, index, list) => {
-                                    const next = list[index + 1];
-                                    const isClusterEnd = !isClusterMate(msg, next);
+                                    const isClusterStart = !isClusterMate(list[index - 1], msg);
+                                    const isClusterEnd = !isClusterMate(msg, list[index + 1]);
 
                                     return (
                                     <motion.div
@@ -1050,7 +1021,9 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                             onQuickReply={handleQuickReply}
                                             onJumpToMessage={scrollToMessage}
                                             roomMembers={room?.members}
+                                            isClusterStart={isClusterStart}
                                             isClusterEnd={isClusterEnd}
+                                            showSenderName={display.isGroup && isClusterStart}
                                         />
                                     </motion.div>
                                 );
