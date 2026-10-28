@@ -37,7 +37,7 @@ export default function JoinGroupPage() {
             <div className="w-full max-w-sm rounded-2xl p-6 text-center shadow-sm border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                 {error ? (
                     <>
-                        <LinkIcon size={40} className="mx-auto mb-3 text-gray-400" />
+                        <LinkIcon size={40} className="mx-auto mb-3 text-fg-subtle" />
                         <p className="text-sm mb-5" style={{ color: 'var(--text-primary)' }}>{error}</p>
                     </>
                 ) : !info ? (

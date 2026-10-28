@@ -17,7 +17,7 @@ function GoogleLoginButton({ disabled, onError, onSuccess }) {
             type="button"
             onClick={() => googleLogin()}
             disabled={disabled}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 font-medium text-gray-700"
+            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-line-strong rounded-lg hover:bg-hover transition disabled:opacity-50 font-medium text-fg-muted"
         >
             {disabled ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -67,43 +67,43 @@ export default function LoginPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Smart AI Chat</h1>
-                    <p className="text-gray-500 mt-1">Đăng nhập để tiếp tục</p>
+                    <h1 className="text-2xl font-bold text-fg">Smart AI Chat</h1>
+                    <p className="text-fg-subtle mt-1">Đăng nhập để tiếp tục</p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8 space-y-5">
+                <form onSubmit={handleSubmit} className="bg-surface rounded-2xl shadow-lg p-8 space-y-5">
                     {error && (
                         <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-fg-muted mb-1">Email</label>
                         <input
                             type="email"
                             required
                             value={form.email}
                             onChange={(e) => setForm({ ...form, email: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                             placeholder="you@example.com"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                        <label className="block text-sm font-medium text-fg-muted mb-1">Mật khẩu</label>
                         <div className="relative">
                             <input
                                 type={showPwd ? 'text' : 'password'}
                                 required
                                 value={form.password}
                                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition pr-10"
+                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition pr-10"
                                 placeholder="••••••••"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPwd(!showPwd)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-subtle hover:text-fg-muted"
                             >
                                 {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
@@ -122,10 +122,10 @@ export default function LoginPage() {
                     {/* Divider */}
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200" />
+                            <div className="w-full border-t border-line" />
                         </div>
                         <div className="relative flex justify-center text-xs">
-                            <span className="bg-white px-3 text-gray-400">hoặc</span>
+                            <span className="bg-surface px-3 text-fg-subtle">hoặc</span>
                         </div>
                     </div>
 
@@ -151,13 +151,13 @@ export default function LoginPage() {
                         />
                     )}
 
-                    <p className="text-center text-sm text-gray-500">
+                    <p className="text-center text-sm text-fg-subtle">
                         <Link to="/forgot-password" className="text-[var(--color-primary)] hover:underline font-medium">
                             Quên mật khẩu?
                         </Link>
                     </p>
 
-                    <p className="text-center text-sm text-gray-500">
+                    <p className="text-center text-sm text-fg-subtle">
                         Chưa có tài khoản?{' '}
                         <Link to="/register" className="text-[var(--color-primary)] hover:underline font-medium">
                             Đăng ký

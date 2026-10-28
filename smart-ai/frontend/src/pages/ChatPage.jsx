@@ -108,7 +108,7 @@ export default function ChatPage() {
             >
                 {/* User bar */}
                 <div
-                    className="border-b border-gray-200 px-4 py-3 flex items-center gap-3"
+                    className="border-b border-line px-4 py-3 flex items-center gap-3"
                     style={{
                         backgroundColor: 'var(--bg-card)',
                         borderColor: 'var(--border-color)',
@@ -173,7 +173,7 @@ export default function ChatPage() {
                 {/* Sidebar Tabs */}
                 <div
                     data-tour="tabs"
-                    className="border-b border-gray-200 flex"
+                    className="border-b border-line flex"
                     style={{
                         backgroundColor: 'var(--bg-card)',
                         borderColor: 'var(--border-color)',

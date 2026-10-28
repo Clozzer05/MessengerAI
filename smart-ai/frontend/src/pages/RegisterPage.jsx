@@ -18,7 +18,7 @@ function GoogleRegisterButton({ disabled, onError, onSuccess }) {
             type="button"
             onClick={() => googleRegister()}
             disabled={disabled}
-            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 font-medium text-gray-700"
+            className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-line-strong rounded-lg hover:bg-hover transition disabled:opacity-50 font-medium text-fg-muted"
         >
             {disabled ? (
                 <Loader2 size={18} className="animate-spin" />
@@ -202,8 +202,8 @@ export default function RegisterPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Tạo tài khoản</h1>
-                    <p className="text-gray-500 mt-1">
+                    <h1 className="text-2xl font-bold text-fg">Tạo tài khoản</h1>
+                    <p className="text-fg-subtle mt-1">
                         {step === 1 && 'Nhập email để bắt đầu'}
                         {step === 2 && 'Xác thực email của bạn'}
                         {step === 3 && 'Hoàn tất thông tin đăng ký'}
@@ -212,30 +212,30 @@ export default function RegisterPage() {
                     {/* Progress indicator */}
                     <div className="flex items-center justify-center gap-2 mt-4">
                         {[1, 2, 3].map((s) => (
-                            <div key={s} className={`h-2 rounded-full transition-all ${s === step ? 'w-8 bg-[var(--color-primary)]' : s < step ? 'w-8 bg-[var(--color-primary)] opacity-50' : 'w-8 bg-gray-300'}`} />
+                            <div key={s} className={`h-2 rounded-full transition-all ${s === step ? 'w-8 bg-[var(--color-primary)]' : s < step ? 'w-8 bg-[var(--color-primary)] opacity-50' : 'w-8 bg-line-strong'}`} />
                         ))}
                     </div>
                 </div>
 
                 {/* ── Step 1: Nhập email ── */}
                 {step === 1 && (
-                    <form onSubmit={handleSendOTP} className="bg-white rounded-2xl shadow-lg p-8 space-y-5">
+                    <form onSubmit={handleSendOTP} className="bg-surface rounded-2xl shadow-lg p-8 space-y-5">
                         {error && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <label className="block text-sm font-medium text-fg-muted mb-1">Email</label>
                             <div className="relative">
                                 <input
                                     type="email"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                    className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                                     placeholder="you@example.com"
                                 />
-                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
                             </div>
                         </div>
 
@@ -252,10 +252,10 @@ export default function RegisterPage() {
                         {/* Divider */}
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200" />
+                                <div className="w-full border-t border-line" />
                             </div>
                             <div className="relative flex justify-center text-xs">
-                                <span className="bg-white px-3 text-gray-400">hoặc</span>
+                                <span className="bg-surface px-3 text-fg-subtle">hoặc</span>
                             </div>
                         </div>
 
@@ -281,7 +281,7 @@ export default function RegisterPage() {
                             />
                         )}
 
-                        <p className="text-center text-sm text-gray-500">
+                        <p className="text-center text-sm text-fg-subtle">
                             Đã có tài khoản?{' '}
                             <Link to="/login" className="text-[var(--color-primary)] hover:underline font-medium">
                                 Đăng nhập
@@ -292,13 +292,13 @@ export default function RegisterPage() {
 
                 {/* ── Step 2: Nhập OTP ── */}
                 {step === 2 && (
-                    <form onSubmit={handleVerifyOTP} className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+                    <form onSubmit={handleVerifyOTP} className="bg-surface rounded-2xl shadow-lg p-8 space-y-6">
                         {error && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                         )}
 
-                        <p className="text-sm text-gray-500 text-center">
-                            Mã xác nhận đã gửi đến <span className="font-medium text-gray-700">{email}</span>
+                        <p className="text-sm text-fg-subtle text-center">
+                            Mã xác nhận đã gửi đến <span className="font-medium text-fg-muted">{email}</span>
                         </p>
 
                         <div className="flex justify-center gap-3">
@@ -313,7 +313,7 @@ export default function RegisterPage() {
                                     onChange={(e) => handleOtpChange(i, e.target.value)}
                                     onKeyDown={(e) => handleOtpKeyDown(i, e)}
                                     onPaste={i === 0 ? handleOtpPaste : undefined}
-                                    className="w-12 h-14 text-center text-xl font-bold border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary)] outline-none transition"
+                                    className="w-12 h-14 text-center text-xl font-bold border-2 border-line-strong rounded-xl focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary)] outline-none transition"
                                 />
                             ))}
                         </div>
@@ -326,7 +326,7 @@ export default function RegisterPage() {
                             <ArrowRight size={18} />
                         </button>
 
-                        <div className="text-center text-sm text-gray-500">
+                        <div className="text-center text-sm text-fg-subtle">
                             Chưa nhận được mã?{' '}
                             <button
                                 type="button"
@@ -349,7 +349,7 @@ export default function RegisterPage() {
 
                 {/* ── Step 3: Thông tin đăng ký ── */}
                 {step === 3 && (
-                    <form onSubmit={handleRegister} className="bg-white rounded-2xl shadow-lg p-8 space-y-4">
+                    <form onSubmit={handleRegister} className="bg-surface rounded-2xl shadow-lg p-8 space-y-4">
                         {error && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                         )}
@@ -360,24 +360,24 @@ export default function RegisterPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Tên hiển thị</label>
+                            <label className="block text-sm font-medium text-fg-muted mb-1">Tên hiển thị</label>
                             <input
                                 type="text"
                                 required
                                 minLength={2}
                                 value={form.username}
                                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                                 placeholder="Nguyễn Văn A"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Ngôn ngữ ưu tiên</label>
+                            <label className="block text-sm font-medium text-fg-muted mb-1">Ngôn ngữ ưu tiên</label>
                             <select
                                 value={form.preferredLanguage}
                                 onChange={(e) => setForm({ ...form, preferredLanguage: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition bg-white"
+                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition bg-surface"
                             >
                                 {LANGUAGES.map((l) => (
                                     <option key={l.code} value={l.code}>
@@ -388,7 +388,7 @@ export default function RegisterPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                            <label className="block text-sm font-medium text-fg-muted mb-1">Mật khẩu</label>
                             <div className="relative">
                                 <input
                                     type={showPwd ? 'text' : 'password'}
@@ -396,13 +396,13 @@ export default function RegisterPage() {
                                     minLength={6}
                                     value={form.password}
                                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition pr-10"
+                                    className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition pr-10"
                                     placeholder="Tối thiểu 6 ký tự"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPwd(!showPwd)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-subtle hover:text-fg-muted"
                                 >
                                     {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
@@ -410,13 +410,13 @@ export default function RegisterPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu</label>
+                            <label className="block text-sm font-medium text-fg-muted mb-1">Xác nhận mật khẩu</label>
                             <input
                                 type={showPwd ? 'text' : 'password'}
                                 required
                                 value={form.confirmPassword}
                                 onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
                                 placeholder="Nhập lại mật khẩu"
                             />
                         </div>
@@ -430,7 +430,7 @@ export default function RegisterPage() {
                             Đăng ký
                         </button>
 
-                        <p className="text-center text-sm text-gray-500">
+                        <p className="text-center text-sm text-fg-subtle">
                             Đã có tài khoản?{' '}
                             <Link to="/login" className="text-[var(--color-primary)] hover:underline font-medium">
                                 Đăng nhập

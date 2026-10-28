@@ -255,15 +255,15 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
     };
 
     return (
-        <div className="h-full flex flex-col bg-white border-r border-gray-200">
+        <div className="h-full flex flex-col bg-surface border-r border-line">
             {/* Header */}
-            <div className="p-4 border-b border-gray-100">
+            <div className="p-4 border-b border-line">
                 <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-xl font-bold text-gray-900">Tin nhắn</h2>
+                    <h2 className="text-xl font-bold text-fg">Tin nhắn</h2>
                     <button
                         data-tour="new-chat"
                         onClick={() => setShowCreate(true)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition"
+                        className="p-2 hover:bg-hover rounded-full transition"
                         title="Tạo cuộc trò chuyện"
                     >
                         <Plus size={20} className="text-[var(--color-primary)]" />
@@ -272,14 +272,14 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
 
                 {/* Search */}
                 <div data-tour="search" className="relative">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
                     <input
                         ref={searchInputRef}
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Tìm kiếm... (Ctrl+K)"
-                        className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                        className="w-full pl-9 pr-4 py-2 bg-surface-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
                     />
                 </div>
             </div>
@@ -302,7 +302,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                 )}
 
                 {!loading && filtered.length === 0 && (
-                    <div className="p-8 text-center text-gray-400">
+                    <div className="p-8 text-center text-fg-subtle">
                         <MessageCircle size={40} className="mx-auto mb-2 opacity-50" />
                         <p className="text-sm">Chưa có cuộc trò chuyện nào</p>
                     </div>
@@ -329,7 +329,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                         onSelectRoom(room._id);
                     }
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-hover transition text-left cursor-pointer ${
                     isActive ? 'bg-[var(--color-primary-light)] border-r-2 border-[var(--color-primary-ring)]' : ''
                 }`}
             >
@@ -359,7 +359,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                     {/* Info (Tên & Tin nhắn) - Phần này sẽ co dãn và hiện dấu ... */}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="font-medium truncate text-gray-900 flex-1">
+                            <span className="font-medium truncate text-fg flex-1">
                                 {display.name}
                             </span>
                             {unread > 0 && (
@@ -369,7 +369,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                             )}
                         </div>
                         {lastMsg && (
-                            <p className={`text-sm truncate mt-0.5 ${unread > 0 ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
+                            <p className={`text-sm truncate mt-0.5 ${unread > 0 ? 'text-fg font-semibold' : 'text-fg-subtle'}`}>
                                 {lastMsg.type === 'system'
                                     ? lastMsg.content
                                     : lastMsg.sender?.username
@@ -382,7 +382,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                     {/* Right Side: Thời gian và Nút 3 chấm */}
                     <div className="flex flex-col items-end shrink-0 self-stretch justify-between relative">
                         {lastMsg && (
-                            <span className="text-xs text-gray-400 whitespace-nowrap pt-1">
+                            <span className="text-xs text-fg-subtle whitespace-nowrap pt-1">
                                 {formatDistanceToNow(new Date(lastMsg.createdAt), {
                                     addSuffix: false,
                                     locale: vi,
@@ -397,8 +397,8 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                                     e.stopPropagation();
                                     setMenuOpenId(menuOpenId === room._id ? null : room._id);
                                 }}
-                                className={`p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition
-                                ${menuOpenId === room._id ? 'opacity-100 bg-gray-200' : 'opacity-0 group-hover:opacity-100'}`}
+                                className={`p-1 rounded-full text-fg-subtle hover:bg-hover hover:text-fg-muted transition
+                                ${menuOpenId === room._id ? 'opacity-100 bg-hover' : 'opacity-0 group-hover:opacity-100'}`}
                             >
                                 <MoreVertical size={16} />
                             </button>
@@ -409,7 +409,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
 
             {/* Dropdown Menu - Đưa ra ngoài button để tránh lỗi click */}
             {menuOpenId === room._id && (
-                <div className="absolute right-4 top-[70%] w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 animate-fade-in-up">
+                <div className="absolute right-4 top-[70%] w-48 bg-surface rounded-lg shadow-xl border border-line py-1 z-50 animate-fade-in-up">
                     <button
                         onClick={(e) => handleDeleteChat(room._id, e)}
                         disabled={deleteLoading}
@@ -433,9 +433,9 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
             {/* Delete Confirm Dialog */}
             {showDeleteConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
-                    <div className="bg-white rounded-lg shadow-xl p-6 w-96 animate-scale-up">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Xóa cuộc trò chuyện</h3>
-                        <p className="text-gray-600 mb-6">
+                    <div className="bg-surface rounded-lg shadow-xl p-6 w-96 animate-scale-up">
+                        <h3 className="text-lg font-semibold text-fg mb-2">Xóa cuộc trò chuyện</h3>
+                        <p className="text-fg-muted mb-6">
                             Bạn có chắc chắn muốn xóa cuộc trò chuyện này không? Hành động này không thể hoàn tác.
                         </p>
                         <div className="flex gap-3 justify-end">
@@ -445,7 +445,7 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                                     setDeleteConfirmRoomId(null);
                                 }}
                                 disabled={deleteLoading}
-                                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
+                                className="px-4 py-2 text-fg-muted bg-hover rounded-lg hover:bg-hover transition disabled:opacity-50"
                             >
                                 Hủy
                             </button>

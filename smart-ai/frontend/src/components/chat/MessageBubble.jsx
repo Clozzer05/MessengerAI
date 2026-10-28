@@ -388,7 +388,7 @@ export default function MessageBubble({
     if (message.deleted) {
         return (
             <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2`}>
-                <div className="bg-gray-100 text-gray-400 italic px-4 py-2 rounded-2xl text-sm">
+                <div className="bg-surface-muted text-fg-subtle italic px-4 py-2 rounded-2xl text-sm">
                     Tin nhắn đã bị xóa
                 </div>
             </div>
@@ -409,10 +409,10 @@ export default function MessageBubble({
                 <div className="flex justify-center mb-2">
                     <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border shadow-sm ${
                         isStarted
-                            ? 'bg-blue-50 border-blue-200 text-blue-700'
-                            : 'bg-gray-50 border-gray-200 text-gray-600'
+                            ? 'bg-brand-soft border-brand-medium text-brand-strong'
+                            : 'bg-app border-line text-fg-muted'
                     }`}>
-                        <div className={`p-2 rounded-full ${isStarted ? 'bg-blue-500' : 'bg-gray-400'} text-white`}>
+                        <div className={`p-2 rounded-full ${isStarted ? 'bg-brand' : 'bg-fg-subtle'} text-white`}>
                             <Icon size={16} />
                         </div>
                         <div className="text-sm">
@@ -432,7 +432,7 @@ export default function MessageBubble({
                                         roomId: callRoomId,
                                         callType: callEvt.callType || 'video',
                                     })}
-                                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-full shadow transition flex items-center gap-1.5"
+                                    className="px-4 py-1.5 bg-brand hover:bg-brand-hover text-white text-xs font-semibold rounded-full shadow transition flex items-center gap-1.5"
                                 >
                                     <Icon size={13} /> Tham gia
                                 </button>
@@ -444,7 +444,7 @@ export default function MessageBubble({
         }
         return (
             <div className="flex justify-center mb-2">
-                <div className="bg-gray-100 text-gray-500 text-xs px-4 py-1.5 rounded-full">
+                <div className="bg-surface-muted text-fg-subtle text-xs px-4 py-1.5 rounded-full">
                     {message.content}
                 </div>
             </div>
@@ -706,9 +706,9 @@ export default function MessageBubble({
                         )}
                     </div>
                 )}
-                <div className="max-w-[75%] bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <p className="text-xs text-gray-500 mb-1">{senderName}</p>
-                    <p className="font-medium text-gray-800 mb-3">📊 {message.poll.question}</p>
+                <div className="max-w-[75%] bg-surface border border-line rounded-2xl p-4 shadow-sm">
+                    <p className="text-xs text-fg-subtle mb-1">{senderName}</p>
+                    <p className="font-medium text-fg mb-3">📊 {message.poll.question}</p>
                     <div className="space-y-2">
                         {message.poll.options.map((opt, idx) => {
                             const voteCount = opt.votes?.length || 0;
@@ -716,17 +716,17 @@ export default function MessageBubble({
                             const myVote = opt.votes?.some(v => (v?._id || v)?.toString() === user?._id);
                             return (
                                 <button key={idx} onClick={() => onVotePoll?.(message._id, idx)}
-                                    className={`w-full text-left relative overflow-hidden rounded-lg border px-3 py-2 text-sm transition ${myVote ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
-                                    <div className="absolute inset-0 bg-blue-100 rounded-lg transition-all" style={{ width: `${pct}%`, opacity: 0.3 }} />
+                                    className={`w-full text-left relative overflow-hidden rounded-lg border px-3 py-2 text-sm transition ${myVote ? 'border-brand-ring bg-brand-soft' : 'border-line hover:bg-hover'}`}>
+                                    <div className="absolute inset-0 bg-brand-medium rounded-lg transition-all" style={{ width: `${pct}%`, opacity: 0.3 }} />
                                     <div className="relative flex justify-between items-center">
                                         <span>{opt.text}</span>
-                                        <span className="text-xs text-gray-500 ml-2">{voteCount} ({pct}%)</span>
+                                        <span className="text-xs text-fg-subtle ml-2">{voteCount} ({pct}%)</span>
                                     </div>
                                 </button>
                             );
                         })}
                     </div>
-                    <p className="text-[10px] text-gray-400 mt-2">{totalVotes} lượt bình chọn · {format(new Date(message.createdAt), 'HH:mm')}</p>
+                    <p className="text-[10px] text-fg-subtle mt-2">{totalVotes} lượt bình chọn · {format(new Date(message.createdAt), 'HH:mm')}</p>
                 </div>
             </div>
         );
@@ -737,19 +737,19 @@ export default function MessageBubble({
         const card = message.contactCard;
         return (
             <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2`}>
-                <div className="max-w-[280px] bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <p className="text-xs text-gray-500 mb-2">{senderName} đã chia sẻ liên hệ</p>
-                    <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -mx-2 transition"
+                <div className="max-w-[280px] bg-surface border border-line rounded-2xl p-4 shadow-sm">
+                    <p className="text-xs text-fg-subtle mb-2">{senderName} đã chia sẻ liên hệ</p>
+                    <div className="flex items-center gap-3 cursor-pointer hover:bg-hover rounded-lg p-2 -mx-2 transition"
                         onClick={() => card.userId && navigate(`/profile/${card.userId}`)}>
-                        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
                             {card.avatar ? <img src={resolveMediaUrl(card.avatar)} alt="" className="w-full h-full object-cover" /> : card.username?.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                            <p className="font-medium text-gray-800 truncate">{card.username}</p>
-                            {card.bio && <p className="text-xs text-gray-500 truncate">{card.bio}</p>}
+                            <p className="font-medium text-fg truncate">{card.username}</p>
+                            {card.bio && <p className="text-xs text-fg-subtle truncate">{card.bio}</p>}
                         </div>
                     </div>
-                    <p className="text-[10px] text-gray-400 mt-2 text-right">{format(new Date(message.createdAt), 'HH:mm')}</p>
+                    <p className="text-[10px] text-fg-subtle mt-2 text-right">{format(new Date(message.createdAt), 'HH:mm')}</p>
                 </div>
             </div>
         );
@@ -854,7 +854,7 @@ export default function MessageBubble({
                                 className={`absolute ${isOwn ? '-left-8' : '-right-8'} top-2 z-10 w-5 h-5 rounded-full border text-[10px] font-bold transition
                                     ${isSelected
                                         ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white'
-                                        : 'bg-white border-gray-300 text-transparent'
+                                        : 'bg-surface border-line-strong text-transparent'
                                     }`}
                                 title={isSelected ? 'Bỏ chọn' : 'Chọn tin nhắn'}
                             >
@@ -875,11 +875,11 @@ export default function MessageBubble({
                                     ? 'bg-transparent border-transparent shadow-none'
                                     : isAI
                                         ? isDarkTheme
-                                            ? 'bg-[var(--color-primary-light)] text-[var(--text-primary)] border border-gray-200'
+                                            ? 'bg-[var(--color-primary-light)] text-[var(--text-primary)] border border-line'
                                             : 'bg-purple-50 text-purple-900 border border-purple-100'
                                         : useSenderFrameStyle
                                             ? `${senderBubbleClass} ${senderContentTextClass}`
-                                            : 'theme-muted-surface text-gray-900'
+                                            : 'theme-muted-surface text-fg'
                                 } ${selectionMode && isSelected ? 'ring-2 ring-[var(--color-primary)] ring-offset-1' : ''} ${isPixelTheme ? 'pixel-bubble font-pixel' : ''} ${isNeonTheme ? 'neon-bubble' : ''}`}
                             onDoubleClick={() => {
                                 if (!selectionMode) {
@@ -891,28 +891,28 @@ export default function MessageBubble({
                         >
                             {/* Forward indicator */}
                             {message.forwardedFrom && (
-                                <p className={`text-[10px] mb-1 flex items-center gap-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-gray-400'}`}>
+                                <p className={`text-[10px] mb-1 flex items-center gap-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'}`}>
                                     <Forward size={10} /> Chuyển tiếp từ {message.forwardedFrom.senderName || 'Unknown'}
                                 </p>
                             )}
 
                             {/* Pin indicator */}
                             {message.pinned && (
-                                <p className={`text-[10px] mb-1 flex items-center gap-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-gray-400'}`}>
+                                <p className={`text-[10px] mb-1 flex items-center gap-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'}`}>
                                     <Pin size={10} /> Đã ghim
                                 </p>
                             )}
                             {/* Reply to Note quote */}
                             {message.replyToNote && (
                                 <div className="mb-1.5">
-                                    <p className={`text-[10px] mb-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-gray-400'}`}>
+                                    <p className={`text-[10px] mb-1 ${useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'}`}>
                                         Bạn đã trả lời ghi chú của họ
                                     </p>
                                     <div className={`px-3 py-1.5 rounded-lg text-xs ${useSenderFrameStyle
                                         ? frameIsLight
                                             ? 'bg-white/45 text-slate-800'
                                             : 'bg-white/15 text-white/85'
-                                        : 'bg-gray-200/70 text-gray-600'
+                                        : 'bg-hover/70 text-fg-muted'
                                     }`}>
                                         {renderRichText(
                                             message.replyToNote,
@@ -949,10 +949,10 @@ export default function MessageBubble({
                                                 setEditing(false);
                                             }
                                         }}
-                                        className="text-sm px-2 py-1.5 rounded-lg bg-white/90 text-gray-900 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                                        className="text-sm px-2 py-1.5 rounded-lg bg-white/90 text-fg border border-line-strong focus:outline-none focus:ring-2 focus:ring-brand-ring resize-none"
                                         rows={Math.min(4, Math.max(1, editDraft.split('\n').length))}
                                     />
-                                    <div className="flex items-center gap-2 text-[11px] text-gray-500">
+                                    <div className="flex items-center gap-2 text-[11px] text-fg-subtle">
                                         <span>Enter để lưu · Esc để huỷ</span>
                                         <button
                                             onClick={() => setEditing(false)}
@@ -967,7 +967,7 @@ export default function MessageBubble({
                                                 if (next && next !== message.content) onEdit?.(message._id, next);
                                                 setEditing(false);
                                             }}
-                                            className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-700"
+                                            className="inline-flex items-center gap-0.5 text-brand hover:text-brand-strong"
                                             type="button"
                                         >
                                             <Check size={12} /> Lưu
@@ -1022,7 +1022,7 @@ export default function MessageBubble({
                                                         ? frameIsLight
                                                             ? 'border-black/10 bg-white/45 text-slate-900'
                                                             : 'border-white/30 bg-white/10 text-white'
-                                                        : 'border-gray-200 bg-white text-gray-700'
+                                                        : 'border-line bg-surface text-fg-muted'
                                                     }`}
                                                 whileHover={{ y: -1, scale: 1.01 }}
                                                 whileTap={{ scale: 0.985 }}
@@ -1035,11 +1035,11 @@ export default function MessageBubble({
                                                 />
                                                 <div className="min-w-0 flex-1">
                                                     <p className="font-medium truncate">{hostname}</p>
-                                                    <p className={`truncate ${useSenderFrameStyle ? senderMetaTextClass : 'text-gray-500'}`}>
+                                                    <p className={`truncate ${useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'}`}>
                                                         {pathname || link.text}
                                                     </p>
                                                 </div>
-                                                <ExternalLink size={12} className={useSenderFrameStyle ? senderMetaTextClass : 'text-gray-500'} />
+                                                <ExternalLink size={12} className={useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'} />
                                             </motion.a>
                                         );
                                     })}
@@ -1049,7 +1049,7 @@ export default function MessageBubble({
                                 <motion.div
                                     className={`mt-2 overflow-hidden rounded-xl border ${useSenderFrameStyle
                                         ? frameIsLight ? 'border-black/10' : 'border-white/30'
-                                        : 'border-gray-200'
+                                        : 'border-line'
                                     }`}
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -1075,11 +1075,11 @@ export default function MessageBubble({
                                 <p
                                     className={`text-[10px] mt-1 ${message.type === 'location' ? 'px-3 pb-1' : ''} ${isAI
                                         ? isDarkTheme
-                                            ? 'text-gray-400'
+                                            ? 'text-fg-subtle'
                                             : 'text-purple-400'
                                         : useSenderFrameStyle
                                             ? senderMetaTextClass
-                                            : 'text-gray-400'
+                                            : 'text-fg-subtle'
                                         }`}
                                     title={format(new Date(message.createdAt), 'HH:mm:ss - dd/MM/yyyy')}
                                 >
@@ -1088,7 +1088,7 @@ export default function MessageBubble({
                             )}
                             {isOwn && message.type !== 'system' && (message.pending || showCompactMeta) && (
                                 <p
-                                    className={`text-[10px] ${useSenderFrameStyle ? senderMetaTextClass : 'text-gray-400'}`}
+                                    className={`text-[10px] ${useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'}`}
                                     title={message.pending ? 'Tin nhắn đang chờ xác nhận từ server' : 'Trạng thái xem tin nhắn'}
                                 >
                                     {message.pending
@@ -1252,7 +1252,7 @@ export default function MessageBubble({
                                     <Globe size={10} />
                                     <span>Dịch tự động</span>
                                 </div>
-                                <div className={`px-3 py-1.5 rounded-xl text-sm ${isDarkTheme ? 'bg-[var(--bg-card)] border border-gray-200 text-[var(--text-primary)]' : 'bg-purple-50 border border-purple-100 text-purple-800'}`}>
+                                <div className={`px-3 py-1.5 rounded-xl text-sm ${isDarkTheme ? 'bg-[var(--bg-card)] border border-line text-[var(--text-primary)]' : 'bg-purple-50 border border-purple-100 text-purple-800'}`}>
                                     {renderRichText(localTranslation, {
                                         linkClassName: isDarkTheme ? 'text-[var(--color-primary-dark)]' : 'text-purple-800',
                                         mentionClassName: isDarkTheme ? 'font-semibold text-[var(--color-primary-dark)]' : 'font-semibold text-purple-700',
@@ -1269,7 +1269,7 @@ export default function MessageBubble({
                                 className={`absolute ${isTouchDevice
                                     ? (isOwn ? 'right-0 top-full mt-2' : 'left-0 top-full mt-2')
                                     : (isOwn ? 'right-full mr-1 bottom-full' : 'left-full ml-1 bottom-full')
-                                } z-[60] flex items-center gap-1 rounded-full bg-white border border-gray-200 px-1 py-0.5 shadow-sm transition ${showActions
+                                } z-[60] flex items-center gap-1 rounded-full bg-surface border border-line px-1 py-0.5 shadow-sm transition ${showActions
                                     ? 'opacity-100 pointer-events-auto'
                                     : 'opacity-0 pointer-events-none'
                                 }`}
@@ -1295,7 +1295,7 @@ export default function MessageBubble({
                                             setEditing(true);
                                             if (isTouchDevice) setShowActions(false);
                                         }}
-                                        className="p-1 text-[var(--text-tertiary)] hover:text-blue-500 transition"
+                                        className="p-1 text-[var(--text-tertiary)] hover:text-brand transition"
                                         title="Sửa"
                                         whileHover={{ scale: 1.08 }}
                                         whileTap={{ scale: 0.92 }}
@@ -1335,7 +1335,7 @@ export default function MessageBubble({
                                             onForward?.(message);
                                             if (isTouchDevice) setShowActions(false);
                                         }}
-                                        className="p-1 text-[var(--text-tertiary)] hover:text-blue-500 transition"
+                                        className="p-1 text-[var(--text-tertiary)] hover:text-brand transition"
                                         title="Chuyển tiếp"
                                         whileHover={{ scale: 1.08 }}
                                         whileTap={{ scale: 0.92 }}

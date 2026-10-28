@@ -229,11 +229,11 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
 
     return (
         <>
-            <div className="w-80 shrink-0 bg-white border-l border-gray-200 flex flex-col h-full overflow-hidden">
+            <div className="w-80 shrink-0 bg-surface border-l border-line flex flex-col h-full overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                    <h3 className="font-semibold text-gray-900">Thông tin</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-line">
+                    <h3 className="font-semibold text-fg">Thông tin</h3>
+                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full transition">
                         <X size={18} />
                     </button>
                 </div>
@@ -241,7 +241,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                 {/* Scrollable content */}
                 <div className="flex-1 overflow-y-auto">
                     {/* Profile section */}
-                    <div className="px-4 py-6 text-center border-b border-gray-100">
+                    <div className="px-4 py-6 text-center border-b border-line">
                         <div
                             className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:opacity-90 transition overflow-hidden ${isGroup ? 'bg-purple-500' : 'bg-[var(--color-primary)]'}`}
                             onClick={() => {
@@ -261,37 +261,37 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                 initial
                             )}
                         </div>
-                        <h4 className="mt-3 font-semibold text-gray-900 text-lg">{displayName}</h4>
+                        <h4 className="mt-3 font-semibold text-fg text-lg">{displayName}</h4>
                         {!isGroup && (
-                            <p className={`text-sm ${otherIsOnline ? 'text-green-500' : 'text-gray-400'}`}>
+                            <p className={`text-sm ${otherIsOnline ? 'text-green-500' : 'text-fg-subtle'}`}>
                                 {otherIsOnline ? 'Đang hoạt động' : 'Offline'}
                             </p>
                         )}
                         {isGroup && (
-                            <p className="text-sm text-gray-400">{room.members?.length || 0} thành viên</p>
+                            <p className="text-sm text-fg-subtle">{room.members?.length || 0} thành viên</p>
                         )}
                     </div>
 
                     {/* ─── Actions for 1-1 chat ─── */}
                     {!isGroup && (
-                        <div className="px-2 py-3 border-b border-gray-100 space-y-0.5">
+                        <div className="px-2 py-3 border-b border-line space-y-0.5">
                             {!isAnonymousPeer && (
                                 <>
                                     {/* View profile */}
                                     <button
                                         onClick={() => navigate(`/profile/${otherUser?._id}`)}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
                                     >
-                                        <Users size={16} className="text-gray-400" />
+                                        <Users size={16} className="text-fg-subtle" />
                                         Xem trang cá nhân
                                     </button>
 
                                     {/* Set nickname */}
                                     <button
                                         onClick={() => setNicknameTarget(otherMember)}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
                                     >
-                                        <Edit3 size={16} className="text-gray-400" />
+                                        <Edit3 size={16} className="text-fg-subtle" />
                                         Đặt biệt danh
                                     </button>
                                 </>
@@ -301,14 +301,14 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                             <button
                                 onClick={handleToggleMute}
                                 disabled={actionLoading === 'mute'}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition disabled:opacity-50"
+                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition disabled:opacity-50"
                             >
                                 {actionLoading === 'mute' ? (
-                                    <Loader2 size={16} className="text-gray-400 animate-spin" />
+                                    <Loader2 size={16} className="text-fg-subtle animate-spin" />
                                 ) : muted ? (
-                                    <BellOff size={16} className="text-gray-400" />
+                                    <BellOff size={16} className="text-fg-subtle" />
                                 ) : (
-                                    <Bell size={16} className="text-gray-400" />
+                                    <Bell size={16} className="text-fg-subtle" />
                                 )}
                                 {muted ? 'Bật thông báo' : 'Tắt thông báo'}
                             </button>
@@ -317,12 +317,12 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                             {!isAnonymousPeer && <button
                                 onClick={handleToggleBlock}
                                 disabled={actionLoading === 'block'}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl transition disabled:opacity-50 ${blocked ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-50'}`}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl transition disabled:opacity-50 ${blocked ? 'text-red-600 hover:bg-red-50' : 'text-fg-muted hover:bg-hover'}`}
                             >
                                 {actionLoading === 'block' ? (
-                                    <Loader2 size={16} className="text-gray-400 animate-spin" />
+                                    <Loader2 size={16} className="text-fg-subtle animate-spin" />
                                 ) : (
-                                    <Ban size={16} className={blocked ? 'text-red-400' : 'text-gray-400'} />
+                                    <Ban size={16} className={blocked ? 'text-red-400' : 'text-fg-subtle'} />
                                 )}
                                 {blocked ? 'Bỏ chặn' : 'Chặn'}
                             </button>}
@@ -342,40 +342,40 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                     {isGroup && (
                         <>
                             {/* Group actions */}
-                            <div className="px-2 py-3 border-b border-gray-100 space-y-0.5">
+                            <div className="px-2 py-3 border-b border-line space-y-0.5">
                                 {/* View group profile */}
                                 <button
                                     onClick={() => navigate(`/group/${room._id}`)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
                                 >
-                                    <Eye size={16} className="text-gray-400" />
+                                    <Eye size={16} className="text-fg-subtle" />
                                     Xem chi tiết nhóm
                                 </button>
 
                                 {/* Add member */}
                                 <button
                                     onClick={() => setShowAddMember(true)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
                                 >
-                                    <UserPlus size={16} className="text-gray-400" />
+                                    <UserPlus size={16} className="text-fg-subtle" />
                                     {canManage ? 'Thêm thành viên' : 'Mời thành viên'}
                                 </button>
 
                                 {/* Invite link */}
                                 <button
                                     onClick={() => setShowInvite(true)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
                                 >
-                                    <Link2 size={16} className="text-gray-400" />
+                                    <Link2 size={16} className="text-fg-subtle" />
                                     Link mời vào nhóm
                                 </button>
 
                                 {/* Set nickname for self */}
                                 <button
                                     onClick={() => setNicknameTarget(myMember)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
                                 >
-                                    <Edit3 size={16} className="text-gray-400" />
+                                    <Edit3 size={16} className="text-fg-subtle" />
                                     Đặt biệt danh
                                 </button>
 
@@ -383,14 +383,14 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                 <button
                                     onClick={handleToggleMute}
                                     disabled={actionLoading === 'mute'}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition disabled:opacity-50"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition disabled:opacity-50"
                                 >
                                     {actionLoading === 'mute' ? (
-                                        <Loader2 size={16} className="text-gray-400 animate-spin" />
+                                        <Loader2 size={16} className="text-fg-subtle animate-spin" />
                                     ) : muted ? (
-                                        <BellOff size={16} className="text-gray-400" />
+                                        <BellOff size={16} className="text-fg-subtle" />
                                     ) : (
-                                        <Bell size={16} className="text-gray-400" />
+                                        <Bell size={16} className="text-fg-subtle" />
                                     )}
                                     {muted ? 'Bật thông báo' : 'Tắt thông báo'}
                                 </button>
@@ -411,10 +411,10 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                             </div>
 
                             {/* ─── Members section ─── */}
-                            <div className="px-2 py-3 border-b border-gray-100">
+                            <div className="px-2 py-3 border-b border-line">
                                 <button
                                     onClick={() => setShowMembers(!showMembers)}
-                                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700"
+                                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-fg-muted"
                                 >
                                     <span className="flex items-center gap-2">
                                         <Users size={16} />
@@ -436,10 +436,10 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
 
                             {/* ─── Pending members (trưởng/phó nhóm) ─── */}
                             {canManage && (
-                                <div className="px-2 py-3 border-b border-gray-100">
+                                <div className="px-2 py-3 border-b border-line">
                                     <button
                                         onClick={() => setShowPending(!showPending)}
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-gray-700"
+                                        className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-fg-muted"
                                     >
                                         <span className="flex items-center gap-2">
                                             <Shield size={16} />

@@ -20,14 +20,14 @@ export default function AIToggle({ enabled, onToggle, onSummarize }) {
                 onClick={() => onToggle(!enabled)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition ${enabled
                         ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        : 'bg-surface-muted text-fg-subtle hover:bg-hover'
                     }`}
                 title={enabled ? 'Tắt AI Bot' : 'Bật AI Bot'}
             >
                 <Bot size={14} />
                 <span className="hidden sm:inline">AI Bot</span>
                 <div
-                    className={`w-8 h-4 rounded-full relative transition-colors ${enabled ? 'bg-purple-500' : 'bg-gray-300'
+                    className={`w-8 h-4 rounded-full relative transition-colors ${enabled ? 'bg-purple-500' : 'bg-line-strong'
                         }`}
                 >
                     <div

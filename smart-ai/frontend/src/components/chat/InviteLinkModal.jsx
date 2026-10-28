@@ -45,16 +45,16 @@ export default function InviteLinkModal({ roomId, canReset, onClose }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-            <div className="bg-white rounded-2xl w-full max-w-sm mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                    <h3 className="font-semibold text-gray-900">Link mời vào nhóm</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
+            <div className="bg-surface rounded-2xl w-full max-w-sm mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+                    <h3 className="font-semibold text-fg">Link mời vào nhóm</h3>
+                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full transition">
                         <X size={18} />
                     </button>
                 </div>
 
                 <div className="px-5 py-4 space-y-3">
-                    <p className="text-xs text-gray-500">Người mở link sẽ gửi yêu cầu tham gia, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
+                    <p className="text-xs text-fg-subtle">Người mở link sẽ gửi yêu cầu tham gia, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
                     {loading ? (
                         <div className="flex justify-center py-4">
                             <Loader2 size={20} className="animate-spin text-[var(--color-primary)]" />
@@ -65,7 +65,7 @@ export default function InviteLinkModal({ roomId, canReset, onClose }) {
                                 readOnly
                                 value={link}
                                 onFocus={(e) => e.target.select()}
-                                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 bg-gray-50 focus:outline-none"
+                                className="w-full px-3 py-2 border border-line rounded-xl text-sm text-fg-muted bg-app focus:outline-none"
                             />
                             <div className="flex gap-2">
                                 <button
@@ -79,7 +79,7 @@ export default function InviteLinkModal({ roomId, canReset, onClose }) {
                                     <button
                                         onClick={handleReset}
                                         disabled={resetting}
-                                        className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+                                        className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-line text-sm text-fg-muted hover:bg-hover transition disabled:opacity-50"
                                         title="Tạo link mới, link cũ hết hiệu lực"
                                     >
                                         {resetting ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}

@@ -91,7 +91,7 @@ export default function ProfilePage() {
 
     if (loading) {
         return (
-            <div className="h-screen flex items-center justify-center bg-gray-50">
+            <div className="h-screen flex items-center justify-center bg-app">
                 <Loader2 size={32} className="animate-spin text-[var(--color-primary)]" />
             </div>
         );
@@ -99,8 +99,8 @@ export default function ProfilePage() {
 
     if (!profile) {
         return (
-            <div className="h-screen flex flex-col items-center justify-center bg-gray-50">
-                <p className="text-gray-500 mb-4">Không tìm thấy người dùng</p>
+            <div className="h-screen flex flex-col items-center justify-center bg-app">
+                <p className="text-fg-subtle mb-4">Không tìm thấy người dùng</p>
                 <button onClick={() => navigate('/')} className="text-[var(--color-primary)] hover:underline">Quay lại</button>
             </div>
         );
@@ -109,14 +109,14 @@ export default function ProfilePage() {
     const initial = profile.username?.charAt(0).toUpperCase() || '?';
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-surface-muted">
             {/* Top navigation */}
-            <div className="bg-white shadow-sm sticky top-0 z-10">
+            <div className="bg-surface shadow-sm sticky top-0 z-10">
                 <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => navigate('/')} className="p-1.5 hover:bg-gray-100 rounded-full transition">
+                    <button onClick={() => navigate('/')} className="p-1.5 hover:bg-hover rounded-full transition">
                         <ArrowLeft size={20} />
                     </button>
-                    <h1 className="font-semibold text-gray-900">{profile.username}</h1>
+                    <h1 className="font-semibold text-fg">{profile.username}</h1>
                 </div>
             </div>
 
@@ -147,12 +147,12 @@ export default function ProfilePage() {
                 </div>
 
                 {/* ─── Name + Bio + Actions ─── */}
-                <div className="bg-white rounded-2xl mt-0 px-6 pt-20 pb-6 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900">{profile.username}</h2>
+                <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6 shadow-sm">
+                    <h2 className="text-2xl font-bold text-fg">{profile.username}</h2>
                     {profile.bio && (
-                        <p className="text-gray-600 mt-1">{profile.bio}</p>
+                        <p className="text-fg-muted mt-1">{profile.bio}</p>
                     )}
-                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-fg-subtle mt-1 flex items-center gap-1">
                         <Calendar size={12} />
                         Tham gia {profile.createdAt ? format(new Date(profile.createdAt), 'dd/MM/yyyy') : ''}
                     </p>
@@ -162,7 +162,7 @@ export default function ProfilePage() {
                         {isOwn ? (
                             <button
                                 onClick={() => setShowEdit(true)}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-xl transition"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-surface-muted hover:bg-hover text-fg font-medium rounded-xl transition"
                             >
                                 <Edit3 size={16} />
                                 Chỉnh sửa trang cá nhân
@@ -201,7 +201,7 @@ export default function ProfilePage() {
                                 {friendStatus === 'pending' && (
                                     <button
                                         disabled={true}
-                                        className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-500 font-medium rounded-xl disabled:opacity-75"
+                                        className="flex items-center gap-2 px-5 py-2.5 bg-surface-muted text-fg-subtle font-medium rounded-xl disabled:opacity-75"
                                     >
                                         Đã gửi yêu cầu
                                     </button>
@@ -223,13 +223,13 @@ export default function ProfilePage() {
                 </div>
 
                 {/* ─── Info Section ─── */}
-                <div className="bg-white rounded-2xl mt-4 px-6 py-5 shadow-sm mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Giới thiệu</h3>
+                <div className="bg-surface rounded-2xl mt-4 px-6 py-5 shadow-sm mb-8">
+                    <h3 className="text-lg font-semibold text-fg mb-4">Giới thiệu</h3>
                     <div className="space-y-3">
                         {/* Phương thức đăng nhập */}
                         {isOwn && (
-                            <div className="flex items-center gap-3 text-gray-700">
-                                <Shield size={18} className="text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-3 text-fg-muted">
+                                <Shield size={18} className="text-fg-subtle shrink-0" />
                                 <span>Phương thức đăng nhập: <strong>{
                                     profile.provider === 'google' ? 'Google' : 'Email & Mật khẩu'
                                 }</strong></span>
@@ -244,32 +244,32 @@ export default function ProfilePage() {
                             </div>
                         )}
                         {profile.address && (
-                            <div className="flex items-center gap-3 text-gray-700">
-                                <MapPin size={18} className="text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-3 text-fg-muted">
+                                <MapPin size={18} className="text-fg-subtle shrink-0" />
                                 <span>Sống tại <strong>{profile.address}</strong></span>
                             </div>
                         )}
                         {profile.education && (
-                            <div className="flex items-center gap-3 text-gray-700">
-                                <GraduationCap size={18} className="text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-3 text-fg-muted">
+                                <GraduationCap size={18} className="text-fg-subtle shrink-0" />
                                 <span>Học tại <strong>{profile.education}</strong></span>
                             </div>
                         )}
                         {profile.phoneNumber && (
-                            <div className="flex items-center gap-3 text-gray-700">
-                                <Phone size={18} className="text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-3 text-fg-muted">
+                                <Phone size={18} className="text-fg-subtle shrink-0" />
                                 <span>{profile.phoneNumber}</span>
                             </div>
                         )}
                         {profile.email && (
-                            <div className="flex items-center gap-3 text-gray-700">
-                                <Mail size={18} className="text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-3 text-fg-muted">
+                                <Mail size={18} className="text-fg-subtle shrink-0" />
                                 <span>{profile.email}</span>
                             </div>
                         )}
                         {profile.hobbies?.length > 0 && (
-                            <div className="flex items-start gap-3 text-gray-700">
-                                <Heart size={18} className="text-gray-400 shrink-0 mt-0.5" />
+                            <div className="flex items-start gap-3 text-fg-muted">
+                                <Heart size={18} className="text-fg-subtle shrink-0 mt-0.5" />
                                 <div className="flex flex-wrap gap-2">
                                     {profile.hobbies.map((hobby, i) => (
                                         <span key={i} className="px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] rounded-full text-sm">
@@ -280,7 +280,7 @@ export default function ProfilePage() {
                             </div>
                         )}
                         {!profile.address && !profile.education && !profile.phoneNumber && !profile.hobbies?.length && !isOwn && (
-                            <p className="text-gray-400 italic">Chưa có thông tin giới thiệu</p>
+                            <p className="text-fg-subtle italic">Chưa có thông tin giới thiệu</p>
                         )}
                     </div>
                 </div>

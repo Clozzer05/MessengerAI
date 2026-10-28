@@ -14,7 +14,7 @@ export default function ThemedSurface({
     const base = 'transition-all duration-300';
     const skin = isGlassTheme
         ? 'glass-panel'
-        : 'bg-white';
+        : 'bg-surface';
     const pixel = isPixelTheme ? 'font-pixel pixel-card' : '';
     const depth = elevated ? 'shadow-lg border border-white/10' : '';
     const hover = interactive ? 'hover:-translate-y-0.5 hover:shadow-xl' : '';

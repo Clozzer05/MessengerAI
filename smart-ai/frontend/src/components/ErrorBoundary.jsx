@@ -26,13 +26,13 @@ export default class ErrorBoundary extends Component {
     render() {
         if (this.state.hasError) {
             return (
-                <div className="h-screen flex items-center justify-center bg-gray-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-lg p-8 max-w-lg w-full text-center">
+                <div className="h-screen flex items-center justify-center bg-app p-4">
+                    <div className="bg-surface rounded-2xl shadow-lg p-8 max-w-lg w-full text-center">
                         <div className="text-5xl mb-4">⚠️</div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-xl font-bold text-fg mb-2">
                             Đã xảy ra lỗi
                         </h2>
-                        <p className="text-gray-500 mb-4 text-sm">
+                        <p className="text-fg-subtle mb-4 text-sm">
                             Ứng dụng gặp sự cố. Vui lòng thử lại.
                         </p>
                         {this.state.error && (
@@ -45,7 +45,7 @@ export default class ErrorBoundary extends Component {
                         <div className="flex gap-3 justify-center">
                             <button
                                 onClick={this.handleReset}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium text-sm transition"
+                                className="px-4 py-2 bg-surface-muted hover:bg-hover text-fg-muted rounded-lg font-medium text-sm transition"
                             >
                                 Thử lại
                             </button>
