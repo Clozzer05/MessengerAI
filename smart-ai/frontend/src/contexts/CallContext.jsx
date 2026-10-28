@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSocket } from '../hooks/useSocket';
 import { useAuth } from '../hooks/useAuth';
 import { CallContext } from '.';
-import { startRingtone, stopRingtone } from '../utils/ringtone';
+import { startRingtone, startRingback, stopRingtone } from '../utils/ringtone';
 import { emitToast } from '../utils/toast';
 
 // ── Lazy-load SimplePeer to avoid TDZ errors ───────────────────
@@ -196,6 +196,13 @@ export function CallProvider({ children }) {
 
     // Keep isGroupRef in sync
     useEffect(() => { isGroupRef.current = callState.isGroup; }, [callState.isGroup]);
+
+    // Người gọi nghe chuông chờ cho tới khi có người nghe máy hoặc cuộc gọi kết thúc
+    useEffect(() => {
+        if (!callState.outgoing || callState.active) return;
+        startRingback();
+        return stopRingtone;
+    }, [callState.outgoing, callState.active]);
 
     const cleanup = useCallback(() => {
         console.log('[Call] cleanup()');
