@@ -111,6 +111,7 @@ export default function MessageBubble({
     const [mediaCandidateIndex, setMediaCandidateIndex] = useState(0);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showReactionDetails, setShowReactionDetails] = useState(false);
+    const [showReaders, setShowReaders] = useState(false);
     const [pickerBelow, setPickerBelow] = useState(false);
     const [shouldShake, setShouldShake] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -494,10 +495,19 @@ export default function MessageBubble({
         const senderRef = message.sender?._id || message.sender;
         return String(readerId || '') !== String(senderRef || '');
     });
-    const latestReadAt = readByOthers
-        .map((entry) => entry?.readAt)
-        .filter(Boolean)
-        .sort((a, b) => new Date(b) - new Date(a))[0];
+    // Người đã xem (mỗi người một lần vì mở nhiều tab có thể ghi trùng), lấy tên và avatar từ danh sách thành viên
+    const readers = showReaders
+        ? [...new Map(readByOthers.map((entry) => [String(entry?.user?._id || entry?.user), entry])).entries()]
+            .map(([readerId, entry]) => {
+                const member = roomMembers?.find((m) => String(m.user?._id || m.user) === readerId)?.user;
+                return {
+                    id: readerId,
+                    name: nicknames?.[readerId] || member?.username || 'Thành viên',
+                    avatar: member?.avatar || member?.googlePicture,
+                    readAt: entry?.readAt,
+                };
+            })
+        : [];
 
     const senderId = message.sender?._id;
     const senderNickname = senderId && nicknames?.[senderId];
@@ -1245,7 +1255,45 @@ export default function MessageBubble({
                         )}
 
                         {/* Giờ và trạng thái nằm dưới tin cuối cụm, ngoài bong bóng (như iMessage) */}
-                        {showCompactMeta && (
+                        {showCompactMeta && (isOwn && !message.pending && readByOthers.length > 0 ? (
+                            // Bấm "Đã xem" để hiện avatar những người đã xem (như Messenger)
+                            <div className="mt-0.5 flex flex-col items-end">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReaders((v) => !v)}
+                                    aria-expanded={showReaders}
+                                    className="px-1.5 py-0.5 text-[11px] leading-none text-fg-subtle hover:text-fg transition-colors"
+                                >
+                                    Đã xem
+                                </button>
+                                <AnimatePresence initial={false}>
+                                    {showReaders && (
+                                        <motion.div
+                                            initial={reduceMotion ? false : { opacity: 0, y: -4 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.15 }}
+                                            className="mt-1 flex max-w-[240px] flex-wrap justify-end gap-1 px-1.5"
+                                        >
+                                            {readers.map((reader) => {
+                                                const label = `${reader.name}${reader.readAt ? ` · đã xem lúc ${format(new Date(reader.readAt), 'HH:mm')}` : ''}`;
+                                                return (
+                                                    <div key={reader.id} title={label} className="h-5 w-5 flex-shrink-0 overflow-hidden rounded-full">
+                                                        {reader.avatar ? (
+                                                            <img src={resolveMediaUrl(reader.avatar)} alt={label} className="h-full w-full object-cover" />
+                                                        ) : (
+                                                            <div role="img" aria-label={label} className={`flex h-full w-full items-center justify-center text-[9px] font-bold text-white ${getAvatarColor(reader.id)}`}>
+                                                                {reader.name.charAt(0).toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        ) : (
                             <p
                                 className={`mt-1 px-1.5 text-[11px] leading-none text-fg-subtle ${isOwn ? 'text-right' : ''}`}
                                 title={format(new Date(message.createdAt), 'HH:mm:ss - dd/MM/yyyy')}
@@ -1254,11 +1302,9 @@ export default function MessageBubble({
                                     ? format(new Date(message.createdAt), 'HH:mm')
                                     : message.pending
                                         ? 'Đang gửi...'
-                                        : readByOthers.length > 0
-                                            ? `Đã xem${readByOthers.length > 1 ? ` (${readByOthers.length})` : ''}${latestReadAt ? ` ${format(new Date(latestReadAt), 'HH:mm')}` : ''}`
-                                            : `Đã gửi ${format(new Date(message.createdAt), 'HH:mm')}`}
+                                        : `Đã gửi ${format(new Date(message.createdAt), 'HH:mm')}`}
                             </p>
-                        )}
+                        ))}
 
                         {/* Message actions */}
                         {!selectionMode && message.type !== 'system' && (
