@@ -93,7 +93,9 @@ export default function MessageBubble({
     onQuickReply,
     onJumpToMessage,
     roomMembers,
+    isClusterStart = true,
     isClusterEnd = true,
+    showSenderName = false,
 }) {
     const { user } = useAuth();
     const { joinGroupCall, callState } = useCall();
@@ -505,6 +507,12 @@ export default function MessageBubble({
     const senderNickname = senderId && nicknames?.[senderId];
     const senderName = senderNickname || message.sender?.username || 'Unknown';
     const showSenderAvatar = !isOwn && (isAI || isClusterEnd);
+    // Bo góc theo cụm như Messenger: phía người gửi, góc nối với tin liền trên/dưới bo nhỏ lại
+    const bubbleShapeClass = [
+        'rounded-[18px]',
+        !isClusterStart && (isOwn ? 'rounded-tr-[4px]' : 'rounded-tl-[4px]'),
+        !isClusterEnd && (isOwn ? 'rounded-br-[4px]' : 'rounded-bl-[4px]'),
+    ].filter(Boolean).join(' ');
 
     // Trích dẫn tin được trả lời (giống Messenger): "X đã trả lời Y" + nội dung gốc
     const replyTo = message.replyTo && typeof message.replyTo === 'object' ? message.replyTo : null;
@@ -823,6 +831,11 @@ export default function MessageBubble({
                 )}
 
                 <div className={`max-w-[75%]`}>
+                    {showSenderName && !isOwn && !isAI && !replyTo && (
+                        <p className="text-[11px] mb-0.5 px-3 truncate" style={{ color: 'var(--text-tertiary)' }}>
+                            {senderName}
+                        </p>
+                    )}
                     {replyTo && (
                         <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} -mb-2`}>
                             <p className="flex items-center gap-1 text-[11px] mb-0.5 px-1" style={{ color: 'var(--text-tertiary)' }}>
@@ -866,11 +879,11 @@ export default function MessageBubble({
                         <div className={`relative ${reactionSummary.length ? 'mb-3.5' : ''}`}>
                         <motion.div
                             ref={bubbleRef}
-                            className={`relative rounded-2xl ${message.type === 'location'
+                            className={`relative ${bubbleShapeClass} ${message.type === 'location'
                                 ? 'overflow-hidden'
                                 : isEmojiOnlyMessage || isStickerMessage
                                     ? 'px-1 py-0'
-                                    : 'px-4 py-2.5'
+                                    : 'px-3.5 py-2'
                                 } ${isEmojiOnlyMessage || isStickerMessage
                                     ? 'bg-transparent border-transparent shadow-none'
                                     : isAI
@@ -1126,9 +1139,12 @@ export default function MessageBubble({
                         {/* Thanh hành động khi rê chuột (giống Messenger): thả cảm xúc nằm sát bong bóng, rồi menu */}
                         {!selectionMode && message.type !== 'system' && (
                             <div
-                                className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? 'right-full mr-1 flex-row-reverse' : 'left-full ml-1'} flex items-center gap-0.5 transition-opacity ${showActions || showEmojiPicker || isTouchDevice
+                                className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? 'right-full mr-1 flex-row-reverse' : 'left-full ml-1'} flex items-center gap-0.5 transition-opacity ${showActions || showEmojiPicker
                                     ? 'opacity-100'
-                                    : 'opacity-0 group-hover:opacity-100'
+                                    : isTouchDevice
+                                        // Điện thoại: không hiện "..." cạnh từng tin, nhấn giữ tin nhắn để mở menu
+                                        ? 'opacity-0 pointer-events-none'
+                                        : 'opacity-0 group-hover:opacity-100'
                                 }`}
                             >
                                 {!isTouchDevice && (
