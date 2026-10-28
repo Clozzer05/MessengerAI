@@ -21,7 +21,11 @@ exports.createRoom = async (req, res, next) => {
             // Kiểm tra đã có direct room chưa
             const existingRoom = await Room.findDirectRoom(currentUserId, targetUserId);
             if (existingRoom) {
-                const populated = await existingRoom.populate('members.user', 'username avatar googlePicture status preferredLanguage preferredLanguageLabel');
+                // Phòng đã có thì trả kèm tin nhắn cuối như danh sách phòng, để giao diện hiện đúng giờ
+                const populated = await existingRoom.populate([
+                    { path: 'members.user', select: 'username avatar googlePicture status preferredLanguage preferredLanguageLabel' },
+                    { path: 'lastMessage' },
+                ]);
                 return res.json({ room: populated, existing: true });
             }
 
