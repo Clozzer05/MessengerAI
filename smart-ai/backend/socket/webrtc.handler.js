@@ -21,6 +21,21 @@ module.exports = (io, socket) => {
         return Friendship.areFriends(sourceUserId, targetUserId);
     };
 
+    const isRoomMember = async (roomId, memberId = userId) => {
+        const room = await Room.findById(roomId).select('members').lean();
+        return !!room?.members?.some((m) => m.user.toString() === String(memberId));
+    };
+
+    // Hai người đang cùng ở trong một cuộc gọi: chỉ khi đó mới chuyển tiếp tín hiệu WebRTC giữa họ,
+    // vì client tự nhận kết nối mới khi đang gọi nhóm (người ngoài có thể chen vào nghe lén)
+    const inSameCall = (otherUserId) => {
+        const other = String(otherUserId);
+        for (const call of activeCalls.values()) {
+            if (call.participants.includes(userId) && call.participants.includes(other)) return true;
+        }
+        return false;
+    };
+
     // ═══════════════════════════════════════════════════════════════════
     // ─── Call Management ──────────────────────────────────────────────
     // ═══════════════════════════════════════════════════════════════════
@@ -31,7 +46,7 @@ module.exports = (io, socket) => {
             console.log(`📞 ${socket.user.username} initiating ${callType} call in room ${roomId}`);
 
             // Normalize: accept both singular targetUserId and plural targetUserIds
-            const targets = [...new Set((targetUserIds || (targetUserId ? [targetUserId] : [])).filter(Boolean))];
+            const targets = [...new Set((targetUserIds || (targetUserId ? [targetUserId] : [])).filter(Boolean).map(String))];
 
             if (!targets.length) {
                 return socket.emit('call:error', { roomId, error: 'Không có người nhận cuộc gọi' });
@@ -66,6 +81,12 @@ module.exports = (io, socket) => {
             }
 
             const isGroup = room?.type === 'group';
+
+            // Chỉ gọi cho thành viên của chính phòng này
+            const memberIds = new Set(room.members.map((m) => m.user.toString()));
+            if (targets.some((t) => t === userId || !memberIds.has(t))) {
+                return socket.emit('call:error', { roomId, error: 'Người nhận không thuộc phòng này' });
+            }
 
             // Friend-gated policy: chỉ gọi được khi đã là bạn bè accepted
             for (const targetId of targets) {
@@ -149,7 +170,7 @@ module.exports = (io, socket) => {
     });
 
     // ─── call:accept ────────────────────────────────────────────────────
-    socket.on('call:accept', async ({ roomId, callerId }) => {
+    socket.on('call:accept', async ({ roomId }) => {
         try {
             console.log(`✅ ${socket.user.username} accepted call in room ${roomId}`);
 
@@ -158,8 +179,16 @@ module.exports = (io, socket) => {
                 return socket.emit('call:error', { roomId, error: 'Cuộc gọi đã kết thúc hoặc không tồn tại' });
             }
 
+            // Chỉ người được gọi (1-1) hoặc thành viên phòng (gọi nhóm) mới nhận được
+            const allowed = call.isGroup ? await isRoomMember(roomId) : call.targetUserIds.includes(userId);
+            if (!allowed) {
+                return socket.emit('call:error', { roomId, error: 'Bạn không được mời vào cuộc gọi này' });
+            }
+            // Người gọi lấy từ server, không tin callerId do client gửi
+            const { callerId } = call;
+
             // Defense-in-depth: nếu không còn quan hệ bạn bè thì không cho nhận cuộc gọi
-            if (callerId) {
+            if (callerId !== userId) {
                 const isFriend = await ensureFriendship(userId, callerId);
                 if (!isFriend) {
                     return socket.emit('call:error', {
@@ -274,11 +303,13 @@ module.exports = (io, socket) => {
     });
 
     // ─── call:reject ────────────────────────────────────────────────────
-    socket.on('call:reject', async ({ roomId, callerId }) => {
+    socket.on('call:reject', async ({ roomId }) => {
         try {
+            const call = activeCalls.get(roomId);
+            if (!call || !call.targetUserIds.includes(userId)) return;
             console.log(`❌ ${socket.user.username} rejected call in room ${roomId}`);
 
-            const callerSocketId = await getSocketId(callerId);
+            const callerSocketId = await getSocketId(call.callerId);
             if (callerSocketId) {
                 io.to(callerSocketId).emit('call:rejected', {
                     roomId,
@@ -288,8 +319,7 @@ module.exports = (io, socket) => {
             }
 
             // Nếu tất cả reject, xóa call (only for 1-1)
-            const call = activeCalls.get(roomId);
-            if (call && !call.isGroup) {
+            if (!call.isGroup) {
                 call.targetUserIds = call.targetUserIds.filter(id => id !== userId);
                 if (call.targetUserIds.length === 0 && call.participants.length <= 1) {
                     activeCalls.delete(roomId);
@@ -302,8 +332,10 @@ module.exports = (io, socket) => {
 
     // ─── call:cancel ────────────────────────────────────────────────────
     socket.on('call:cancel', async ({ roomId }) => {
-        console.log(`🚫 ${socket.user.username} cancelled call in room ${roomId}`);
         const call = activeCalls.get(roomId);
+        // Chỉ người gọi mới hủy được cuộc gọi của mình
+        if (!call || call.callerId !== userId) return;
+        console.log(`🚫 ${socket.user.username} cancelled call in room ${roomId}`);
         activeCalls.delete(roomId);
 
         // Emit to each target's socketId directly (they may not have join'd this room)
@@ -321,9 +353,12 @@ module.exports = (io, socket) => {
     socket.on('call:end', async ({ roomId }) => {
         try {
             const call = activeCalls.get(roomId);
-            const duration = call ? Math.round((Date.now() - call.startTime) / 1000) : 0;
-            const callType = call?.callType || 'audio';
-            const isGroup = call?.isGroup || false;
+            // Chỉ người đang trong cuộc gọi mới rời/kết thúc được (tránh người ngoài kết thúc hộ
+            // hoặc chèn tin "cuộc gọi đã kết thúc" vào phòng khác)
+            if (!call || !call.participants.includes(userId)) return;
+            const duration = Math.round((Date.now() - call.startTime) / 1000);
+            const callType = call.callType || 'audio';
+            const isGroup = call.isGroup || false;
 
             // Group call: participant leaving, not ending entire call
             if (isGroup && call && call.participants.length > 2) {
@@ -401,10 +436,17 @@ module.exports = (io, socket) => {
     });
 
     // ─── call:invite-member (Group only: invite additional members) ────
-    socket.on('call:invite-member', async ({ roomId, targetUserId }) => {
+    socket.on('call:invite-member', async ({ roomId, targetUserId: rawTargetId }) => {
         try {
             const call = activeCalls.get(roomId);
             if (!call) return socket.emit('call:error', { roomId, error: 'Cuộc gọi không tồn tại' });
+            if (!call.isGroup || !call.participants.includes(userId)) {
+                return socket.emit('call:error', { roomId, error: 'Bạn không ở trong cuộc gọi nhóm này' });
+            }
+            const targetUserId = String(rawTargetId);
+            if (!await isRoomMember(roomId, targetUserId)) {
+                return socket.emit('call:error', { roomId, error: 'Người được mời không thuộc nhóm này' });
+            }
 
             const isFriend = await ensureFriendship(userId, targetUserId);
             if (!isFriend) {
@@ -448,7 +490,7 @@ module.exports = (io, socket) => {
     // ─── call:get-participants (Get current participants list) ─────────
     socket.on('call:get-participants', async ({ roomId }) => {
         const call = activeCalls.get(roomId);
-        if (!call) return;
+        if (!call || !await isRoomMember(roomId)) return;
 
         const participantDetails = [];
         for (const pid of call.participants) {
@@ -472,7 +514,7 @@ module.exports = (io, socket) => {
     // ─── webrtc:offer ──────────────────────────────────────────────────
     socket.on('webrtc:offer', async ({ targetUserId, sdp }) => {
         console.log(`📡 [OFFER] ${socket.user.username} (${userId}) → target ${targetUserId}`);
-        if (!targetUserId || !sdp) return;
+        if (!targetUserId || !sdp || !inSameCall(targetUserId)) return;
 
         const targetSocketId = await getSocketId(targetUserId);
 
@@ -491,7 +533,7 @@ module.exports = (io, socket) => {
     // ─── webrtc:answer ─────────────────────────────────────────────────
     socket.on('webrtc:answer', async ({ targetUserId, sdp }) => {
         console.log(`📡 [ANSWER] ${socket.user.username} (${userId}) → target ${targetUserId}`);
-        if (!targetUserId || !sdp) return;
+        if (!targetUserId || !sdp || !inSameCall(targetUserId)) return;
 
         const targetSocketId = await getSocketId(targetUserId);
 
@@ -510,7 +552,7 @@ module.exports = (io, socket) => {
     // ─── webrtc:ice-candidate ──────────────────────────────────────────
     socket.on('webrtc:ice-candidate', async ({ targetUserId, candidate }) => {
         // Log mức độ thấp hơn hoặc bỏ qua để tránh spam console, nhưng giữ kiểm tra
-        if (!targetUserId || !candidate) return;
+        if (!targetUserId || !candidate || !inSameCall(targetUserId)) return;
 
         const targetSocketId = await getSocketId(targetUserId);
         if (targetSocketId) {
@@ -529,7 +571,7 @@ module.exports = (io, socket) => {
         if (roomId) {
             // Group call: broadcast to all participants
             const call = activeCalls.get(roomId);
-            if (call) {
+            if (call && call.participants.includes(userId)) {
                 call.screenShares = call.screenShares || {};
                 if (sharing && streamId) {
                     call.screenShares[userId] = streamId;
@@ -548,7 +590,7 @@ module.exports = (io, socket) => {
                     }
                 }
             }
-        } else if (targetUserId) {
+        } else if (targetUserId && inSameCall(targetUserId)) {
             const targetSocketId = await getSocketId(targetUserId);
             if (targetSocketId) {
                 io.to(targetSocketId).emit('screen-share:status', {
