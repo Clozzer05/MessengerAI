@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { adminAPI, resolveMediaUrl } from '../services/api';
+import { emitToast } from '../utils/toast';
+import Modal from '../components/ui/Modal';
+import { confirmDialog } from '../utils/confirm';
 import {
     Users, Shield, ShieldCheck, MessageSquare, Home, Search,
     Trash2, Edit3, CheckCircle, XCircle, ChevronLeft, ChevronRight,
@@ -34,20 +37,19 @@ function StatCard({ icon: Icon, label, value, color, sub }) {
 
 function ConfirmModal({ title, message, onClose, onConfirm, loading, danger = false }) {
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-fg">{title}</h3>
+        <Modal title={title} onClose={onClose} size="sm">
+            <div className="p-5 space-y-4">
                 <p className="text-fg-muted">{message}</p>
                 <div className="flex gap-3">
-                    <button onClick={onClose} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                    <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={onConfirm} disabled={loading}
-                        className={`flex-1 py-2 text-white rounded-lg disabled:opacity-50 flex items-center justify-center gap-2 ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-brand hover:bg-brand-hover'}`}>
+                        className={`btn flex-1 ${danger ? 'btn-danger' : 'btn-primary'}`}>
                         {loading && <Loader2 size={16} className="animate-spin" />}
                         Xác nhận
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
 
@@ -164,12 +166,8 @@ function EditUserModal({ user, onClose, onSave }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-md p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-fg">Chỉnh sửa User</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-lg"><X size={20} /></button>
-                </div>
+        <Modal title="Chỉnh sửa User" onClose={onClose} size="md">
+            <div className="p-5 space-y-4">
                 {error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded-lg">{error}</p>}
                 <div className="space-y-3">
                     <div><label className="block text-sm font-medium text-fg-muted mb-1">Username</label>
@@ -208,14 +206,14 @@ function EditUserModal({ user, onClose, onSave }) {
                     )}
                 </div>
                 <div className="flex gap-3 pt-2">
-                    <button onClick={onClose} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                    <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={handleSave} disabled={saving}
-                        className="flex-1 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50 flex items-center justify-center gap-2">
+                        className="btn btn-primary flex-1">
                         {saving && <Loader2 size={16} className="animate-spin" />} Lưu
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
 
@@ -228,9 +226,8 @@ function LockModal({ user, onClose, onLock }) {
         catch { setLoading(false); }
     };
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-fg">Khóa tạm thời: {user.username}</h3>
+        <Modal title={`Khóa tạm thời: ${user.username}`} onClose={onClose} size="sm">
+            <div className="p-5 space-y-4">
                 <div><label className="block text-sm font-medium text-fg-muted mb-1">Thời gian (phút)</label>
                     <input type="number" min={1} value={duration} onChange={e => setDuration(parseInt(e.target.value) || 1)}
                         className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-ring outline-none" /></div>
@@ -243,14 +240,14 @@ function LockModal({ user, onClose, onLock }) {
                     ))}
                 </div>
                 <div className="flex gap-3">
-                    <button onClick={onClose} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                    <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={handleLock} disabled={loading}
-                        className="flex-1 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 flex items-center justify-center gap-2">
+                        className="btn flex-1 bg-orange-600 text-white hover:bg-orange-700">
                         {loading && <Loader2 size={16} className="animate-spin" />} Khóa
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
 
@@ -265,21 +262,20 @@ function ResetPasswordModal({ user, onClose, onReset }) {
         catch (err) { setError(err.response?.data?.error || 'Lỗi'); setLoading(false); }
     };
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-fg">Reset mật khẩu: {user.username}</h3>
+        <Modal title={`Reset mật khẩu: ${user.username}`} onClose={onClose} size="sm">
+            <div className="p-5 space-y-4">
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <input type="password" placeholder="Mật khẩu mới (≥6 ký tự)" value={password} onChange={e => setPassword(e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-ring outline-none" />
                 <div className="flex gap-3">
-                    <button onClick={onClose} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                    <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={handleReset} disabled={loading}
-                        className="flex-1 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50 flex items-center justify-center gap-2">
+                        className="btn btn-primary flex-1">
                         {loading && <Loader2 size={16} className="animate-spin" />} Reset
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }
 
@@ -496,13 +492,13 @@ function ReportsTab({ currentUser }) {
     useEffect(() => { setPage(1); }, [statusFilter]);
 
     const handleResolve = async (id, payload) => {
-        if (payload.action === 'ban' && !window.confirm('Ban vĩnh viễn tài khoản này?')) return;
+        if (payload.action === 'ban' && !(await confirmDialog({ title: 'Ban vĩnh viễn?', message: 'Tài khoản này sẽ bị khóa vĩnh viễn.', confirmText: 'Ban', danger: true }))) return;
         setResolving(id);
         try {
             await adminAPI.resolveReport(id, payload);
             setDraft(null);
             fetchReports();
-        } catch (err) { alert(err.response?.data?.error || 'Lỗi khi xử lý báo cáo'); }
+        } catch (err) { emitToast(err.response?.data?.error || 'Lỗi khi xử lý báo cáo', { type: 'error' }); }
         finally { setResolving(null); }
     };
 
@@ -658,13 +654,13 @@ function BadWordsTab({ currentUser }) {
         if (!newWord.trim()) return;
         setAdding(true);
         try { await adminAPI.addBadWord({ word: newWord.trim(), severity }); setNewWord(''); fetchWords(); }
-        catch (err) { alert(err.response?.data?.error || 'Lỗi'); }
+        catch (err) { emitToast(err.response?.data?.error || 'Lỗi khi thêm từ', { type: 'error' }); }
         finally { setAdding(false); }
     };
 
     const handleRemove = async (id) => {
         try { await adminAPI.removeBadWord(id); fetchWords(); }
-        catch (err) { alert(err.response?.data?.error || 'Lỗi'); }
+        catch (err) { emitToast(err.response?.data?.error || 'Lỗi khi xóa từ', { type: 'error' }); }
     };
 
     const sevColors = { low: 'bg-yellow-100 text-yellow-700', medium: 'bg-orange-100 text-orange-700', high: 'bg-red-100 text-red-700' };
@@ -734,7 +730,7 @@ function ConfigTab({ currentUser }) {
         setConfig(prev => ({ ...prev, [key]: newVal }));
         setSaving(true);
         try { await adminAPI.updateConfig({ [key]: newVal }); }
-        catch (err) { setConfig(prev => ({ ...prev, [key]: !newVal })); alert(err.response?.data?.error || 'Lỗi khi cập nhật config'); }
+        catch (err) { setConfig(prev => ({ ...prev, [key]: !newVal })); emitToast(err.response?.data?.error || 'Lỗi khi cập nhật config', { type: 'error' }); }
         finally { setSaving(false); }
     };
 

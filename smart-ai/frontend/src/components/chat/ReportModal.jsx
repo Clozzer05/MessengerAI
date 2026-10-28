@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X, Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { userActionsAPI } from '../../services/api';
+import Modal from '../ui/Modal';
 
 const REASONS = [
     { value: 'spam', label: 'Spam' },
@@ -37,92 +38,89 @@ export default function ReportModal({ reportedUserId, roomId, message, onClose }
 
     if (sent) {
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-                <div className="bg-surface rounded-2xl w-full max-w-sm mx-4 shadow-xl p-6 text-center" onClick={(e) => e.stopPropagation()}>
+            <Modal onClose={onClose} size="sm">
+                <div className="p-6 text-center">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                         <span className="text-green-600 text-xl">✓</span>
                     </div>
                     <p className="font-semibold text-fg mb-1">Đã gửi báo cáo</p>
                     <p className="text-sm text-fg-subtle mb-4">Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét.</p>
-                    <button onClick={onClose} className="px-6 py-2 bg-[var(--color-primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--color-primary-hover)] transition">
+                    <button onClick={onClose} className="btn btn-primary px-6">
                         Đóng
                     </button>
                 </div>
-            </div>
+            </Modal>
         );
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-5 py-4 border-b border-line">
-                    <div className="flex items-center gap-2">
-                        <AlertTriangle size={18} className="text-red-500" />
-                        <h3 className="font-semibold text-fg">{message ? 'Báo cáo tin nhắn' : 'Báo cáo người dùng'}</h3>
+        <Modal
+            title={(
+                <span className="flex items-center gap-2">
+                    <AlertTriangle size={18} className="text-red-500" />
+                    {message ? 'Báo cáo tin nhắn' : 'Báo cáo người dùng'}
+                </span>
+            )}
+            onClose={onClose}
+            size="sm"
+        >
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                {message && (
+                    <div className="border-l-2 border-red-300 pl-3 text-sm text-fg-muted break-words line-clamp-3">
+                        {message.type === 'text' ? message.content : `[${message.type === 'image' ? 'Hình ảnh' : 'Tệp đính kèm'}] ${message.file?.name || ''}`}
                     </div>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full transition">
-                        <X size={18} />
-                    </button>
+                )}
+                <div>
+                    <label className="text-sm font-medium text-fg-muted block mb-2">Lý do báo cáo</label>
+                    <div className="space-y-2">
+                        {REASONS.map((r) => (
+                            <label key={r.value} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="reason"
+                                    value={r.value}
+                                    checked={reason === r.value}
+                                    onChange={() => setReason(r.value)}
+                                    className="accent-blue-600"
+                                />
+                                <span className="text-sm text-fg-muted">{r.label}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-5 space-y-4">
-                    {message && (
-                        <div className="border-l-2 border-red-300 pl-3 text-sm text-fg-muted break-words line-clamp-3">
-                            {message.type === 'text' ? message.content : `[${message.type === 'image' ? 'Hình ảnh' : 'Tệp đính kèm'}] ${message.file?.name || ''}`}
-                        </div>
-                    )}
-                    <div>
-                        <label className="text-sm font-medium text-fg-muted block mb-2">Lý do báo cáo</label>
-                        <div className="space-y-2">
-                            {REASONS.map((r) => (
-                                <label key={r.value} className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        name="reason"
-                                        value={r.value}
-                                        checked={reason === r.value}
-                                        onChange={() => setReason(r.value)}
-                                        className="accent-blue-600"
-                                    />
-                                    <span className="text-sm text-fg-muted">{r.label}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
+                <div>
+                    <label className="text-sm font-medium text-fg-muted block mb-1">Mô tả thêm (tuỳ chọn)</label>
+                    <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Mô tả chi tiết vấn đề..."
+                        rows={3}
+                        maxLength={500}
+                        className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
+                    />
+                </div>
 
-                    <div>
-                        <label className="text-sm font-medium text-fg-muted block mb-1">Mô tả thêm (tuỳ chọn)</label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Mô tả chi tiết vấn đề..."
-                            rows={3}
-                            maxLength={500}
-                            className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
-                        />
-                    </div>
+                {error && <p className="text-sm text-red-600">{error}</p>}
 
-                    {error && <p className="text-sm text-red-600">{error}</p>}
-
-                    <div className="flex gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 py-2.5 text-sm font-medium text-fg-muted bg-surface-muted hover:bg-hover rounded-xl transition"
-                        >
-                            Huỷ
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={!reason || sending}
-                            className="flex-1 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            {sending && <Loader2 size={14} className="animate-spin" />}
-                            Gửi báo cáo
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div className="flex gap-3">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="btn btn-secondary flex-1"
+                    >
+                        Huỷ
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={!reason || sending}
+                        className="btn btn-danger flex-1"
+                    >
+                        {sending && <Loader2 size={14} className="animate-spin" />}
+                        Gửi báo cáo
+                    </button>
+                </div>
+            </form>
+        </Modal>
     );
 }

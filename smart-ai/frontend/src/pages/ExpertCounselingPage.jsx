@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Stethoscope, Inbox, ClipboardList, Loader2, Clock } from 'lucide-react';
 import { counselingAPI, resolveMediaUrl } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { emitToast } from '../utils/toast';
 import { useSocket } from '../hooks/useSocket';
 
 const CATEGORY_LABEL = {
@@ -91,7 +92,7 @@ export default function ExpertCounselingPage() {
             if (roomId) navigate('/', { state: { roomId } });
         } catch (err) {
             const msg = err.response?.data?.error || 'Không thể nhận phiên tư vấn';
-            alert(msg);
+            emitToast(msg, { type: 'error' });
         } finally {
             setClaimingId(null);
         }

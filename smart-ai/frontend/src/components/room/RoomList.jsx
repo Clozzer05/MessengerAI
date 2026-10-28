@@ -3,6 +3,7 @@ import { roomAPI, resolveMediaUrl } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import { useSocket } from '../../hooks/useSocket';
 import { emitToast } from '../../utils/toast';
+import { confirmDialog } from '../../utils/confirm';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Plus, Search, MessageCircle, Users, MoreVertical, Trash2 } from 'lucide-react';
@@ -21,8 +22,6 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
     // For Context Menu
     const [menuOpenId, setMenuOpenId] = useState(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [deleteConfirmRoomId, setDeleteConfirmRoomId] = useState(null);
     const searchInputRef = useRef(null);
     const roomsRef = useRef([]);
 
@@ -92,6 +91,13 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
         on('room:removed', handleRemoved);
         return () => off('room:removed', handleRemoved);
     }, [on, off]);
+
+    // Tự rời nhóm (ChatInfoSidebar): bỏ nhóm khỏi danh sách
+    useEffect(() => {
+        const handleLeft = (e) => setRooms((prev) => prev.filter((r) => r._id !== e.detail?.roomId));
+        window.addEventListener('room:left', handleLeft);
+        return () => window.removeEventListener('room:left', handleLeft);
+    }, []);
 
     // Được trưởng/phó nhóm duyệt vào nhóm: tải lại danh sách để thấy nhóm mới
     useEffect(() => {
@@ -226,31 +232,31 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
         onSelectRoom(newRoom._id);
     };
 
-    const handleDeleteChat = (roomId, e) => {
+    const handleDeleteChat = async (roomId, e) => {
         if (e) {
             e.stopPropagation();
         }
-        setDeleteConfirmRoomId(roomId);
-        setShowDeleteConfirm(true);
         setMenuOpenId(null);
-    };
-
-    const confirmDeleteChat = async () => {
-        if (!deleteConfirmRoomId) return;
+        const ok = await confirmDialog({
+            title: 'Xóa cuộc trò chuyện?',
+            message: 'Bạn có chắc chắn muốn xóa cuộc trò chuyện này không? Hành động này không thể hoàn tác.',
+            confirmText: 'Xóa',
+            danger: true,
+        });
+        if (!ok) return;
 
         setDeleteLoading(true);
         try {
-            await roomAPI.deleteChat(deleteConfirmRoomId);
-            setRooms((prev) => prev.filter((r) => r._id !== deleteConfirmRoomId));
-            if (activeRoomId === deleteConfirmRoomId) {
+            await roomAPI.deleteChat(roomId);
+            setRooms((prev) => prev.filter((r) => r._id !== roomId));
+            if (activeRoomId === roomId) {
                 onSelectRoom(null);
             }
         } catch (error) {
             console.error('Lỗi khi xóa cuộc trò chuyện:', error);
+            emitToast('Không xóa được cuộc trò chuyện', { type: 'error' });
         } finally {
             setDeleteLoading(false);
-            setShowDeleteConfirm(false);
-            setDeleteConfirmRoomId(null);
         }
     };
 
@@ -428,37 +434,6 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
             {/* Create Room Modal */}
             {showCreate && (
                 <CreateRoomModal onClose={() => setShowCreate(false)} onCreated={handleCreated} />
-            )}
-
-            {/* Delete Confirm Dialog */}
-            {showDeleteConfirm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in">
-                    <div className="bg-surface rounded-lg shadow-xl p-6 w-96 animate-scale-up">
-                        <h3 className="text-lg font-semibold text-fg mb-2">Xóa cuộc trò chuyện</h3>
-                        <p className="text-fg-muted mb-6">
-                            Bạn có chắc chắn muốn xóa cuộc trò chuyện này không? Hành động này không thể hoàn tác.
-                        </p>
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={() => {
-                                    setShowDeleteConfirm(false);
-                                    setDeleteConfirmRoomId(null);
-                                }}
-                                disabled={deleteLoading}
-                                className="px-4 py-2 text-fg-muted bg-hover rounded-lg hover:bg-hover transition disabled:opacity-50"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={confirmDeleteChat}
-                                disabled={deleteLoading}
-                                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
-                            >
-                                {deleteLoading ? 'Đang xóa...' : 'Xóa'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
             )}
         </div>
     );

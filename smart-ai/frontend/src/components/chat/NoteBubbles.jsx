@@ -3,6 +3,7 @@ import { Plus, X, Loader2 } from 'lucide-react';
 import { noteAPI, resolveMediaUrl } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import { useSocket } from '../../hooks/useSocket';
+import Modal from '../ui/Modal';
 
 export default function NoteBubbles({ onSelectRoom }) {
     const { user } = useAuth();
@@ -113,12 +114,8 @@ export default function NoteBubbles({ onSelectRoom }) {
 
             {/* Create note modal */}
             {showCreate && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
-                    <div className="bg-surface rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-fg">✨ Tạo Note</h3>
-                            <button onClick={() => setShowCreate(false)} className="p-1 hover:bg-hover rounded-lg"><X size={20} /></button>
-                        </div>
+                <Modal title="Tạo ghi chú" onClose={() => setShowCreate(false)} size="sm">
+                    <div className="p-5 space-y-4">
                         <div>
                             <textarea value={content} onChange={e => setContent(e.target.value)} maxLength={60}
                                 placeholder="Bạn đang nghĩ gì? (tối đa 60 ký tự)" rows={2}
@@ -126,14 +123,14 @@ export default function NoteBubbles({ onSelectRoom }) {
                             <p className="text-xs text-fg-subtle text-right">{content.length}/60</p>
                         </div>
                         <div className="flex gap-3">
-                            <button onClick={() => setShowCreate(false)} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                            <button onClick={() => setShowCreate(false)} className="btn btn-secondary flex-1">Hủy</button>
                             <button onClick={handleCreate} disabled={!content.trim() || creating}
-                                className="flex-1 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50 flex items-center justify-center gap-2">
+                                className="btn btn-primary flex-1">
                                 {creating && <Loader2 size={16} className="animate-spin" />} Đăng
                             </button>
                         </div>
                     </div>
-                </div>
+                </Modal>
             )}
 
             {/* View note modal */}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import Modal from '../ui/Modal';
 
 export default function PollCreator({ onSend, onClose }) {
     const [question, setQuestion] = useState('');
@@ -22,13 +23,8 @@ export default function PollCreator({ onSend, onClose }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-fg">📊 Tạo bình chọn</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-lg"><X size={20} /></button>
-                </div>
-
+        <Modal title="Tạo bình chọn" onClose={onClose} size="sm">
+            <div className="p-5 space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-fg-muted mb-1">Câu hỏi</label>
                     <input type="text" value={question} onChange={e => setQuestion(e.target.value)}
@@ -60,14 +56,14 @@ export default function PollCreator({ onSend, onClose }) {
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                    <button onClick={onClose} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                    <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={handleSubmit}
                         disabled={!question.trim() || options.filter(o => o.trim()).length < 2}
-                        className="flex-1 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50">
+                        className="btn btn-primary flex-1">
                         Tạo bình chọn
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }

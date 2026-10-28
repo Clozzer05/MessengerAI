@@ -7,6 +7,7 @@ import {
     ArrowLeft, Users, Edit3, Camera, Loader2, Calendar, MessageCircle,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import Modal from '../components/ui/Modal';
 
 export default function GroupProfilePage() {
     const { id } = useParams();
@@ -313,54 +314,49 @@ function EditGroupButton({ room, onSaved }) {
             </button>
 
             {show && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShow(false)}>
-                    <div className="bg-surface rounded-2xl w-full max-w-md mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="px-5 py-4 border-b border-line">
-                            <h3 className="font-semibold text-fg">Chỉnh sửa thông tin nhóm</h3>
+                <Modal title="Chỉnh sửa thông tin nhóm" onClose={() => setShow(false)} size="md">
+                    <form onSubmit={handleSave} className="p-5 space-y-4">
+                        <div>
+                            <label className="text-sm font-medium text-fg-muted block mb-1">Tên nhóm</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
+                                maxLength={100}
+                                required
+                            />
                         </div>
-                        <form onSubmit={handleSave} className="p-5 space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-fg-muted block mb-1">Tên nhóm</label>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
-                                    maxLength={100}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-fg-muted block mb-1">Mô tả nhóm</label>
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    rows={3}
-                                    maxLength={500}
-                                    placeholder="Mô tả nhóm của bạn..."
-                                    className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
-                                />
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setShow(false)}
-                                    className="flex-1 py-2.5 text-sm font-medium text-fg-muted bg-surface-muted hover:bg-hover rounded-xl transition"
-                                >
-                                    Huỷ
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={saving || !name.trim()}
-                                    className="flex-1 py-2.5 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] rounded-xl transition disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {saving && <Loader2 size={14} className="animate-spin" />}
-                                    Lưu
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                        <div>
+                            <label className="text-sm font-medium text-fg-muted block mb-1">Mô tả nhóm</label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows={3}
+                                maxLength={500}
+                                placeholder="Mô tả nhóm của bạn..."
+                                className="w-full px-4 py-2.5 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent resize-none"
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShow(false)}
+                                className="btn btn-secondary flex-1"
+                            >
+                                Huỷ
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={saving || !name.trim()}
+                                className="btn btn-primary flex-1"
+                            >
+                                {saving && <Loader2 size={14} className="animate-spin" />}
+                                Lưu
+                            </button>
+                        </div>
+                    </form>
+                </Modal>
             )}
         </>
     );

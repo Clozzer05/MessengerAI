@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { emitToast } from '../utils/toast';
 import { authAPI } from '../services/api';
 import { AuthContext } from '.';
 
@@ -75,7 +76,7 @@ export function AuthProvider({ children }) {
     // Listen for maintenance mode force logout via socket
     useEffect(() => {
         const handleMaintenance = () => {
-            alert('Hệ thống đang bảo trì. Bạn sẽ bị đăng xuất.');
+            emitToast('Hệ thống đang bảo trì. Bạn sẽ bị đăng xuất.', { type: 'error', duration: 6000 });
             logout();
         };
         window.addEventListener('system:maintenance', handleMaintenance);
@@ -85,7 +86,7 @@ export function AuthProvider({ children }) {
     // Bị ban khi đang online → thông báo rồi đăng xuất
     useEffect(() => {
         const handleBanned = (e) => {
-            alert(e.detail?.message || 'Tài khoản của bạn đã bị khóa vĩnh viễn.');
+            emitToast(e.detail?.message || 'Tài khoản của bạn đã bị khóa vĩnh viễn.', { type: 'error', duration: 6000 });
             logout();
         };
         window.addEventListener('account:banned', handleBanned);
