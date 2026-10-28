@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Room = require('../models/Room');
 const Message = require('../models/Message');
 const ChatDuration = require('../models/ChatDuration');
@@ -29,7 +30,7 @@ module.exports = (io, socket) => {
         }
     };
     // ─── message:send ───────────────────────────────────────────────────
-    socket.on('message:send', async ({ roomId, content, type = 'text', file = null }) => {
+    socket.on('message:send', async ({ roomId, content, type = 'text', file = null, replyTo = null }) => {
         try {
             if (!roomId) return socket.emit('error', { message: 'roomId là bắt buộc' });
             if (type === 'text' && (!content || content.trim() === '')) {
@@ -84,6 +85,11 @@ module.exports = (io, socket) => {
                 }
             }
 
+            // ── Trả lời tin nhắn: chỉ nhận tin trong cùng phòng ──
+            if (replyTo && !(mongoose.isValidObjectId(replyTo) && await Message.exists({ _id: replyTo, room: roomId }))) {
+                return socket.emit('error', { message: 'Tin nhắn được trả lời không tồn tại' });
+            }
+
             // ── Tạo message ──
             const messageData = {
                 room: roomId,
@@ -91,6 +97,7 @@ module.exports = (io, socket) => {
                 type,
                 content: filteredContent || '',
                 originalLanguage: senderLanguage,
+                replyTo: replyTo || null,
             };
 
             if (type === 'location' && file) {
@@ -142,7 +149,8 @@ module.exports = (io, socket) => {
             }
 
             const populatedMessage = await Message.findById(message._id)
-                .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
+                .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame')
+                .populate(Message.REPLY_TO_POPULATE);
 
             // Cập nhật lastMessage
             await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });

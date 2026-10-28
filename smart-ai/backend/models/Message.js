@@ -110,6 +110,13 @@ const messageSchema = new mongoose.Schema({
         default: null,
     },
 
+    // ===== TRẢ LỜI TIN NHẮN (cùng phòng) =====
+    replyTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message',
+        default: null,
+    },
+
     // ===== CALL EVENT (system messages for call lifecycle) =====
     callEvent: {
         kind: { type: String, enum: ['started', 'ended', null], default: null }, // 'started' | 'ended'
@@ -127,6 +134,13 @@ messageSchema.index({ room: 1, createdAt: -1 });
 messageSchema.index({ sender: 1 });
 
 // ─── Static: Lấy tin nhắn phân trang ─────────────────────────────────
+// Tin được trả lời: đủ để hiện trích dẫn phía trên bong bóng
+const REPLY_TO_POPULATE = {
+    path: 'replyTo',
+    select: 'content type file deleted sender',
+    populate: { path: 'sender', select: 'username' },
+};
+
 messageSchema.statics.getByRoom = async function (roomId, { page = 1, limit = 50, userId = null } = {}) {
     const skip = (page - 1) * limit;
     const filter = { room: roomId, deleted: false };
@@ -135,6 +149,7 @@ messageSchema.statics.getByRoom = async function (roomId, { page = 1, limit = 50
     }
     const messages = await this.find(filter)
         .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame')
+        .populate(REPLY_TO_POPULATE)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -144,5 +159,6 @@ messageSchema.statics.getByRoom = async function (roomId, { page = 1, limit = 50
 };
 
 const Message = mongoose.model('Message', messageSchema);
+Message.REPLY_TO_POPULATE = REPLY_TO_POPULATE;
 
 module.exports = Message;
