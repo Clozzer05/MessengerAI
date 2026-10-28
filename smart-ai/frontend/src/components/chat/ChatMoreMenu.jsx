@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal, Bot, Sparkles, CheckSquare, BarChart3, Building2, House } from 'lucide-react';
+import { SwitchTrack } from '../ui/Switch';
 
 // Nút "..." trên header khung chat: gom các thao tác ít dùng để header chỉ còn gọi, video, thông tin
 export default function ChatMoreMenu({
@@ -59,7 +60,7 @@ export default function ChatMoreMenu({
             {open && (
                 <div
                     role="menu"
-                    className="absolute right-0 top-full mt-1 w-60 z-40 rounded-xl border border-line bg-surface py-1.5 shadow-xl animate-fade-in"
+                    className="absolute right-0 top-full mt-1 w-60 z-40 rounded-[14px] apple-material py-1.5 shadow-xl ring-1 ring-black/5 animate-fade-in"
                 >
                     {items.map((item) => (
                         <button
@@ -75,9 +76,7 @@ export default function ChatMoreMenu({
                             <item.icon size={18} className="text-fg-muted shrink-0" />
                             <span className="flex-1 text-left">{item.label}</span>
                             {item.switchOn !== undefined && (
-                                <span className={`w-8 h-4 rounded-full relative shrink-0 transition-colors ${item.switchOn ? 'bg-purple-500' : 'bg-fg-subtle/40'}`}>
-                                    <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${item.switchOn ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                                </span>
+                                <SwitchTrack checked={item.switchOn} size="sm" />
                             )}
                         </button>
                     ))}

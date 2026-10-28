@@ -35,19 +35,19 @@ export default function ForgotPasswordPage() {
     }, [email, cooldown, navigate]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--color-primary-light)] to-[var(--color-primary-medium)] px-4">
+        <div className="min-h-screen flex items-center justify-center bg-app px-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-fg">Quên mật khẩu</h1>
+                    <h1 className="text-[28px] font-bold tracking-tight text-fg">Quên mật khẩu</h1>
                     <p className="text-fg-subtle mt-1">Nhập email để nhận mã xác nhận</p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-surface rounded-2xl shadow-lg p-8 space-y-5">
+                <form onSubmit={handleSubmit} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-5">
                     {error && (
                         <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                     )}
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 pl-10 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                                 placeholder="you@example.com"
                             />
                             <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
                     <button
                         type="submit"
                         disabled={loading || cooldown > 0}
-                        className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="btn btn-primary w-full"
                     >
                         {loading && <Loader2 size={18} className="animate-spin" />}
                         {cooldown > 0 ? `Gửi lại mã sau ${cooldown}s` : 'Gửi mã xác nhận'}

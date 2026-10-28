@@ -3,54 +3,47 @@
 /* dark: theo theme của app (class theme-dark trên <html>), không theo dark mode của hệ điều hành */
 @custom-variant dark (&:where(.theme-dark, .theme-dark *));
 
-@font-face {
-  font-family: 'FVF Fernando 08';
-  src: url('./assets/fonts/FVF Fernando 08.ttf') format('truetype');
-  font-display: swap;
-}
-
 /* ─── Theme CSS Custom Properties (defaults = Blue theme) ─── */
 :root {
-  --font-ui-default: Arial, 'Segoe UI', sans-serif;
-  --font-ui-accent: 'FVF Fernando 08', Arial, 'Segoe UI', sans-serif;
-  --font-ui: var(--font-ui-default);
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #eff6ff;
-  --color-primary-medium: #dbeafe;
-  --color-primary-dark: #1e40af;
-  --color-primary-ring: #3b82f6;
-  --color-gradient-from: #6366f1;
-  --color-gradient-to: #8b5cf6;
-  --color-msg-sent: #2563eb;
+  /* Font hệ thống của Apple (SF Pro trên iPhone/Mac); máy khác tự dùng font hệ thống tương đương */
+  --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --color-primary: #007aff;
+  --color-primary-hover: color-mix(in srgb, #007aff 85%, black);
+  --color-primary-light: color-mix(in srgb, #007aff 10%, white);
+  --color-primary-medium: color-mix(in srgb, #007aff 20%, white);
+  --color-primary-dark: color-mix(in srgb, #007aff 75%, black);
+  --color-primary-ring: #007aff;
+  --color-gradient-from: #007aff;
+  --color-gradient-to: color-mix(in srgb, #007aff 55%, white);
 
-  --bg-main: #eff6ff;
+  --bg-main: #f2f2f7;
   --bg-card: #ffffff;
-  --bg-secondary: #dbeafe;
-  --bg-input: #ffffff;
-  --bg-hover: #dbeafe;
-  --text-primary: #111827;
-  --text-secondary: #374151;
-  --text-tertiary: #6b7280;
-  --border-color: #bfdbfe;
-  --border-input: #93c5fd;
-  --bg-error: #fef2f2;
-  --text-error: #dc2626;
+  --bg-secondary: #f2f2f7;
+  --bg-input: rgba(118, 118, 128, 0.12);
+  --bg-hover: rgba(120, 120, 128, 0.1);
+  --bg-bubble-received: #e9e9eb;
+  --text-primary: #000000;
+  --text-secondary: #3c3c43;
+  --text-tertiary: #8a8a8e;
+  --border-color: #e5e5ea;
+  --border-input: #d1d1d6;
 
-  /* Theme atmosphere tokens */
-  --theme-atmosphere:
-    radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 35%),
-    radial-gradient(circle at 92% 90%, color-mix(in srgb, var(--color-gradient-to) 12%, transparent), transparent 32%);
-  --theme-surface-border: color-mix(in srgb, var(--border-color) 85%, white 15%);
-  --theme-surface-glow: 0 12px 30px color-mix(in srgb, var(--color-primary) 14%, transparent);
-  --theme-shadow-sm: 0 1px 2px color-mix(in srgb, black 12%, transparent);
-  --theme-shadow-lg: 0 12px 28px color-mix(in srgb, black 18%, transparent);
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --theme-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  accent-color: var(--color-primary);
+}
+
+html.theme-dark {
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --theme-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 html,
 body,
 #root {
   font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ─── Màu ngữ nghĩa theo theme ───
@@ -60,6 +53,7 @@ body,
   --color-app: var(--bg-main);
   --color-surface: var(--bg-card);
   --color-surface-muted: var(--bg-secondary);
+  --color-bubble-received: var(--bg-bubble-received);
   --color-hover: var(--bg-hover);
   --color-field: var(--bg-input);
   --color-fg: var(--text-primary);
@@ -118,11 +112,6 @@ html[data-theme] body {
   background-color: var(--bg-main);
 }
 
-html[data-theme] #root {
-  background-image: var(--theme-atmosphere);
-  background-attachment: fixed;
-}
-
 html[data-theme] .border-gray-200 {
   border-color: var(--border-color) !important;
 }
@@ -173,7 +162,7 @@ html[data-theme] .theme-border {
 html[data-theme] .theme-input-field {
   background-color: var(--bg-input);
   color: var(--text-primary);
-  border: 1px solid var(--border-input);
+  border: 1px solid transparent;
 }
 
 html[data-theme] .theme-input-field::placeholder {
@@ -185,7 +174,12 @@ html[data-theme] select,
 html[data-theme] textarea {
   background-color: var(--bg-input) !important;
   color: var(--text-primary) !important;
-  border-color: var(--border-input) !important;
+  border-color: transparent !important;
+}
+
+html[data-theme] input::placeholder,
+html[data-theme] textarea::placeholder {
+  color: var(--text-tertiary);
 }
 
 /* ─── Dark theme extras ─── */
@@ -236,13 +230,6 @@ html.theme-dark :is(.border-violet-100, .border-violet-200) { border-color: colo
 html.theme-dark :is(.bg-fuchsia-50, .bg-fuchsia-100, .hover\:bg-fuchsia-50:hover, .hover\:bg-fuchsia-100:hover) { background-color: color-mix(in srgb, #d946ef 16%, transparent) !important; }
 html.theme-dark :is(.text-fuchsia-600, .text-fuchsia-700, .text-fuchsia-800, .text-fuchsia-900) { color: #f0abfc !important; }
 html.theme-dark :is(.border-fuchsia-100, .border-fuchsia-200) { border-color: color-mix(in srgb, #d946ef 35%, transparent) !important; }
-html.theme-dark .shadow-sm {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-}
-html.theme-dark .shadow-lg {
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4) !important;
-}
-
 /* Shared visual depth tuned by theme tokens */
 html[data-theme] .shadow-sm {
   box-shadow: var(--theme-shadow-sm) !important;
@@ -252,18 +239,11 @@ html[data-theme] .shadow-lg {
   box-shadow: var(--theme-shadow-lg) !important;
 }
 
-html[data-theme] .bg-white,
-html[data-theme] .bg-surface,
-html[data-theme] .bg-\[var\(--bg-card\)\] {
-  border-color: var(--theme-surface-border) !important;
-}
-
-/* Visual language: glassmorphism + neon + pixel */
-.glass-panel {
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(148, 163, 184, 0.24);
+/* Vật liệu mờ kiểu Apple (thanh tiêu đề, menu, hộp thoại) */
+.apple-material {
+  background-color: color-mix(in srgb, var(--bg-card) 78%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
 }
 
 /* Call grid layout tuning */
@@ -272,13 +252,6 @@ html[data-theme] .bg-\[var\(--bg-card\)\] {
   height: 100%;
   border-radius: 12px;
   overflow: hidden;
-}
-
-.pixel-card {
-  border: 2px solid color-mix(in srgb, var(--color-primary) 60%, #503015 40%);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.5) inset,
-    4px 4px 0 0 color-mix(in srgb, var(--color-primary-dark) 65%, #2b1e0f 35%);
 }
 
 .theme-page-enter {
@@ -296,143 +269,13 @@ html[data-theme] .bg-\[var\(--bg-card\)\] {
   }
 }
 
-.font-pixel {
-  font-family: var(--font-ui-accent);
-  letter-spacing: 0.3px;
-}
-
-.pixel-bubble {
-  border-radius: 6px !important;
-  border: 2px solid color-mix(in srgb, var(--color-primary) 65%, #3f2a10 35%);
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.55) inset,
-    3px 3px 0 0 color-mix(in srgb, var(--color-primary-dark) 65%, #1f2937 35%);
-}
-
-.neon-bubble {
-  border: 1px solid color-mix(in srgb, var(--color-primary) 60%, #ffffff 40%);
-  box-shadow:
-    0 0 0 1px rgba(34, 211, 238, 0.08) inset,
-    0 0 18px rgba(34, 211, 238, 0.14);
-}
-
-.pixel-grid-bg {
-  background-image:
-    linear-gradient(rgba(120, 94, 46, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120, 94, 46, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 12% 18%, rgba(245, 158, 11, 0.15), transparent 36%),
-    radial-gradient(circle at 88% 80%, rgba(239, 68, 68, 0.1), transparent 34%);
-  background-size: 18px 18px, 18px 18px, auto, auto;
-}
-
-.neon-grid-bg {
-  background-image:
-    linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 10% 15%, rgba(34, 211, 238, 0.25), transparent 34%),
-    radial-gradient(circle at 90% 85%, rgba(251, 113, 133, 0.2), transparent 32%);
-  background-size: 20px 20px, 20px 20px, auto, auto;
-}
-
-/* Nền khung tin nhắn: trơn, cùng màu thẻ như Messenger; riêng pixel-art giữ lưới ô vuông */
+/* Nền khung tin nhắn: trắng như iMessage, theme tối thì đen */
 .conversation-bg {
   background-color: var(--bg-card);
 }
 
-html[data-theme='pixel-art'] .conversation-bg {
-  background-color: color-mix(in srgb, var(--bg-main) 78%, #fff5d8 22%);
-  background-image:
-    linear-gradient(rgba(120, 94, 46, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120, 94, 46, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 12% 18%, rgba(245, 158, 11, 0.15), transparent 36%),
-    radial-gradient(circle at 88% 80%, rgba(239, 68, 68, 0.1), transparent 34%);
-  background-size: 18px 18px, 18px 18px, auto, auto;
-}
-
-html[data-theme='pixel-art'] {
-  --font-ui: var(--font-ui-accent);
-}
-
-/* Theme personalities */
-html[data-theme='blue'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 10% 12%, rgba(59, 130, 246, 0.2), transparent 34%),
-    radial-gradient(circle at 88% 84%, rgba(99, 102, 241, 0.14), transparent 32%);
-}
-
-html[data-theme='red'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 12% 14%, rgba(239, 68, 68, 0.2), transparent 34%),
-    radial-gradient(circle at 86% 82%, rgba(249, 115, 22, 0.14), transparent 31%);
-}
-
-html[data-theme='purple'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 14% 12%, rgba(168, 85, 247, 0.2), transparent 35%),
-    radial-gradient(circle at 86% 86%, rgba(236, 72, 153, 0.14), transparent 31%);
-}
-
-html[data-theme='yellow'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 14% 10%, rgba(245, 158, 11, 0.18), transparent 33%),
-    radial-gradient(circle at 84% 86%, rgba(239, 68, 68, 0.12), transparent 29%);
-}
-
-html[data-theme='brown'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 15% 12%, rgba(180, 83, 9, 0.18), transparent 32%),
-    radial-gradient(circle at 85% 88%, rgba(120, 53, 15, 0.12), transparent 31%);
-}
-
-html[data-theme='light'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 8% 10%, rgba(99, 102, 241, 0.12), transparent 32%),
-    radial-gradient(circle at 92% 88%, rgba(167, 139, 250, 0.1), transparent 28%);
-}
-
-html[data-theme='dark'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12), transparent 36%),
-    radial-gradient(circle at 90% 86%, rgba(139, 92, 246, 0.09), transparent 33%);
-  --theme-shadow-sm: 0 2px 5px rgba(2, 6, 23, 0.4);
-  --theme-shadow-lg: 0 18px 40px rgba(2, 6, 23, 0.5);
-}
-
-html[data-theme='midnight-purple'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 12% 12%, rgba(124, 58, 237, 0.14), transparent 36%),
-    radial-gradient(circle at 88% 84%, rgba(192, 38, 211, 0.1), transparent 31%);
-  --theme-shadow-sm: 0 2px 6px rgba(8, 4, 28, 0.45);
-  --theme-shadow-lg: 0 18px 42px rgba(8, 4, 28, 0.55);
-}
-
-html[data-theme='solarized'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 10% 10%, rgba(38, 139, 210, 0.16), transparent 32%),
-    radial-gradient(circle at 90% 88%, rgba(42, 161, 152, 0.12), transparent 29%);
-}
-
-html[data-theme='glassmorphism'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 9% 10%, rgba(99, 102, 241, 0.16), transparent 34%),
-    radial-gradient(circle at 88% 84%, rgba(6, 182, 212, 0.11), transparent 31%);
-  --theme-shadow-lg: 0 18px 46px rgba(2, 6, 23, 0.45);
-}
-
-html[data-theme='retro-terminal'] {
-  --theme-atmosphere:
-    radial-gradient(circle at 8% 10%, rgba(34, 197, 94, 0.12), transparent 35%),
-    radial-gradient(circle at 90% 88%, rgba(16, 185, 129, 0.08), transparent 31%);
-  --theme-shadow-sm: 0 1px 3px rgba(1, 10, 3, 0.55);
-  --theme-shadow-lg: 0 14px 34px rgba(1, 10, 3, 0.6);
-}
-
-html[data-theme='neon-night'] {
-  --font-ui: var(--font-ui-default);
-  --theme-atmosphere:
-    radial-gradient(circle at 8% 10%, rgba(34, 211, 238, 0.16), transparent 36%),
-    radial-gradient(circle at 92% 86%, rgba(251, 113, 133, 0.12), transparent 33%);
-  --theme-shadow-lg: 0 20px 44px rgba(8, 20, 48, 0.58);
+html.theme-dark .conversation-bg {
+  background-color: var(--bg-main);
 }
 
 /* Message cluster spacing rhythm */
@@ -442,43 +285,6 @@ html[data-theme='neon-night'] {
 
 .chat-message-row.chat-cluster-end {
   margin-bottom: 8px;
-}
-
-@media (max-width: 767.98px) {
-  html[data-theme='blue'] .chat-message-row.chat-cluster-end,
-  html[data-theme='light'] .chat-message-row.chat-cluster-end,
-  html[data-theme='solarized'] .chat-message-row.chat-cluster-end {
-    margin-bottom: 9px;
-  }
-
-  html[data-theme='red'] .chat-message-row.chat-cluster-end,
-  html[data-theme='yellow'] .chat-message-row.chat-cluster-end,
-  html[data-theme='brown'] .chat-message-row.chat-cluster-end {
-    margin-bottom: 10px;
-  }
-
-  html[data-theme='purple'] .chat-message-row.chat-cluster-mid,
-  html[data-theme='midnight-purple'] .chat-message-row.chat-cluster-mid {
-    margin-bottom: 2.5px;
-  }
-
-  html[data-theme='purple'] .chat-message-row.chat-cluster-end,
-  html[data-theme='midnight-purple'] .chat-message-row.chat-cluster-end {
-    margin-bottom: 10px;
-  }
-
-  html[data-theme='glassmorphism'] .chat-message-row.chat-cluster-end,
-  html[data-theme='neon-night'] .chat-message-row.chat-cluster-end {
-    margin-bottom: 11px;
-  }
-
-  html[data-theme='pixel-art'] .chat-message-row.chat-cluster-mid {
-    margin-bottom: 3px;
-  }
-
-  html[data-theme='pixel-art'] .chat-message-row.chat-cluster-end {
-    margin-bottom: 12px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -510,20 +316,6 @@ html[data-theme='neon-night'] {
   .fade-in {
     animation: none !important;
   }
-}
-
-html[data-theme='pixel-art'] .rounded-full {
-  border-radius: 6px;
-}
-
-html[data-theme='neon-night'] .glass-panel {
-  background: linear-gradient(145deg, rgba(11, 18, 38, 0.82), rgba(11, 18, 38, 0.58));
-  border-right-color: rgba(34, 211, 238, 0.24);
-  box-shadow: 0 0 28px rgba(34, 211, 238, 0.16);
-}
-
-html[data-theme='neon-night'] .theme-page-enter {
-  animation-duration: 260ms;
 }
 
 /* Shared skeleton shimmer */
@@ -667,7 +459,7 @@ html.theme-dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
 /* ─── Thành phần dùng chung: nút và modal ─── */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors cursor-pointer
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-colors cursor-pointer
       disabled:opacity-50 disabled:cursor-not-allowed
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-1;
   }
@@ -675,10 +467,10 @@ html.theme-dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     @apply bg-brand text-white hover:bg-brand-hover;
   }
   .btn-secondary {
-    @apply border border-line-strong text-fg-muted hover:bg-hover;
+    @apply bg-field text-brand hover:bg-hover;
   }
   .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700;
+    @apply bg-[#ff3b30] text-white hover:bg-[#e0342b];
   }
 }
 

@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSocket } from '../../hooks/useSocket';
 import { useCall } from '../../hooks/useCall';
-import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';
+import Switch from '../ui/Switch';
 import { Bot, Send, Loader2, X, Trash2, Languages, FileText, Monitor, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function MiniAIChatBox({ roomId, onClose, onAutoTranslateChange }) {
     const { emit, on, off } = useSocket();
     const { callState, localStream, remoteStream, screenSharing, screenStream } = useCall();
-    const { themeId } = useTheme();
     const { t } = useLanguage();
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
@@ -149,12 +148,10 @@ export default function MiniAIChatBox({ roomId, onClose, onAutoTranslateChange }
     };
 
     const isInCall = callState.active || callState.outgoing || callState.incoming;
-    const isPixelTheme = themeId === 'pixel-art';
-    const isNeonTheme = themeId === 'neon-night';
 
     return (
         <div
-            className={`flex flex-col border-b ${isPixelTheme ? 'font-pixel' : ''}`}
+            className={`flex flex-col border-b`}
             style={{
                 maxHeight: '420px',
                 borderColor: 'var(--border-color)',
@@ -166,9 +163,7 @@ export default function MiniAIChatBox({ roomId, onClose, onAutoTranslateChange }
                 className="flex items-center justify-between px-3 py-2 border-b shrink-0"
                 style={{
                     borderColor: 'var(--border-color)',
-                    background: isNeonTheme
-                        ? 'linear-gradient(120deg, color-mix(in srgb, var(--color-primary) 22%, transparent), color-mix(in srgb, var(--bg-secondary) 85%, transparent))'
-                        : 'var(--bg-secondary)',
+                    background: 'var(--bg-secondary)',
                 }}
             >
                 <div className="flex items-center gap-2">
@@ -220,13 +215,12 @@ export default function MiniAIChatBox({ roomId, onClose, onAutoTranslateChange }
                             <Languages size={13} style={{ color: 'var(--color-primary)' }} />
                             <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('miniAi.autoTranslate')}</span>
                         </div>
-                        <button
-                            onClick={() => setAutoTranslate((v) => !v)}
-                            className="relative w-8 h-4.5 rounded-full transition-colors"
-                            style={{ backgroundColor: autoTranslate ? 'var(--color-primary)' : '#9ca3af' }}
-                        >
-                            <span className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-transform ${autoTranslate ? 'translate-x-3.5' : ''}`} />
-                        </button>
+                        <Switch
+                            size="sm"
+                            checked={autoTranslate}
+                            onChange={setAutoTranslate}
+                            label={t('miniAi.autoTranslate')}
+                        />
                     </div>
 
                     {/* Summarize Button */}

@@ -60,19 +60,19 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--color-primary-light)] to-[var(--color-primary-medium)] px-4">
+        <div className="min-h-screen flex items-center justify-center bg-app px-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-fg">Smart AI Chat</h1>
+                    <h1 className="text-[28px] font-bold tracking-tight text-fg">Smart AI Chat</h1>
                     <p className="text-fg-subtle mt-1">Đăng nhập để tiếp tục</p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-surface rounded-2xl shadow-lg p-8 space-y-5">
+                <form onSubmit={handleSubmit} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-5">
                     {error && (
                         <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                     )}
@@ -84,7 +84,7 @@ export default function LoginPage() {
                             required
                             value={form.email}
                             onChange={(e) => setForm({ ...form, email: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                            className="w-full px-4 py-2.5 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                             placeholder="you@example.com"
                         />
                     </div>
@@ -97,7 +97,7 @@ export default function LoginPage() {
                                 required
                                 value={form.password}
                                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition pr-10"
+                                className="w-full px-4 py-2.5 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition pr-10"
                                 placeholder="••••••••"
                             />
                             <button
@@ -113,7 +113,7 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="btn btn-primary w-full"
                     >
                         {loading && <Loader2 size={18} className="animate-spin" />}
                         Đăng nhập

@@ -109,7 +109,7 @@ export default function ExpertCounselingPage() {
                 <Stethoscope size={48} className="text-fg-subtle mb-4" />
                 <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Chỉ chuyên gia mới truy cập được</h2>
                 <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>Tài khoản của bạn không có quyền truy cập trang này.</p>
-                <button onClick={() => navigate('/')} className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover">Về trang chủ</button>
+                <button onClick={() => navigate('/')} className="btn btn-primary">Về trang chủ</button>
             </div>
         );
     }
@@ -173,7 +173,7 @@ export default function ExpertCounselingPage() {
                             const u = session.user || {};
                             const avatarUrl = resolveMediaUrl(u.avatar || u.googlePicture);
                             return (
-                                <div key={session._id} className="bg-surface border border-line rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
+                                <div key={session._id} className="bg-surface rounded-2xl p-4 flex items-center gap-3 transition">
                                     <div className="w-12 h-12 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
                                         {avatarUrl ? <img src={avatarUrl} alt={u.username} className="w-full h-full object-cover" /> : session.isAnonymous ? '?' : (u.username || '?').charAt(0).toUpperCase()}
                                     </div>

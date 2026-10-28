@@ -196,13 +196,13 @@ export default function RegisterPage() {
     }, [form, email, otp, register, navigate]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--color-primary-light)] to-[var(--color-primary-medium)] px-4 py-8">
+        <div className="min-h-screen flex items-center justify-center bg-app px-4 py-8">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-fg">Tạo tài khoản</h1>
+                    <h1 className="text-[28px] font-bold tracking-tight text-fg">Tạo tài khoản</h1>
                     <p className="text-fg-subtle mt-1">
                         {step === 1 && 'Nhập email để bắt đầu'}
                         {step === 2 && 'Xác thực email của bạn'}
@@ -219,7 +219,7 @@ export default function RegisterPage() {
 
                 {/* ── Step 1: Nhập email ── */}
                 {step === 1 && (
-                    <form onSubmit={handleSendOTP} className="bg-surface rounded-2xl shadow-lg p-8 space-y-5">
+                    <form onSubmit={handleSendOTP} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-5">
                         {error && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                         )}
@@ -232,7 +232,7 @@ export default function RegisterPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                    className="w-full px-4 py-2.5 pl-10 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                                     placeholder="you@example.com"
                                 />
                                 <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
@@ -242,7 +242,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={loading || cooldown > 0}
-                            className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="btn btn-primary w-full"
                         >
                             {loading && <Loader2 size={18} className="animate-spin" />}
                             {cooldown > 0 ? `Gửi lại sau ${cooldown}s` : 'Gửi mã xác nhận'}
@@ -292,7 +292,7 @@ export default function RegisterPage() {
 
                 {/* ── Step 2: Nhập OTP ── */}
                 {step === 2 && (
-                    <form onSubmit={handleVerifyOTP} className="bg-surface rounded-2xl shadow-lg p-8 space-y-6">
+                    <form onSubmit={handleVerifyOTP} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-6">
                         {error && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                         )}
@@ -349,7 +349,7 @@ export default function RegisterPage() {
 
                 {/* ── Step 3: Thông tin đăng ký ── */}
                 {step === 3 && (
-                    <form onSubmit={handleRegister} className="bg-surface rounded-2xl shadow-lg p-8 space-y-4">
+                    <form onSubmit={handleRegister} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-4">
                         {error && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                         )}
@@ -367,7 +367,7 @@ export default function RegisterPage() {
                                 minLength={2}
                                 value={form.username}
                                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                                 placeholder="Nguyễn Văn A"
                             />
                         </div>
@@ -377,7 +377,7 @@ export default function RegisterPage() {
                             <select
                                 value={form.preferredLanguage}
                                 onChange={(e) => setForm({ ...form, preferredLanguage: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition bg-surface"
+                                className="w-full px-4 py-2.5 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition bg-surface"
                             >
                                 {LANGUAGES.map((l) => (
                                     <option key={l.code} value={l.code}>
@@ -396,7 +396,7 @@ export default function RegisterPage() {
                                     minLength={6}
                                     value={form.password}
                                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                    className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition pr-10"
+                                    className="w-full px-4 py-2.5 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition pr-10"
                                     placeholder="Tối thiểu 6 ký tự"
                                 />
                                 <button
@@ -416,7 +416,7 @@ export default function RegisterPage() {
                                 required
                                 value={form.confirmPassword}
                                 onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                                 placeholder="Nhập lại mật khẩu"
                             />
                         </div>
@@ -424,7 +424,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="btn btn-primary w-full"
                         >
                             {loading && <Loader2 size={18} className="animate-spin" />}
                             Đăng ký

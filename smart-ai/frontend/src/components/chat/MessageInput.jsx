@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { Send, Paperclip, Smile, X, Loader2, MapPin, Mic, ThumbsUp, Lock, Check } from 'lucide-react';
+import { ArrowUp, Paperclip, Smile, X, Loader2, MapPin, Mic, ThumbsUp, Lock, Check } from 'lucide-react';
 import { AnimatePresence, motion as Motion, useReducedMotion } from 'framer-motion';
 import { uploadAPI, userAPI } from '../../services/api';
 import { useLockCountdown } from '../../hooks/useLockCountdown';
@@ -317,7 +317,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
     };
 
     return (
-        <div className="border-t theme-border theme-surface px-3 py-2.5">
+        <div className="border-t border-line apple-material px-3 py-2">
             {/* Lock countdown banner */}
             {isLocked && (
                 <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
@@ -391,7 +391,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                         className="w-10 h-10 flex items-center justify-center bg-[var(--color-primary)] text-white rounded-full hover:bg-[var(--color-primary-hover)] transition shrink-0"
                         title="Gửi ghi âm"
                     >
-                        <Send size={18} />
+                        <ArrowUp size={20} strokeWidth={2.75} />
                     </button>
                 </div>
             ) : (
@@ -414,7 +414,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                         onClick={() => fileInputRef.current?.click()}
                         title="Đính kèm tệp"
                         aria-label="Đính kèm tệp"
-                        className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0 disabled:opacity-50"
+                        className="w-10 h-10 flex items-center justify-center text-fg-subtle hover:text-fg-muted hover:bg-hover rounded-full transition shrink-0 disabled:opacity-50"
                         disabled={disabled}
                     >
                         <Paperclip size={20} />
@@ -449,7 +449,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                                 { enableHighAccuracy: true, timeout: 10000 }
                             );
                         }}
-                        className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0 disabled:opacity-50"
+                        className="w-10 h-10 flex items-center justify-center text-fg-subtle hover:text-fg-muted hover:bg-hover rounded-full transition shrink-0 disabled:opacity-50"
                         disabled={disabled}
                         title="Chia sẻ vị trí"
                     >
@@ -460,7 +460,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                     <button
                         type="button"
                         onClick={startRecording}
-                        className="w-10 h-10 flex items-center justify-center text-[var(--color-primary)] hover:bg-[var(--bg-hover)] rounded-full transition shrink-0 disabled:opacity-50"
+                        className="w-10 h-10 flex items-center justify-center text-fg-subtle hover:text-fg-muted hover:bg-hover rounded-full transition shrink-0 disabled:opacity-50"
                         disabled={disabled}
                         title="Ghi âm giọng nói"
                     >
@@ -478,7 +478,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                             placeholder={replyContext ? `Trả lời ${replyContext.senderName}...` : 'Nhập tin nhắn...'}
                             disabled={disabled}
                             rows={1}
-                            className="block w-full resize-none px-4 py-2.5 theme-input-field rounded-[20px] text-sm leading-5 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition max-h-32 disabled:opacity-50"
+                            className="block w-full resize-none px-4 py-2.5 theme-input-field rounded-[20px] text-[15px] leading-5 focus:outline-none focus:ring-2 focus:ring-brand-ring/40 transition max-h-32 disabled:opacity-50"
                             style={{ minHeight: '40px' }}
                         />
                     </div>
@@ -493,7 +493,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                             {uploading ? (
                                 <Loader2 size={18} className="animate-spin" />
                             ) : (
-                                <Send size={18} />
+                                <ArrowUp size={20} strokeWidth={2.75} />
                             )}
                         </button>
                     ) : (

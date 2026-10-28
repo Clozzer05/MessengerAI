@@ -105,21 +105,21 @@ export default function VerifyOTPPage() {
     if (!email) return null;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[var(--color-primary-light)] to-[var(--color-primary-medium)] px-4">
+        <div className="min-h-screen flex items-center justify-center bg-app px-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-primary)] rounded-2xl mb-4">
                         <MessageCircle className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-fg">Nhập mã OTP</h1>
+                    <h1 className="text-[28px] font-bold tracking-tight text-fg">Nhập mã OTP</h1>
                     <p className="text-fg-subtle mt-1">
                         Mã xác nhận đã gửi đến <span className="font-medium text-fg-muted">{email}</span>
                     </p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="bg-surface rounded-2xl shadow-lg p-8 space-y-6">
+                <form onSubmit={handleSubmit} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-6">
                     {error && (
                         <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>
                     )}
@@ -145,7 +145,7 @@ export default function VerifyOTPPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="btn btn-primary w-full"
                     >
                         {loading && <Loader2 size={18} className="animate-spin" />}
                         Xác nhận
