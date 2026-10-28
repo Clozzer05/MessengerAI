@@ -1,6 +1,6 @@
 import { useAuth } from '../../hooks/useAuth';
 import { format } from 'date-fns';
-import { Bot, Trash2, Globe, ChevronDown, ChevronUp, FileText, FileArchive, FileSpreadsheet, FileImage, FileVideo, FileAudio, File, Download, SmilePlus, Forward, Pin, Copy, Check, ExternalLink, Smile, MoreHorizontal, Edit3, X, Phone, Video as VideoIconLucide, Flag } from 'lucide-react';
+import { Bot, Trash2, Globe, ChevronDown, ChevronUp, FileText, FileArchive, FileSpreadsheet, FileImage, FileVideo, FileAudio, File, Download, SmilePlus, Reply, Forward, Pin, Copy, Check, ExternalLink, Smile, MoreHorizontal, Edit3, X, Phone, Video as VideoIconLucide, Flag } from 'lucide-react';
 import { useCall } from '../../hooks/useCall';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -91,6 +91,7 @@ export default function MessageBubble({
     isSelected = false,
     onToggleSelect,
     onQuickReply,
+    onJumpToMessage,
     roomMembers,
     isClusterEnd = true,
 }) {
@@ -505,6 +506,22 @@ export default function MessageBubble({
     const senderName = senderNickname || message.sender?.username || 'Unknown';
     const showSenderAvatar = !isOwn && (isAI || isClusterEnd);
 
+    // Trích dẫn tin được trả lời (giống Messenger): "X đã trả lời Y" + nội dung gốc
+    const replyTo = message.replyTo && typeof message.replyTo === 'object' ? message.replyTo : null;
+    const replyToSenderId = replyTo?.sender?._id;
+    const replyTargetName = replyToSenderId && replyToSenderId === (senderId || (isOwn ? user?._id : null))
+        ? 'chính mình'
+        : replyToSenderId === user?._id
+            ? 'bạn'
+            : (nicknames?.[replyToSenderId] || replyTo?.sender?.username || 'Người dùng');
+    const replyPreview = !replyTo ? ''
+        : replyTo.deleted ? 'Tin nhắn đã bị thu hồi'
+            : parseStickerPayload(replyTo.content) ? '[Sticker]'
+                : replyTo.content?.trim()
+                    || { image: '[Hình ảnh]', video: '[Video]', location: '[Vị trí]', poll: '[Bình chọn]' }[replyTo.type]
+                    || replyTo.file?.name
+                    || '[Tệp đính kèm]';
+
     // Mở thanh cảm xúc; tin nhắn sát mép trên khung chat thì hiện thanh bên dưới để không bị che
     const openEmojiPicker = () => {
         const rect = bubbleRef.current?.getBoundingClientRect();
@@ -806,6 +823,26 @@ export default function MessageBubble({
                 )}
 
                 <div className={`max-w-[75%]`}>
+                    {replyTo && (
+                        <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'} -mb-2`}>
+                            <p className="flex items-center gap-1 text-[11px] mb-0.5 px-1" style={{ color: 'var(--text-tertiary)' }}>
+                                <Reply size={11} />
+                                {isOwn ? 'Bạn' : senderName} đã trả lời {replyTargetName}
+                            </p>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (replyTo._id) onJumpToMessage?.(replyTo._id);
+                                }}
+                                className="max-w-full rounded-2xl px-3 pt-1.5 pb-3.5 text-xs text-left line-clamp-2 break-words opacity-80 hover:opacity-100 transition"
+                                style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)' }}
+                                title="Xem tin nhắn gốc"
+                            >
+                                {replyPreview}
+                            </button>
+                        </div>
+                    )}
                     <div className="relative">
                         {selectionMode && (
                             <button
@@ -1112,6 +1149,21 @@ export default function MessageBubble({
                                         <SmilePlus size={16} />
                                     </button>
                                 )}
+                                {!isTouchDevice && onQuickReply && (
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setShowActions(false);
+                                            setShowEmojiPicker(false);
+                                            onQuickReply(message);
+                                        }}
+                                        className="p-1.5 rounded-full transition text-[var(--text-tertiary)] hover:bg-[var(--bg-hover)]"
+                                        title="Trả lời"
+                                    >
+                                        <Reply size={16} />
+                                    </button>
+                                )}
                                 <button
                                     type="button"
                                     onClick={(event) => {
@@ -1222,6 +1274,20 @@ export default function MessageBubble({
                                     : 'opacity-0 pointer-events-none'
                                 }`}
                             >
+                                {isTouchDevice && onQuickReply && !message.deleted && (
+                                    <motion.button
+                                        onClick={() => {
+                                            setShowActions(false);
+                                            setShowEmojiPicker(false);
+                                            onQuickReply(message);
+                                        }}
+                                        className="p-1 text-[var(--text-tertiary)] hover:text-[var(--color-primary)] transition"
+                                        title="Trả lời"
+                                        whileTap={{ scale: 0.92 }}
+                                    >
+                                        <Reply size={14} />
+                                    </motion.button>
+                                )}
                                 {isOwn && onEdit && message.type === 'text' && !message.deleted && (
                                     <motion.button
                                         onClick={() => {

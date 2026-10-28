@@ -208,9 +208,10 @@ export function useChat(roomId) {
     }, [hasMore, loading, loadMessages]);
 
     const sendMessage = useCallback(
-        (content, type = 'text', file = null) => {
+        (content, type = 'text', file = null, replyTo = null) => {
             const payload = { roomId, content, type };
             if (file) payload.file = file;
+            if (replyTo) payload.replyTo = replyTo;
             emit('message:send', payload);
         },
         [roomId, emit]

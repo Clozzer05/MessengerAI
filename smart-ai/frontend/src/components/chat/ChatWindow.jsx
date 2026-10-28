@@ -316,6 +316,8 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             type,
             content: content || '',
             file: fileData || null,
+            // Trích dẫn tạm cho tin đang gửi; server trả về bản đầy đủ
+            replyTo: replyDraft ? { _id: replyDraft.messageId, content: replyDraft.preview, sender: { username: replyDraft.senderName } } : null,
             createdAt,
             pending: true,
         };
@@ -329,9 +331,9 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             createdAt,
         });
 
-        sendMessage(content, type, fileData);
+        sendMessage(content, type, fileData, replyDraft?.messageId);
         setReplyDraft(null);
-    }, [user, sendMessage, roomId]);
+    }, [user, sendMessage, roomId, replyDraft]);
 
     // Auto-scroll
     useEffect(() => {
@@ -562,7 +564,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
         if (!msg || msg.type === 'system') return;
         const senderId = msg.sender?._id || msg.sender;
         const nickname = senderId && room?.nicknames?.[senderId];
-        const senderName = nickname || msg.sender?.username || 'Người dùng';
+        const senderName = senderId === user?._id ? 'chính mình' : (nickname || msg.sender?.username || 'Người dùng');
         const contentPreview = isStickerPayload(msg.content)
             ? '[Sticker]'
             : (msg.content?.trim() || msg.file?.name || `[${msg.type || 'text'}]`);
@@ -572,7 +574,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
             senderName,
             preview: contentPreview,
         });
-    }, [room?.nicknames]);
+    }, [room?.nicknames, user?._id]);
 
     const allRenderableMessages = useMemo(
         () => [...messages, ...localMessages, ...pendingMessages]
@@ -1046,6 +1048,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                                             isSelected={selectedMessageIds.has(msg._id)}
                                             onToggleSelect={toggleMessageSelection}
                                             onQuickReply={handleQuickReply}
+                                            onJumpToMessage={scrollToMessage}
                                             roomMembers={room?.members}
                                             isClusterEnd={isClusterEnd}
                                         />
