@@ -123,7 +123,7 @@ const userSchema = new mongoose.Schema({
     preferredTheme: {
         type: String,
         default: 'blue',
-        enum: ['blue', 'red', 'purple', 'yellow', 'brown', 'dark', 'light', 'midnight-purple', 'solarized', 'glassmorphism', 'retro-terminal'],
+        enum: ['blue', 'red', 'purple', 'yellow', 'brown', 'dark', 'light', 'midnight-purple', 'solarized', 'glassmorphism', 'retro-terminal', 'pixel-art', 'neon-night'],
     },
 
     // ===== KHUNG BONG BONG CHAT =====

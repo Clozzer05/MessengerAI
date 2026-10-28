@@ -350,11 +350,13 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                         ? ''
                         : lastMsg.type === 'system'
                             ? lastMsg.content
-                            : lastFromMe
-                                ? `Bạn: ${lastMsg.content}`
-                                : lastMsg.sender?.username
-                                    ? `${lastMsg.sender.username}: ${lastMsg.content}`
-                                    : lastMsg.content;
+                            : lastMsg.aiMetadata?.isAIResponse
+                                ? `AI: ${lastMsg.content}`
+                                : lastFromMe
+                                    ? `Bạn: ${lastMsg.content}`
+                                    : lastMsg.sender?.username
+                                        ? `${lastMsg.sender.username}: ${lastMsg.content}`
+                                        : lastMsg.content;
 
                     return (
                         <div key={room._id} className="relative group px-2">

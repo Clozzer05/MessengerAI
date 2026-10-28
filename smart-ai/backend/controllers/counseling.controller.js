@@ -99,6 +99,8 @@ exports.createSession = async (req, res, next) => {
             content: `Chào bạn, mình là trợ lý tư vấn AI chuyên mục ${COUNSELING_CATEGORIES.find(c => c.key === category).title}. Bạn có thể chia sẻ điều bạn đang cần hỗ trợ.`,
             aiMetadata: { isAIResponse: true },
         });
+        room.lastMessage = welcomeMessage._id;
+        await room.save();
 
         // Chỉ báo cho chuyên gia đúng lĩnh vực; phiên ẩn danh không lộ người hỏi
         const io = req.app.get('io');
