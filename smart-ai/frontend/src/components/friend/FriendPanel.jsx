@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { friendAPI, userAPI, roomAPI, resolveMediaUrl } from '../../services/api';
 import { useSocket } from '../../hooks/useSocket';
 import { useAuth } from '../../hooks/useAuth';
-import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from 'framer-motion';
@@ -26,7 +25,6 @@ import { useNavigate } from 'react-router-dom';
 
 export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
     const { user } = useAuth();
-    const { themeId } = useTheme();
     const { t } = useLanguage();
     const { on, off, onlineUsers } = useSocket();
     const navigate = useNavigate();
@@ -259,8 +257,6 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
     };
 
     const requestCount = requests.length;
-    const isGlassTheme = themeId === 'glassmorphism' || themeId === 'neon-night';
-    const isPixelTheme = themeId === 'pixel-art';
 
     const renderLoadingSkeleton = () => (
         <div className="p-4 space-y-3">
@@ -279,7 +275,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
     const renderSuggestionItem = (u, score) => (
         <motion.div
             key={u._id}
-            className={`flex flex-col gap-2 p-3 rounded-xl border border-line ${isGlassTheme ? 'bg-white/40 hover:bg-white/60' : 'bg-app hover:bg-hover'} transition`}
+            className={`flex flex-col gap-2 p-3 rounded-xl border border-line bg-app hover:bg-hover transition`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
         >
@@ -348,17 +344,17 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
     );
 
     return (
-        <div className={`h-full flex flex-col border-r border-line ${isGlassTheme ? 'glass-panel' : 'bg-surface'} ${isPixelTheme ? 'font-pixel' : ''}`}>
+        <div className="h-full flex flex-col bg-surface">
             {/* Header */}
-            <div className={`p-4 border-b border-line ${isGlassTheme ? 'bg-white/5 backdrop-blur-xl' : ''}`}>
-                <h2 className="text-xl font-bold text-fg mb-3">{t('friendPanel.title')}</h2>
+            <div className="px-4 pt-2 pb-3">
+                <h2 className="text-[28px] leading-tight font-bold tracking-tight text-fg mb-2">{t('friendPanel.title')}</h2>
 
                 {/* Tabs */}
-                <div className="flex gap-1 bg-surface-muted rounded-lg p-1">
+                <div className="flex bg-field rounded-[9px] p-0.5">
                     <button
                         onClick={() => setTab('friends')}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${tab === 'friends'
-                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                        className={`flex-1 py-1.5 text-[13px] font-medium rounded-[7px] transition ${tab === 'friends'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
                             : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
@@ -367,8 +363,8 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </button>
                     <button
                         onClick={() => setTab('requests')}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition relative ${tab === 'requests'
-                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                        className={`flex-1 py-1.5 text-[13px] font-medium rounded-[7px] transition relative ${tab === 'requests'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
                             : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
@@ -387,8 +383,8 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </button>
                     <button
                         onClick={() => setTab('search')}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${tab === 'search'
-                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                        className={`flex-1 py-1.5 text-[13px] font-medium rounded-[7px] transition ${tab === 'search'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
                             : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
@@ -397,8 +393,8 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </button>
                     <button
                         onClick={() => setTab('suggestions')}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition ${tab === 'suggestions'
-                            ? 'bg-surface text-[var(--color-primary)] shadow-sm'
+                        className={`flex-1 py-1.5 text-[13px] font-medium rounded-[7px] transition ${tab === 'suggestions'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
                             : 'text-fg-subtle hover:text-fg-muted'
                             }`}
                     >
@@ -439,7 +435,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                                 return (
                                     <motion.div
                                         key={friend._id}
-                                        className={`flex items-center gap-3 px-4 py-3 transition ${isGlassTheme ? 'hover:bg-cyan-400/10 rounded-xl mx-1.5 my-0.5 border border-transparent hover:border-cyan-300/30' : 'hover:bg-hover'}`}
+                                        className={`flex items-center gap-3 px-4 py-3 transition hover:bg-hover`}
                                         whileHover={{ x: 2, scale: 1.01 }}
                                         transition={{ type: 'spring', stiffness: 310, damping: 22 }}
                                     >
@@ -469,7 +465,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                                         </div>
                                         <button
                                             onClick={() => handleStartChat(friend._id)}
-                                            className={`p-2 rounded-full text-[var(--color-primary)] transition ${isGlassTheme ? 'hover:bg-cyan-400/20' : 'hover:bg-[var(--color-primary-light)]'}`}
+                                            className={`p-2 rounded-full text-[var(--color-primary)] transition hover:bg-[var(--color-primary-light)]`}
                                             title={t('friendPanel.message')}
                                         >
                                             <MessageCircle size={18} />
@@ -650,7 +646,7 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                             {searchResults.map((u) => (
                             <motion.div
                                 key={u._id}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg ${isGlassTheme ? 'hover:bg-cyan-400/10 border border-transparent hover:border-cyan-300/25' : 'hover:bg-hover'}`}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-hover`}
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -6 }}

@@ -99,7 +99,7 @@ export default function MessageBubble({
 }) {
     const { user } = useAuth();
     const { joinGroupCall, callState } = useCall();
-    const { themeId, bubbleFrameId } = useTheme();
+    const { bubbleFrameId } = useTheme();
     const navigate = useNavigate();
     const reduceMotion = useReducedMotion();
     const [showTranslation, setShowTranslation] = useState(false);
@@ -173,10 +173,6 @@ export default function MessageBubble({
             document.removeEventListener('mousedown', handleOutside);
         };
     }, [showActions, showEmojiPicker]);
-
-    const isPixelTheme = themeId === 'pixel-art';
-    const isNeonTheme = themeId === 'neon-night';
-    const isDarkTheme = ['dark', 'midnight-purple', 'glassmorphism', 'retro-terminal', 'neon-night'].includes(themeId);
 
     const trailingPunctuationRegex = /[)\].,!?;:]+$/;
 
@@ -478,8 +474,8 @@ export default function MessageBubble({
     const frameIsLight = !!senderBubbleFrame?.isLightFrame;
     const senderContentTextClass = frameIsLight ? 'text-slate-900' : 'text-white';
     const senderMetaTextClass = senderBubbleFrame?.metaTextClass || (frameIsLight ? 'text-slate-700/80' : 'text-white/75');
-    const useSenderFrameStyle = !isAI && !isEmojiOnlyMessage && !isStickerMessage && message.type !== 'location';
-    const showCompactMeta = isClusterEnd || showActions || showEmojiPicker;
+    const useSenderFrameStyle = isOwn && !isAI && !isEmojiOnlyMessage && !isStickerMessage && message.type !== 'location';
+    const showCompactMeta = isClusterEnd || !!message.pending;
 
     // Mỗi người một cảm xúc; nhãn dưới bong bóng hiện tối đa 3 emoji nhiều nhất và tổng số
     const reactions = message.reactions || [];
@@ -879,6 +875,7 @@ export default function MessageBubble({
                         <div className={`relative ${reactionSummary.length ? 'mb-3.5' : ''}`}>
                         <motion.div
                             ref={bubbleRef}
+                            title={format(new Date(message.createdAt), 'HH:mm · dd/MM/yyyy')}
                             className={`relative ${bubbleShapeClass} ${message.type === 'location'
                                 ? 'overflow-hidden'
                                 : isEmojiOnlyMessage || isStickerMessage
@@ -887,13 +884,11 @@ export default function MessageBubble({
                                 } ${isEmojiOnlyMessage || isStickerMessage
                                     ? 'bg-transparent border-transparent shadow-none'
                                     : isAI
-                                        ? isDarkTheme
-                                            ? 'bg-[var(--color-primary-light)] text-[var(--text-primary)] border border-line'
-                                            : 'bg-purple-50 text-purple-900 border border-purple-100'
+                                        ? 'bg-brand-soft text-fg'
                                         : useSenderFrameStyle
                                             ? `${senderBubbleClass} ${senderContentTextClass}`
-                                            : 'theme-muted-surface text-fg'
-                                } ${selectionMode && isSelected ? 'ring-2 ring-[var(--color-primary)] ring-offset-1' : ''} ${isPixelTheme ? 'pixel-bubble font-pixel' : ''} ${isNeonTheme ? 'neon-bubble' : ''}`}
+                                            : 'bg-bubble-received text-fg'
+                                } ${selectionMode && isSelected ? 'ring-2 ring-[var(--color-primary)] ring-offset-1' : ''}`}
                             onDoubleClick={() => {
                                 if (!selectionMode) {
                                     onQuickReply?.(message);
@@ -931,7 +926,7 @@ export default function MessageBubble({
                                             message.replyToNote,
                                             {
                                                 linkClassName: useSenderFrameStyle ? senderLinkClassName : 'text-[var(--color-primary)]',
-                                                mentionClassName: useSenderFrameStyle ? senderMentionClassName : 'font-semibold text-sky-700',
+                                                mentionClassName: useSenderFrameStyle ? senderMentionClassName : 'font-semibold text-brand',
                                                 inlineCodeClassName: useSenderFrameStyle ? senderInlineCodeClassName : 'bg-black/10',
                                                 codeBlockClassName: useSenderFrameStyle ? senderCodeBlockClassName : 'bg-black/10',
                                             }
@@ -988,18 +983,16 @@ export default function MessageBubble({
                                     </div>
                                 </div>
                             ) : displayText && message.type !== 'location' && (
-                                <p className={`${isEmojiOnlyMessage ? `${emojiSizeClass} text-center` : 'text-sm'} whitespace-pre-wrap wrap-break-word`}>
+                                <p className={`${isEmojiOnlyMessage ? `${emojiSizeClass} text-center` : 'text-[15px] leading-[1.35]'} whitespace-pre-wrap wrap-break-word`}>
                                     {renderRichText(
                                         displayText,
                                         {
                                             linkClassName: useSenderFrameStyle
                                                 ? senderLinkClassName
                                                 : isAI
-                                                    ? isDarkTheme
-                                                        ? 'text-[var(--color-primary-dark)]'
-                                                        : 'text-purple-600'
+                                                    ? 'text-[var(--color-primary-dark)]'
                                                     : 'text-[var(--color-primary)]',
-                                            mentionClassName: useSenderFrameStyle ? senderMentionClassName : 'font-semibold text-sky-700',
+                                            mentionClassName: useSenderFrameStyle ? senderMentionClassName : 'font-semibold text-brand',
                                             inlineCodeClassName: useSenderFrameStyle ? senderInlineCodeClassName : 'bg-black/10',
                                             codeBlockClassName: useSenderFrameStyle ? senderCodeBlockClassName : 'bg-black/10',
                                         }
@@ -1083,34 +1076,6 @@ export default function MessageBubble({
                             )}
                             {renderFile()}
 
-                            {/* Time */}
-                            {showCompactMeta && (
-                                <p
-                                    className={`text-[10px] mt-1 ${message.type === 'location' ? 'px-3 pb-1' : ''} ${isAI
-                                        ? isDarkTheme
-                                            ? 'text-fg-subtle'
-                                            : 'text-purple-400'
-                                        : useSenderFrameStyle
-                                            ? senderMetaTextClass
-                                            : 'text-fg-subtle'
-                                        }`}
-                                    title={format(new Date(message.createdAt), 'HH:mm:ss - dd/MM/yyyy')}
-                                >
-                                    {format(new Date(message.createdAt), 'HH:mm')}
-                                </p>
-                            )}
-                            {isOwn && message.type !== 'system' && (message.pending || showCompactMeta) && (
-                                <p
-                                    className={`text-[10px] ${useSenderFrameStyle ? senderMetaTextClass : 'text-fg-subtle'}`}
-                                    title={message.pending ? 'Tin nhắn đang chờ xác nhận từ server' : 'Trạng thái xem tin nhắn'}
-                                >
-                                    {message.pending
-                                        ? 'Đang gửi...'
-                                        : readByOthers.length > 0
-                                            ? `Đã xem${readByOthers.length > 1 ? ` (${readByOthers.length})` : ''}${latestReadAt ? ` · ${format(new Date(latestReadAt), 'HH:mm')}` : ''}`
-                                            : 'Đã gửi'}
-                                </p>
-                            )}
                         </motion.div>
 
                         {/* Nhãn cảm xúc đè lên góc dưới bong bóng (giống Messenger) */}
@@ -1252,7 +1217,7 @@ export default function MessageBubble({
                                     <div className="bg-[var(--color-primary-light)] border border-[var(--color-primary-medium)] px-3 py-2 rounded-xl text-sm text-[var(--color-primary-dark)] ml-2">
                                         {renderRichText(message.content, {
                                             linkClassName: 'text-[var(--color-primary-dark)]',
-                                            mentionClassName: 'font-semibold text-sky-700',
+                                            mentionClassName: 'font-semibold text-brand',
                                             inlineCodeClassName: 'bg-black/10',
                                             codeBlockClassName: 'bg-black/10',
                                         })}
@@ -1264,19 +1229,35 @@ export default function MessageBubble({
                         {/* Local auto-translate (private, not stored in DB) */}
                         {localTranslation && !isOwn && !hasTranslation && (
                             <div className="mt-1 ml-2">
-                                <div className={`flex items-center gap-1 text-[10px] mb-0.5 ${isDarkTheme ? 'text-[var(--text-secondary)]' : 'text-purple-500'}`}>
+                                <div className="flex items-center gap-1 text-[10px] mb-0.5 text-fg-subtle">
                                     <Globe size={10} />
                                     <span>Dịch tự động</span>
                                 </div>
-                                <div className={`px-3 py-1.5 rounded-xl text-sm ${isDarkTheme ? 'bg-[var(--bg-card)] border border-line text-[var(--text-primary)]' : 'bg-purple-50 border border-purple-100 text-purple-800'}`}>
+                                <div className="px-3 py-1.5 rounded-2xl text-sm bg-surface-muted text-fg">
                                     {renderRichText(localTranslation, {
-                                        linkClassName: isDarkTheme ? 'text-[var(--color-primary-dark)]' : 'text-purple-800',
-                                        mentionClassName: isDarkTheme ? 'font-semibold text-[var(--color-primary-dark)]' : 'font-semibold text-purple-700',
-                                        inlineCodeClassName: isDarkTheme ? 'bg-[var(--bg-hover)]' : 'bg-purple-100',
-                                        codeBlockClassName: isDarkTheme ? 'bg-[var(--bg-hover)]' : 'bg-purple-100',
+                                        linkClassName: 'text-brand',
+                                        mentionClassName: 'font-semibold text-brand',
+                                        inlineCodeClassName: 'bg-hover',
+                                        codeBlockClassName: 'bg-hover',
                                     })}
                                 </div>
                             </div>
+                        )}
+
+                        {/* Giờ và trạng thái nằm dưới tin cuối cụm, ngoài bong bóng (như iMessage) */}
+                        {showCompactMeta && (
+                            <p
+                                className={`mt-1 px-1.5 text-[11px] leading-none text-fg-subtle ${isOwn ? 'text-right' : ''}`}
+                                title={format(new Date(message.createdAt), 'HH:mm:ss - dd/MM/yyyy')}
+                            >
+                                {!isOwn
+                                    ? format(new Date(message.createdAt), 'HH:mm')
+                                    : message.pending
+                                        ? 'Đang gửi...'
+                                        : readByOthers.length > 0
+                                            ? `Đã xem${readByOthers.length > 1 ? ` (${readByOthers.length})` : ''}${latestReadAt ? ` ${format(new Date(latestReadAt), 'HH:mm')}` : ''}`
+                                            : `Đã gửi ${format(new Date(message.createdAt), 'HH:mm')}`}
+                            </p>
                         )}
 
                         {/* Message actions */}

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { topicAPI } from '../../services/api';
-import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
-import { Compass, Plus, Users, Search, Loader2, Pencil, Check, X } from 'lucide-react';
+import { Plus, Users, Search, Loader2, Pencil, Check, X } from 'lucide-react';
 
 const CATEGORY_OPTIONS = [
     { value: '', label: 'Tất cả' },
@@ -15,7 +14,6 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function TopicPanel({ onSelectRoom }) {
-    const { themeId } = useTheme();
     const { user } = useAuth();
     const [topics, setTopics] = useState([]);
     const [myTopics, setMyTopics] = useState([]);
@@ -38,9 +36,6 @@ export default function TopicPanel({ onSelectRoom }) {
     const [editingTopicId, setEditingTopicId] = useState(null);
     const [editForm, setEditForm] = useState({ title: '', description: '' });
     const [savingEdit, setSavingEdit] = useState(false);
-
-    const isGlassTheme = themeId === 'glassmorphism' || themeId === 'neon-night';
-    const isPixelTheme = themeId === 'pixel-art';
 
     const loadTopics = useCallback(async () => {
         setLoading(true);
@@ -150,33 +145,21 @@ export default function TopicPanel({ onSelectRoom }) {
 
     return (
         <div
-            className={`h-full flex flex-col ${isGlassTheme ? 'glass-panel' : ''} ${isPixelTheme ? 'font-pixel' : ''}`}
+            className="h-full flex flex-col"
             style={{
                 backgroundColor: 'var(--bg-card)',
                 borderColor: 'var(--border-color)',
             }}
         >
-            <div
-                className="p-4 border-b"
-                style={{
-                    borderColor: 'var(--border-color)',
-                    backgroundColor: isGlassTheme ? 'rgba(255,255,255,0.05)' : undefined,
-                }}
-            >
+            <div className="px-4 pt-2 pb-3">
                 <div className="flex items-center justify-between mb-3">
-                    <h2
-                        className="text-xl font-bold inline-flex items-center gap-2"
-                        style={{ color: 'var(--text-primary)' }}
-                    >
-                        <Compass size={18} />
-                        Chủ đề
-                    </h2>
+                    <h2 className="text-[28px] leading-tight font-bold tracking-tight text-fg">Chủ đề</h2>
                     <button
                         onClick={() => setShowCreate((prev) => !prev)}
-                        className="p-2 rounded-full text-[var(--color-primary)] bg-[var(--color-primary-light)] hover:bg-[var(--color-primary-medium)]"
+                        className="w-9 h-9 flex items-center justify-center rounded-full text-brand hover:bg-hover transition"
                         title="Tạo phòng chủ đề"
                     >
-                        <Plus size={16} />
+                        <Plus size={22} />
                     </button>
                 </div>
 
@@ -186,23 +169,14 @@ export default function TopicPanel({ onSelectRoom }) {
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                         placeholder="Tìm theo tiêu đề hoặc tag"
-                        className="w-full pl-8 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)]"
-                        style={{
-                            backgroundColor: 'var(--bg-secondary)',
-                            color: 'var(--text-primary)',
-                            borderColor: 'var(--border-color)',
-                        }}
+                        className="w-full h-9 pl-8 pr-3 rounded-[10px] text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-ring/40"
                     />
                 </div>
 
                 <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full rounded-lg text-sm px-3 py-2 focus:outline-none"
-                    style={{
-                        backgroundColor: 'var(--bg-secondary)',
-                        color: 'var(--text-primary)',
-                    }}
+                    className="w-full h-9 rounded-[10px] text-[15px] px-3 focus:outline-none"
                 >
                     {CATEGORY_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
@@ -365,11 +339,8 @@ export default function TopicPanel({ onSelectRoom }) {
                                         <div className="flex items-center gap-1">
                                             <button
                                                 onClick={() => onSelectRoom?.(topic.room?._id)}
-                                                className={`flex-1 text-left p-2.5 rounded-lg border transition ${isGlassTheme
-                                                    ? 'bg-white/10 border-white/20 hover:bg-white/20'
-                                                    : ''
-                                                }`}
-                                                style={isGlassTheme ? undefined : {
+                                                className={`flex-1 text-left p-2.5 rounded-lg border transition`}
+                                                style={{
                                                     backgroundColor: 'color-mix(in srgb, var(--color-primary) 8%, var(--bg-card))',
                                                     borderColor: 'color-mix(in srgb, var(--color-primary) 20%, var(--border-color))',
                                                 }}
@@ -416,11 +387,8 @@ export default function TopicPanel({ onSelectRoom }) {
                         {filteredTopics.map((topic) => (
                             <div
                                 key={topic._id}
-                                className={`p-3 rounded-xl border transition ${isGlassTheme
-                                    ? 'bg-white/5 border-white/10 hover:bg-white/15 hover:border-white/25'
-                                    : ''
-                                }`}
-                                style={isGlassTheme ? undefined : {
+                                className={`p-3 rounded-xl border transition`}
+                                style={{
                                     borderColor: 'var(--border-color)',
                                     backgroundColor: 'var(--bg-card)',
                                 }}

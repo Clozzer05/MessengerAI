@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useSocket } from '../hooks/useSocket';
 import { userAPI, friendAPI, roomAPI, resolveMediaUrl } from '../services/api';
 import {
-    ArrowLeft, MapPin, GraduationCap, Phone, Mail, Heart, Edit3,
+    ChevronLeft, MapPin, GraduationCap, Phone, Mail, Heart, Edit3,
     MessageCircle, UserX, Loader2, Calendar, Shield, UserPlus
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -109,14 +109,18 @@ export default function ProfilePage() {
     const initial = profile.username?.charAt(0).toUpperCase() || '?';
 
     return (
-        <div className="min-h-screen bg-surface-muted">
+        <div className="min-h-screen bg-app">
             {/* Top navigation */}
-            <div className="bg-surface shadow-sm sticky top-0 z-10">
-                <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => navigate('/')} className="p-1.5 hover:bg-hover rounded-full transition">
-                        <ArrowLeft size={20} />
+            <div className="apple-material border-b border-line sticky top-0 z-10">
+                <div className="relative max-w-3xl mx-auto px-4 h-12 flex items-center justify-center">
+                    <button
+                        onClick={() => navigate('/')}
+                        aria-label="Quay lại"
+                        className="absolute left-2 flex items-center px-2 py-1 text-brand rounded-lg hover:bg-hover transition"
+                    >
+                        <ChevronLeft size={24} />
                     </button>
-                    <h1 className="font-semibold text-fg">{profile.username}</h1>
+                    <h1 className="text-[17px] font-semibold text-fg truncate max-w-[70%]">{profile.username}</h1>
                 </div>
             </div>
 
@@ -136,7 +140,7 @@ export default function ProfilePage() {
 
                     {/* Avatar */}
                     <div className="absolute -bottom-16 left-6">
-                        <div className="w-32 h-32 rounded-full border-4 border-white bg-[var(--color-primary)] flex items-center justify-center text-white text-5xl font-bold overflow-hidden shadow-lg">
+                        <div className="w-32 h-32 rounded-full border-4 border-[var(--bg-card)] bg-[var(--color-primary)] flex items-center justify-center text-white text-5xl font-bold overflow-hidden shadow-lg">
                             {(profile.avatar || profile.googlePicture) ? (
                                 <img src={resolveMediaUrl(profile.avatar || profile.googlePicture)} alt={profile.username} className="w-full h-full object-cover" />
                             ) : (
@@ -147,7 +151,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* ─── Name + Bio + Actions ─── */}
-                <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6 shadow-sm">
+                <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6">
                     <h2 className="text-2xl font-bold text-fg">{profile.username}</h2>
                     {profile.bio && (
                         <p className="text-fg-muted mt-1">{profile.bio}</p>
@@ -171,7 +175,7 @@ export default function ProfilePage() {
                             <>
                                 <button
                                     onClick={handleMessage}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-xl transition"
+                                    className="btn btn-primary"
                                 >
                                     <MessageCircle size={16} />
                                     Nhắn tin
@@ -223,7 +227,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* ─── Info Section ─── */}
-                <div className="bg-surface rounded-2xl mt-4 px-6 py-5 shadow-sm mb-8">
+                <div className="bg-surface rounded-2xl mt-4 px-6 py-5 mb-8">
                     <h3 className="text-lg font-semibold text-fg mb-4">Giới thiệu</h3>
                     <div className="space-y-3">
                         {/* Phương thức đăng nhập */}

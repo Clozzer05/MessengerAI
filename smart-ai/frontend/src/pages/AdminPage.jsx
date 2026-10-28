@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { adminAPI, resolveMediaUrl } from '../services/api';
 import { emitToast } from '../utils/toast';
 import Modal from '../components/ui/Modal';
+import Switch from '../components/ui/Switch';
 import { confirmDialog } from '../utils/confirm';
 import {
     Users, Shield, ShieldCheck, MessageSquare, Home, Search,
@@ -22,7 +23,7 @@ import {
 
 function StatCard({ icon: Icon, label, value, color, sub }) {
     return (
-        <div className="bg-surface rounded-xl shadow-sm border border-line p-5 flex items-center gap-4">
+        <div className="bg-surface rounded-xl p-5 flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
                 <Icon size={24} className="text-white" />
             </div>
@@ -81,9 +82,9 @@ function Sidebar({ activeTab, setActiveTab, collapsed, setCollapsed }) {
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${activeTab === tab.id
-                            ? 'bg-brand-soft text-brand-strong font-medium'
-                            : 'text-fg-muted hover:bg-hover'}`}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-[8px] text-[15px] transition-colors ${activeTab === tab.id
+                            ? 'bg-brand text-white font-medium'
+                            : 'text-fg hover:bg-hover'}`}
                         title={collapsed ? tab.label : undefined}
                     >
                         <tab.icon size={20} className="shrink-0" />
@@ -346,7 +347,7 @@ function UsersTab({ currentUser }) {
                 </div>
             </div>
 
-            <div className="bg-surface rounded-xl shadow-sm border border-line overflow-hidden">
+            <div className="bg-surface rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
@@ -753,11 +754,12 @@ function ConfigTab({ currentUser }) {
                             <p className="font-medium text-fg">{t.label}</p>
                             <p className="text-sm text-fg-subtle">{t.desc}</p>
                         </div>
-                        <button onClick={() => handleToggle(t.key)} disabled={saving || !canEdit}
-                            role="switch" aria-checked={!!config[t.key]} aria-label={t.label}
-                            className={`relative shrink-0 w-12 h-7 rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${config[t.key] ? 'bg-brand' : 'bg-line-strong'}`}>
-                            <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${config[t.key] ? 'translate-x-5' : 'translate-x-0'}`} />
-                        </button>
+                        <Switch
+                            checked={!!config[t.key]}
+                            onChange={() => handleToggle(t.key)}
+                            disabled={saving || !canEdit}
+                            label={t.label}
+                        />
                     </div>
                 ))}
             </div>
@@ -867,7 +869,7 @@ export default function AdminPage() {
                     <Shield size={64} className="mx-auto text-red-400" />
                     <h2 className="text-xl font-bold text-fg">Không có quyền truy cập</h2>
                     <p className="text-fg-subtle">Bạn cần quyền Admin để truy cập trang này.</p>
-                    <button onClick={() => navigate('/')} className="px-6 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover">Về trang chủ</button>
+                    <button onClick={() => navigate('/')} className="btn btn-primary">Về trang chủ</button>
                 </div>
             </div>
         );
@@ -888,7 +890,7 @@ export default function AdminPage() {
     return (
         <div className="min-h-screen bg-app flex flex-col">
             {/* Header */}
-            <header className="bg-surface shadow-sm border-b sticky top-0 z-40">
+            <header className="apple-material border-b border-line sticky top-0 z-40">
                 <div className="px-4 sm:px-6 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <button onClick={() => navigate('/')} className="p-2 hover:bg-hover rounded-lg"><ArrowLeft size={20} /></button>

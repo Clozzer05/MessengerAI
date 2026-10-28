@@ -36,28 +36,23 @@ export default function ToastViewport() {
     }, [dismissToast]);
 
     return (
-        <div className="fixed top-4 right-4 z-[120] flex w-[min(92vw,380px)] flex-col gap-2 pointer-events-none">
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[120] flex w-[min(92vw,380px)] flex-col gap-2 pointer-events-none">
             <AnimatePresence initial={false}>
                 {toasts.map((toast) => (
                     <motion.div
                         key={toast.id}
                         layout
-                        initial={{ opacity: 0, x: 16, scale: 0.98 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: 18, scale: 0.98 }}
-                        transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="pointer-events-auto rounded-xl border bg-white/95 px-3.5 py-3 shadow-lg backdrop-blur"
-                        style={{
-                            borderColor: 'var(--border-color)',
-                            color: 'var(--text-primary)',
-                            backgroundColor: 'color-mix(in srgb, var(--bg-card) 94%, white 6%)',
-                        }}
+                        initial={{ opacity: 0, y: -16, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                        className="pointer-events-auto apple-material rounded-2xl px-4 py-3 text-fg shadow-lg"
                         role="status"
                         aria-live="polite"
                     >
                         <div className="flex items-start gap-2.5">
                             <ToastIcon type={toast.type} />
-                            <p className="text-sm leading-snug">{toast.message}</p>
+                            <p className="text-[15px] leading-snug">{toast.message}</p>
                         </div>
                     </motion.div>
                 ))}

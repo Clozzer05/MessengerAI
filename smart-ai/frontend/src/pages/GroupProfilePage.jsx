@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useSocket } from '../hooks/useSocket';
 import { roomAPI, uploadAPI, resolveMediaUrl } from '../services/api';
 import {
-    ArrowLeft, Users, Edit3, Camera, Loader2, Calendar, MessageCircle,
+    ChevronLeft, Users, Edit3, Camera, Loader2, Calendar, MessageCircle,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Modal from '../components/ui/Modal';
@@ -112,14 +112,18 @@ export default function GroupProfilePage() {
     const memberCount = room.members?.length || 0;
 
     return (
-        <div className="min-h-screen bg-surface-muted">
+        <div className="min-h-screen bg-app">
             {/* Top navigation */}
-            <div className="bg-surface shadow-sm sticky top-0 z-10">
-                <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => navigate(-1)} className="p-1.5 hover:bg-hover rounded-full transition">
-                        <ArrowLeft size={20} />
+            <div className="apple-material border-b border-line sticky top-0 z-10">
+                <div className="relative max-w-3xl mx-auto px-4 h-12 flex items-center justify-center">
+                    <button
+                        onClick={() => navigate(-1)}
+                        aria-label="Quay lại"
+                        className="absolute left-2 flex items-center px-2 py-1 text-brand rounded-lg hover:bg-hover transition"
+                    >
+                        <ChevronLeft size={24} />
                     </button>
-                    <h1 className="font-semibold text-fg">{room.name}</h1>
+                    <h1 className="text-[17px] font-semibold text-fg truncate max-w-[70%]">{room.name}</h1>
                 </div>
             </div>
 
@@ -165,7 +169,7 @@ export default function GroupProfilePage() {
                     {/* Avatar */}
                     <div className="absolute -bottom-16 left-6">
                         <div className="relative group">
-                            <div className="w-32 h-32 rounded-full border-4 border-white bg-purple-500 flex items-center justify-center text-white text-5xl font-bold overflow-hidden shadow-lg">
+                            <div className="w-32 h-32 rounded-full border-4 border-[var(--bg-card)] bg-purple-500 flex items-center justify-center text-white text-5xl font-bold overflow-hidden shadow-lg">
                                 {room.groupAvatar ? (
                                     <img src={resolveMediaUrl(room.groupAvatar)} alt={room.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -201,7 +205,7 @@ export default function GroupProfilePage() {
                 </div>
 
                 {/* ─── Name + Description + Actions ─── */}
-                <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6 shadow-sm">
+                <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6">
                     <h2 className="text-2xl font-bold text-fg">{room.name}</h2>
                     {room.description && (
                         <p className="text-fg-muted mt-1">{room.description}</p>
@@ -219,7 +223,7 @@ export default function GroupProfilePage() {
                     <div className="mt-4 flex gap-3 flex-wrap">
                         <button
                             onClick={handleGoToChat}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-xl transition"
+                            className="btn btn-primary"
                         >
                             <MessageCircle size={16} />
                             Nhắn tin nhóm
@@ -232,7 +236,7 @@ export default function GroupProfilePage() {
                 </div>
 
                 {/* ─── Members section ─── */}
-                <div className="bg-surface rounded-2xl mt-4 px-6 py-5 shadow-sm mb-8">
+                <div className="bg-surface rounded-2xl mt-4 px-6 py-5 mb-8">
                     <h3 className="text-lg font-semibold text-fg mb-4">
                         Thành viên ({memberCount})
                     </h3>

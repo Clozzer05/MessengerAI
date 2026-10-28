@@ -8,10 +8,9 @@ import FriendPanel from '../components/friend/FriendPanel';
 import TopicPanel from '../components/topic/TopicPanel';
 import MiniAIChatBox from '../components/chat/MiniAIChatBox';
 import NoteBubbles from '../components/chat/NoteBubbles';
-import ThemedSurface from '../components/ui/ThemedSurface';
 import SkeletonBlock from '../components/ui/SkeletonBlock';
 // CallModal + IncomingCallModal are now rendered globally in App.jsx
-import { LogOut, Settings, MessageCircle, Users, ShieldCheck, Compass, HeartHandshake } from 'lucide-react';
+import { LogOut, Settings, ShieldCheck } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { useSocket } from '../hooks/useSocket';
@@ -101,19 +100,12 @@ export default function ChatPage() {
     return (
         <div className="h-dvh min-h-0 flex theme-muted-surface theme-page-enter overflow-hidden">
             {/* Sidebar */}
-            <ThemedSurface
+            <div
                 className={`${showSidebar ? 'flex' : 'hidden'
-                    } md:flex flex-col w-full md:w-80 xl:w-96 shrink-0 min-h-0`}
-                elevated
+                    } md:flex flex-col w-full md:w-80 xl:w-96 shrink-0 min-h-0 bg-surface border-r border-line`}
             >
                 {/* User bar */}
-                <div
-                    className="border-b border-line px-4 py-3 flex items-center gap-3"
-                    style={{
-                        backgroundColor: 'var(--bg-card)',
-                        borderColor: 'var(--border-color)',
-                    }}
-                >
+                <div className="px-4 pt-3 pb-2 flex items-center gap-3">
                     {user ? (
                         <>
                             <div
@@ -144,8 +136,7 @@ export default function ChatPage() {
                     {['sub_admin', 'super_admin'].includes(user?.role) && (
                         <button
                             onClick={() => navigate('/admin')}
-                            className="p-1.5 rounded-full transition"
-                            style={{ color: 'var(--color-primary)' }}
+                            className="w-9 h-9 flex items-center justify-center rounded-full text-brand hover:bg-hover transition"
                             title={t('chatPage.adminDashboard')}
                         >
                             <ShieldCheck size={18} />
@@ -154,81 +145,66 @@ export default function ChatPage() {
                     <button
                         data-tour="settings"
                         onClick={() => navigate('/settings')}
-                        className="p-1.5 rounded-full transition"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="w-9 h-9 flex items-center justify-center rounded-full text-brand hover:bg-hover transition"
                         title={t('chatPage.settings')}
                     >
                         <Settings size={18} />
                     </button>
                     <button
                         onClick={logout}
-                        className="p-1.5 rounded-full transition"
-                        style={{ color: 'var(--text-secondary)' }}
+                        className="w-9 h-9 flex items-center justify-center rounded-full text-brand hover:bg-hover transition"
                         title={t('chatPage.logout')}
                     >
                         <LogOut size={18} />
                     </button>
                 </div>
 
-                {/* Sidebar Tabs */}
-                <div
-                    data-tour="tabs"
-                    className="border-b border-line flex"
-                    style={{
-                        backgroundColor: 'var(--bg-card)',
-                        borderColor: 'var(--border-color)',
-                    }}
-                >
-                    <button
-                        data-tour="tab-chats"
-                        onClick={() => setSidebarTab('chats')}
-                        className={`flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 ${sidebarTab === 'chats'
-                            ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
-                            : 'border-transparent hover:bg-hover'
+                {/* Sidebar Tabs: điều khiển phân đoạn kiểu iOS */}
+                <div className="px-3 pb-2">
+                    <div data-tour="tabs" className="flex p-0.5 rounded-[9px] bg-field">
+                        <button
+                            data-tour="tab-chats"
+                            onClick={() => setSidebarTab('chats')}
+                            className={`flex-1 py-1 rounded-[7px] text-[13px] font-medium transition flex items-center justify-center gap-1 ${sidebarTab === 'chats'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
+                            : 'text-fg-muted hover:text-fg'
                             }`}
-                        style={sidebarTab === 'chats' ? undefined : { color: 'var(--text-secondary)' }}
-                    >
-                        <MessageCircle size={20} />
-                        {t('chatPage.messages')}
-                    </button>
-                    <button
-                        data-tour="tab-friends"
-                        onClick={() => setSidebarTab('friends')}
-                        className={`flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 relative ${sidebarTab === 'friends'
-                            ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
-                            : 'border-transparent hover:bg-hover'
+                        >
+                            {t('chatPage.messages')}
+                        </button>
+                        <button
+                            data-tour="tab-friends"
+                            onClick={() => setSidebarTab('friends')}
+                            className={`flex-1 py-1 rounded-[7px] text-[13px] font-medium transition flex items-center justify-center gap-1 ${sidebarTab === 'friends'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
+                            : 'text-fg-muted hover:text-fg'
                             }`}
-                        style={sidebarTab === 'friends' ? undefined : { color: 'var(--text-secondary)' }}
-                    >
-                        <Users size={20} />
-                        {t('chatPage.friends')}
-                        {pendingRequestCount > 0 && (
-                            <span className="absolute top-1 left-1/2 ml-1.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
-                                {pendingRequestCount > 99 ? '99+' : pendingRequestCount}
-                            </span>
-                        )}
-                    </button>
-                    <button
-                        data-tour="tab-topics"
-                        onClick={() => setSidebarTab('topics')}
-                        className={`flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 ${sidebarTab === 'topics'
-                            ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
-                            : 'border-transparent hover:bg-hover'
+                        >
+                            {t('chatPage.friends')}
+                            {pendingRequestCount > 0 && (
+                                <span className="min-w-[16px] h-4 bg-[#ff3b30] text-white text-[10px] font-semibold rounded-full flex items-center justify-center px-1">
+                                    {pendingRequestCount > 99 ? '99+' : pendingRequestCount}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            data-tour="tab-topics"
+                            onClick={() => setSidebarTab('topics')}
+                            className={`flex-1 py-1 rounded-[7px] text-[13px] font-medium transition flex items-center justify-center gap-1 ${sidebarTab === 'topics'
+                            ? 'bg-surface dark:bg-[#636366] text-fg shadow-sm'
+                            : 'text-fg-muted hover:text-fg'
                             }`}
-                        style={sidebarTab === 'topics' ? undefined : { color: 'var(--text-secondary)' }}
-                    >
-                        <Compass size={20} />
-                        Chủ đề
-                    </button>
-                    <button
-                        data-tour="tab-counseling"
-                        onClick={() => navigate('/counseling')}
-                        className="flex-1 pt-2 pb-1.5 text-xs font-medium transition flex flex-col items-center justify-center gap-0.5 border-b-2 border-transparent hover:bg-hover"
-                        style={{ color: 'var(--text-secondary)' }}
-                    >
-                        <HeartHandshake size={20} />
-                        {t('chatPage.counseling')}
-                    </button>
+                        >
+                            Chủ đề
+                        </button>
+                        <button
+                            data-tour="tab-counseling"
+                            onClick={() => navigate('/counseling')}
+                            className="flex-1 py-1 rounded-[7px] text-[13px] font-medium transition text-fg-muted hover:text-fg"
+                        >
+                            {t('chatPage.counseling')}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mini AI ChatBox — shows when AI bot is enabled */}
@@ -259,7 +235,7 @@ export default function ChatPage() {
                         <TopicPanel onSelectRoom={handleSelectRoom} />
                     </div>
                 </div>
-            </ThemedSurface>
+            </div>
 
             {/* Chat area */}
             <div

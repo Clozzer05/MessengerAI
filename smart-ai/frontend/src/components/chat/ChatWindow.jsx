@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import {
     Phone,
     Video,
-    ArrowLeft,
+    ChevronLeft,
     Users,
     Loader2,
     ChevronUp,
@@ -35,6 +35,7 @@ import {
     HeartHandshake,
     Search,
     UserPlus,
+    MessageCircle,
 } from 'lucide-react';
 
 export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled, onAIToggle, autoTranslate, onOpenStartAction }) {
@@ -701,8 +702,10 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
         return (
             <div className="flex-1 flex items-center justify-center bg-app px-4">
                 <div className="w-full max-w-xl text-center">
-                    <div className="text-6xl mb-4">💬</div>
-                    <p className="text-xl font-semibold text-fg-muted">Chọn cuộc trò chuyện để bắt đầu</p>
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-brand-soft text-brand flex items-center justify-center">
+                        <MessageCircle size={30} />
+                    </div>
+                    <p className="text-[22px] font-bold tracking-tight text-fg">Chọn cuộc trò chuyện để bắt đầu</p>
                     <p className="text-sm mt-1 text-fg-subtle">Hoặc mở nhanh theo gợi ý bên dưới</p>
 
                     <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -799,13 +802,14 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
     return (
         <div className="flex-1 flex flex-col h-full min-h-0 bg-surface relative">
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-line bg-surface">
+            <div className="relative z-10 flex items-center gap-3 px-4 py-2.5 border-b border-line apple-material">
                 {/* Back button (mobile) */}
                 <button
                     onClick={onBack}
-                    className="md:hidden p-1 hover:bg-hover rounded-full shrink-0"
+                    aria-label="Quay lại"
+                    className="md:hidden -ml-2 p-1 text-brand hover:bg-hover rounded-full shrink-0"
                 >
-                    <ArrowLeft size={20} />
+                    <ChevronLeft size={28} />
                 </button>
 
                 {/* Avatar */}
@@ -828,13 +832,13 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                         )}
                     </div>
                     {display.isOnline && (
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[var(--bg-card)] rounded-full" />
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#34c759] border-2 border-[var(--bg-card)] rounded-full" />
                     )}
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-fg truncate flex items-center gap-2">
+                    <h3 className="text-[15px] font-semibold text-fg truncate flex items-center gap-2">
                         {display.name}
                         {room?.type === 'counseling' && counselingSession && (
                             counselingSession.expert ? (
@@ -848,7 +852,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                             )
                         )}
                     </h3>
-                    <p className={`text-xs ${display.isOnline ? 'text-green-500' : 'text-fg-subtle'}`}>
+                    <p className={`text-xs ${display.isOnline ? 'text-[#34c759]' : 'text-fg-subtle'}`}>
                         {typingUsers.length > 0
                             ? `${typingUsers.map((u) => u.username).join(', ')} đang nhập...`
                             : display.subtitle}
@@ -1035,7 +1039,7 @@ export default function ChatWindow({ roomId, onBack, onToggleInfo, aiBotEnabled,
                 {/* Typing indicator */}
                 {typingUsers.length > 0 && (
                     <div className="flex justify-start mb-2">
-                        <div className="bg-surface-muted px-4 py-3 rounded-2xl">
+                        <div className="bg-bubble-received px-4 py-3 rounded-[18px]">
                             <div className="flex gap-1">
                                 <div className="w-2 h-2 bg-fg-subtle rounded-full typing-dot" />
                                 <div className="w-2 h-2 bg-fg-subtle rounded-full typing-dot" />

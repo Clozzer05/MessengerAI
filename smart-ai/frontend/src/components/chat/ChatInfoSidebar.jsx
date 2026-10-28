@@ -13,8 +13,8 @@ import AddMemberModal from './AddMemberModal';
 import InviteLinkModal from './InviteLinkModal';
 import OwnerTransferModal from './OwnerTransferModal';
 import {
-    X, Users, Bell, BellOff, Ban, Flag, LogOut, UserPlus,
-    ChevronDown, ChevronUp, Edit3, Shield, Loader2, Crown, Eye, Link2,
+    X, Users, Bell, BellOff, Ban, Flag, UserPlus,
+    ChevronDown, ChevronUp, Edit3, Loader2, Crown, Eye, Link2,
 } from 'lucide-react';
 
 export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
@@ -233,19 +233,23 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
 
     return (
         <>
-            <div className="w-80 shrink-0 bg-surface border-l border-line flex flex-col h-full overflow-hidden">
+            <div className="w-80 shrink-0 bg-app border-l border-line flex flex-col h-full overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-line">
-                    <h3 className="font-semibold text-fg">Thông tin</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full transition">
-                        <X size={18} />
+                <div className="relative flex items-center justify-center px-12 py-3 border-b border-line apple-material">
+                    <h3 className="text-[15px] font-semibold text-fg">Thông tin</h3>
+                    <button
+                        onClick={onClose}
+                        aria-label="Đóng"
+                        className="absolute right-3 w-[30px] h-[30px] flex items-center justify-center rounded-full bg-field text-fg-subtle hover:text-fg transition"
+                    >
+                        <X size={16} strokeWidth={2.5} />
                     </button>
                 </div>
 
-                {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto">
+                {/* Scrollable content: các nhóm thao tác dạng thẻ như Cài đặt iOS */}
+                <div className="flex-1 overflow-y-auto pb-6">
                     {/* Profile section */}
-                    <div className="px-4 py-6 text-center border-b border-line">
+                    <div className="px-4 pt-6 pb-5 text-center">
                         <div
                             className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold cursor-pointer hover:opacity-90 transition overflow-hidden ${isGroup ? 'bg-purple-500' : 'bg-[var(--color-primary)]'}`}
                             onClick={() => {
@@ -265,9 +269,9 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                 initial
                             )}
                         </div>
-                        <h4 className="mt-3 font-semibold text-fg text-lg">{displayName}</h4>
+                        <h4 className="mt-3 text-xl font-semibold tracking-tight text-fg">{displayName}</h4>
                         {!isGroup && (
-                            <p className={`text-sm ${otherIsOnline ? 'text-green-500' : 'text-fg-subtle'}`}>
+                            <p className={`text-sm ${otherIsOnline ? 'text-[#34c759]' : 'text-fg-subtle'}`}>
                                 {otherIsOnline ? 'Đang hoạt động' : 'Offline'}
                             </p>
                         )}
@@ -278,181 +282,96 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
 
                     {/* ─── Actions for 1-1 chat ─── */}
                     {!isGroup && (
-                        <div className="px-2 py-3 border-b border-line space-y-0.5">
-                            {!isAnonymousPeer && (
-                                <>
-                                    {/* View profile */}
-                                    <button
-                                        onClick={() => navigate(`/profile/${otherUser?._id}`)}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
-                                    >
-                                        <Users size={16} className="text-fg-subtle" />
-                                        Xem trang cá nhân
-                                    </button>
-
-                                    {/* Set nickname */}
-                                    <button
-                                        onClick={() => setNicknameTarget(otherMember)}
-                                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
-                                    >
-                                        <Edit3 size={16} className="text-fg-subtle" />
-                                        Đặt biệt danh
-                                    </button>
-                                </>
-                            )}
-
-                            {/* Mute */}
-                            <button
-                                onClick={handleToggleMute}
-                                disabled={actionLoading === 'mute'}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition disabled:opacity-50"
-                            >
-                                {actionLoading === 'mute' ? (
-                                    <Loader2 size={16} className="text-fg-subtle animate-spin" />
-                                ) : muted ? (
-                                    <BellOff size={16} className="text-fg-subtle" />
-                                ) : (
-                                    <Bell size={16} className="text-fg-subtle" />
+                        <>
+                            <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden divide-y divide-line">
+                                {!isAnonymousPeer && (
+                                    <>
+                                        <InfoRow icon={Users} color="#007aff" label="Xem trang cá nhân" onClick={() => navigate(`/profile/${otherUser?._id}`)} />
+                                        <InfoRow icon={Edit3} color="#ff9500" label="Đặt biệt danh" onClick={() => setNicknameTarget(otherMember)} />
+                                    </>
                                 )}
-                                {muted ? 'Bật thông báo' : 'Tắt thông báo'}
-                            </button>
+                                <InfoRow
+                                    icon={muted ? BellOff : Bell}
+                                    color="#ff3b30"
+                                    label={muted ? 'Bật thông báo' : 'Tắt thông báo'}
+                                    onClick={handleToggleMute}
+                                    disabled={actionLoading === 'mute'}
+                                    loading={actionLoading === 'mute'}
+                                />
+                            </div>
 
-                            {/* Block */}
-                            {!isAnonymousPeer && <button
-                                onClick={handleToggleBlock}
-                                disabled={actionLoading === 'block'}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl transition disabled:opacity-50 ${blocked ? 'text-red-600 hover:bg-red-50' : 'text-fg-muted hover:bg-hover'}`}
-                            >
-                                {actionLoading === 'block' ? (
-                                    <Loader2 size={16} className="text-fg-subtle animate-spin" />
-                                ) : (
-                                    <Ban size={16} className={blocked ? 'text-red-400' : 'text-fg-subtle'} />
+                            <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden divide-y divide-line">
+                                {!isAnonymousPeer && (
+                                    <InfoRow
+                                        icon={Ban}
+                                        color="#8e8e93"
+                                        label={blocked ? 'Bỏ chặn' : 'Chặn'}
+                                        onClick={handleToggleBlock}
+                                        disabled={actionLoading === 'block'}
+                                        loading={actionLoading === 'block'}
+                                        danger={!blocked}
+                                    />
                                 )}
-                                {blocked ? 'Bỏ chặn' : 'Chặn'}
-                            </button>}
-
-                            {/* Report — với người hỏi ẩn danh, server tự tra tài khoản thật để admin xử lý */}
-                            <button
-                                onClick={() => setShowReport(true)}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition"
-                            >
-                                <Flag size={16} className="text-red-400" />
-                                Báo cáo
-                            </button>
-                        </div>
+                                {/* Report — với người hỏi ẩn danh, server tự tra tài khoản thật để admin xử lý */}
+                                <InfoRow icon={Flag} color="#ff3b30" label="Báo cáo" onClick={() => setShowReport(true)} danger />
+                            </div>
+                        </>
                     )}
 
                     {/* ─── Group chat sections ─── */}
                     {isGroup && (
                         <>
                             {/* Group actions */}
-                            <div className="px-2 py-3 border-b border-line space-y-0.5">
-                                {/* View group profile */}
-                                <button
-                                    onClick={() => navigate(`/group/${room._id}`)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
-                                >
-                                    <Eye size={16} className="text-fg-subtle" />
-                                    Xem chi tiết nhóm
-                                </button>
-
-                                {/* Add member */}
-                                <button
-                                    onClick={() => setShowAddMember(true)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
-                                >
-                                    <UserPlus size={16} className="text-fg-subtle" />
-                                    {canManage ? 'Thêm thành viên' : 'Mời thành viên'}
-                                </button>
-
-                                {/* Invite link */}
-                                <button
-                                    onClick={() => setShowInvite(true)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
-                                >
-                                    <Link2 size={16} className="text-fg-subtle" />
-                                    Link mời vào nhóm
-                                </button>
-
-                                {/* Set nickname for self */}
-                                <button
-                                    onClick={() => setNicknameTarget(myMember)}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition"
-                                >
-                                    <Edit3 size={16} className="text-fg-subtle" />
-                                    Đặt biệt danh
-                                </button>
-
-                                {/* Mute */}
-                                <button
+                            <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden divide-y divide-line">
+                                <InfoRow icon={Eye} color="#007aff" label="Xem chi tiết nhóm" onClick={() => navigate(`/group/${room._id}`)} />
+                                <InfoRow icon={UserPlus} color="#34c759" label={canManage ? 'Thêm thành viên' : 'Mời thành viên'} onClick={() => setShowAddMember(true)} />
+                                <InfoRow icon={Link2} color="#5856d6" label="Link mời vào nhóm" onClick={() => setShowInvite(true)} />
+                                <InfoRow icon={Edit3} color="#ff9500" label="Đặt biệt danh" onClick={() => setNicknameTarget(myMember)} />
+                                <InfoRow
+                                    icon={muted ? BellOff : Bell}
+                                    color="#ff3b30"
+                                    label={muted ? 'Bật thông báo' : 'Tắt thông báo'}
                                     onClick={handleToggleMute}
                                     disabled={actionLoading === 'mute'}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-fg-muted hover:bg-hover rounded-xl transition disabled:opacity-50"
-                                >
-                                    {actionLoading === 'mute' ? (
-                                        <Loader2 size={16} className="text-fg-subtle animate-spin" />
-                                    ) : muted ? (
-                                        <BellOff size={16} className="text-fg-subtle" />
-                                    ) : (
-                                        <Bell size={16} className="text-fg-subtle" />
-                                    )}
-                                    {muted ? 'Bật thông báo' : 'Tắt thông báo'}
-                                </button>
-
-                                {/* Leave group */}
-                                <button
-                                    onClick={() => handleLeave()}
-                                    disabled={actionLoading === 'leave'}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition disabled:opacity-50"
-                                >
-                                    {actionLoading === 'leave' ? (
-                                        <Loader2 size={16} className="text-red-400 animate-spin" />
-                                    ) : (
-                                        <LogOut size={16} className="text-red-400" />
-                                    )}
-                                    Rời nhóm
-                                </button>
+                                    loading={actionLoading === 'mute'}
+                                />
                             </div>
 
                             {/* ─── Members section ─── */}
-                            <div className="px-2 py-3 border-b border-line">
+                            <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden">
                                 <button
                                     onClick={() => setShowMembers(!showMembers)}
-                                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-fg-muted"
+                                    className="w-full flex items-center justify-between px-3 py-2.5 text-[15px] font-semibold text-fg hover:bg-hover transition"
                                 >
-                                    <span className="flex items-center gap-2">
-                                        <Users size={16} />
-                                        Thành viên ({room.members?.length || 0})
-                                    </span>
-                                    {showMembers ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                    <span>Thành viên ({room.members?.length || 0})</span>
+                                    {showMembers ? <ChevronUp size={16} className="text-fg-subtle" /> : <ChevronDown size={16} className="text-fg-subtle" />}
                                 </button>
                                 {showMembers && (
-                                    <MemberList
-                                        members={room.members || []}
-                                        nicknames={room.nicknames}
-                                        myRole={myMember?.role}
-                                        onSetNickname={(member) => setNicknameTarget(member)}
-                                        onRemoveMember={handleRemoveMember}
-                                        onSetRole={handleSetMemberRole}
-                                    />
+                                    <div className="px-1 pb-1 border-t border-line">
+                                        <MemberList
+                                            members={room.members || []}
+                                            nicknames={room.nicknames}
+                                            myRole={myMember?.role}
+                                            onSetNickname={(member) => setNicknameTarget(member)}
+                                            onRemoveMember={handleRemoveMember}
+                                            onSetRole={handleSetMemberRole}
+                                        />
+                                    </div>
                                 )}
                             </div>
 
                             {/* ─── Pending members (trưởng/phó nhóm) ─── */}
                             {canManage && (
-                                <div className="px-2 py-3 border-b border-line">
+                                <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden">
                                     <button
                                         onClick={() => setShowPending(!showPending)}
-                                        className="w-full flex items-center justify-between px-3 py-2 text-sm font-semibold text-fg-muted"
+                                        className="w-full flex items-center justify-between px-3 py-2.5 text-[15px] font-semibold text-fg hover:bg-hover transition"
                                     >
-                                        <span className="flex items-center gap-2">
-                                            <Shield size={16} />
-                                            Chờ duyệt ({pendingMembers.length})
-                                        </span>
-                                        {showPending ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                        <span>Chờ duyệt ({pendingMembers.length})</span>
+                                        {showPending ? <ChevronUp size={16} className="text-fg-subtle" /> : <ChevronDown size={16} className="text-fg-subtle" />}
                                     </button>
                                     {showPending && (
-                                        <div className="px-1 mt-1">
+                                        <div className="px-2 py-2 border-t border-line">
                                             <PendingMembers
                                                 roomId={room._id}
                                                 pendingMembers={pendingMembers}
@@ -463,6 +382,18 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                     )}
                                 </div>
                             )}
+
+                            {/* Leave group: dòng đỏ riêng ở cuối như iOS */}
+                            <div className="mx-3 rounded-xl bg-surface overflow-hidden">
+                                <button
+                                    onClick={() => handleLeave()}
+                                    disabled={actionLoading === 'leave'}
+                                    className="w-full flex items-center justify-center gap-2 px-3 py-2.5 text-[15px] text-[#ff3b30] hover:bg-hover transition disabled:opacity-50"
+                                >
+                                    {actionLoading === 'leave' && <Loader2 size={16} className="animate-spin" />}
+                                    Rời nhóm
+                                </button>
+                            </div>
                         </>
                     )}
                 </div>
@@ -525,5 +456,23 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                 />
             )}
         </>
+    );
+}
+
+// Một dòng thao tác kiểu Cài đặt iOS: ô vuông màu có biểu tượng trắng + nhãn
+function InfoRow({ icon, color, label, onClick, disabled = false, loading = false, danger = false }) {
+    const Glyph = icon;
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className={`w-full flex items-center gap-3 px-3 py-2 text-[15px] text-left hover:bg-hover transition disabled:opacity-50 ${danger ? 'text-[#ff3b30]' : 'text-fg'}`}
+        >
+            <span className="w-7 h-7 shrink-0 rounded-[7px] flex items-center justify-center text-white" style={{ backgroundColor: color }}>
+                {loading ? <Loader2 size={15} className="animate-spin" /> : <Glyph size={15} />}
+            </span>
+            <span className="flex-1">{label}</span>
+        </button>
     );
 }

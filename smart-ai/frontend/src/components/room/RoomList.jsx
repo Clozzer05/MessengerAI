@@ -5,7 +5,7 @@ import { useSocket } from '../../hooks/useSocket';
 import { emitToast } from '../../utils/toast';
 import { confirmDialog } from '../../utils/confirm';
 import { format } from 'date-fns';
-import { Plus, Search, MessageCircle, Users, MoreHorizontal, Trash2 } from 'lucide-react';
+import { SquarePen, Search, MessageCircle, Users, MoreHorizontal, Trash2 } from 'lucide-react';
 import CreateRoomModal from './CreateRoomModal';
 import SkeletonBlock from '../ui/SkeletonBlock';
 
@@ -270,31 +270,32 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
     };
 
     return (
-        <div className="h-full flex flex-col bg-surface border-r border-line">
-            {/* Header */}
-            <div className="p-4 border-b border-line">
-                <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-xl font-bold text-fg">Tin nhắn</h2>
+        <div className="h-full flex flex-col bg-surface">
+            {/* Header: tiêu đề lớn + ô tìm kiếm kiểu iOS */}
+            <div className="px-4 pt-2 pb-3">
+                <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-[28px] leading-tight font-bold tracking-tight text-fg">Tin nhắn</h2>
                     <button
                         data-tour="new-chat"
                         onClick={() => setShowCreate(true)}
-                        className="p-2 hover:bg-hover rounded-full transition"
+                        className="w-9 h-9 flex items-center justify-center hover:bg-hover rounded-full transition text-brand"
                         title="Tạo cuộc trò chuyện"
+                        aria-label="Tạo cuộc trò chuyện"
                     >
-                        <Plus size={20} className="text-[var(--color-primary)]" />
+                        <SquarePen size={20} />
                     </button>
                 </div>
 
                 {/* Search */}
                 <div data-tour="search" className="relative">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
+                    <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-fg-subtle" />
                     <input
                         ref={searchInputRef}
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Tìm kiếm... (Ctrl+K)"
-                        className="w-full pl-9 pr-4 py-2 bg-surface-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] transition"
+                        placeholder="Tìm kiếm (Ctrl+K)"
+                        className="w-full h-9 pl-8 pr-3 rounded-[10px] text-[15px] focus:outline-none focus:ring-2 focus:ring-brand-ring/40 transition"
                     />
                 </div>
             </div>
@@ -354,8 +355,8 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                                         onSelectRoom(room._id);
                                     }
                                 }}
-                                className={`w-full flex items-center gap-3 px-2 py-2.5 rounded-xl transition text-left cursor-pointer ${
-                                    isActive ? 'bg-brand-soft' : 'hover:bg-hover'
+                                className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-[10px] transition text-left cursor-pointer ${
+                                    isActive ? 'bg-brand text-white' : 'hover:bg-hover'
                                 }`}
                             >
                                 {/* Avatar */}
@@ -374,28 +375,28 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                                         )}
                                     </div>
                                     {isOnline && (
-                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[var(--bg-card)] rounded-full" />
+                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#34c759] border-2 border-[var(--bg-card)] rounded-full" />
                                     )}
                                 </div>
 
                                 {/* Tên + giờ ở dòng trên, tin cuối + số chưa đọc ở dòng dưới */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-baseline gap-2">
-                                        <span className={`flex-1 truncate text-fg ${unread > 0 ? 'font-semibold' : 'font-medium'}`}>
+                                        <span className={`flex-1 truncate text-[15px] ${isActive ? 'text-white' : 'text-fg'} ${unread > 0 ? 'font-semibold' : 'font-medium'}`}>
                                             {display.name}
                                         </span>
                                         {lastMsg && (
-                                            <span className={`text-xs whitespace-nowrap shrink-0 ${unread > 0 ? 'text-brand font-semibold' : 'text-fg-subtle'}`}>
+                                            <span className={`text-xs whitespace-nowrap shrink-0 ${isActive ? 'text-white/80' : unread > 0 ? 'text-brand font-semibold' : 'text-fg-subtle'}`}>
                                                 {formatShortTime(lastMsg.createdAt)}
                                             </span>
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2 mt-0.5">
-                                        <p className={`flex-1 text-sm truncate ${unread > 0 ? 'text-fg font-semibold' : 'text-fg-subtle'}`}>
+                                        <p className={`flex-1 text-sm truncate ${isActive ? 'text-white/80' : unread > 0 ? 'text-fg font-semibold' : 'text-fg-subtle'}`}>
                                             {lastPreview || '\u00a0'}
                                         </p>
                                         {unread > 0 && (
-                                            <span className="bg-[var(--color-primary)] text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shrink-0">
+                                            <span className={`text-[11px] font-semibold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shrink-0 ${isActive ? 'bg-white text-brand' : 'bg-brand text-white'}`}>
                                                 {unread > 99 ? '99+' : unread}
                                             </span>
                                         )}
@@ -418,11 +419,11 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
 
                             {/* Dropdown Menu - Đưa ra ngoài button để tránh lỗi click */}
                             {menuOpenId === room._id && (
-                                <div className="absolute right-4 top-[calc(50%+20px)] w-48 bg-surface rounded-lg shadow-xl border border-line py-1 z-50 animate-fade-in">
+                                <div className="absolute right-4 top-[calc(50%+20px)] w-48 apple-material rounded-[12px] shadow-xl ring-1 ring-black/5 py-1 z-50 animate-fade-in">
                                     <button
                                         onClick={(e) => handleDeleteChat(room._id, e)}
                                         disabled={deleteLoading}
-                                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition disabled:opacity-50"
+                                        className="w-full text-left px-3 py-2 text-sm text-[#ff3b30] hover:bg-hover flex items-center gap-2 transition disabled:opacity-50"
                                     >
                                         <Trash2 size={16} />
                                         {deleteLoading ? 'Đang xóa...' : 'Xóa đoạn chat'}

@@ -34,7 +34,7 @@ export default function JoinGroupPage() {
 
     return (
         <div className="h-dvh flex items-center justify-center theme-muted-surface px-4">
-            <div className="w-full max-w-sm rounded-2xl p-6 text-center shadow-sm border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+            <div className="w-full max-w-sm rounded-[20px] p-6 text-center shadow-sm bg-surface">
                 {error ? (
                     <>
                         <LinkIcon size={40} className="mx-auto mb-3 text-fg-subtle" />
@@ -55,7 +55,7 @@ export default function JoinGroupPage() {
                                 <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Bạn đã ở trong nhóm này.</p>
                                 <button
                                     onClick={() => navigate('/', { state: { roomId: room._id } })}
-                                    className="w-full py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-sm font-medium hover:opacity-90 transition"
+                                    className="btn btn-primary w-full"
                                 >
                                     Mở nhóm
                                 </button>
@@ -70,7 +70,7 @@ export default function JoinGroupPage() {
                             <button
                                 onClick={handleJoin}
                                 disabled={joining}
-                                className="w-full py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="btn btn-primary w-full"
                             >
                                 {joining && <Loader2 size={16} className="animate-spin" />}
                                 Xin vào nhóm

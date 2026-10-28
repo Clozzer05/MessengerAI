@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useLanguage } from '../hooks/useLanguage';
 import { userAPI } from '../services/api';
-import { ArrowLeft, Loader2, Check, Palette, Phone } from 'lucide-react';
+import { ChevronLeft, Loader2, Check, Palette, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 
@@ -47,21 +47,11 @@ export default function SettingsPage() {
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     };
 
-    const getThemeAccent = (theme) => {
-        if (theme.id === 'light') return '#6366f1';
-        if (theme.id === 'dark') return '#818cf8';
-        if (theme.id === 'pixel-art') return '#f59e0b';
-        if (theme.id === 'neon-night') return '#22d3ee';
-        return theme.color || '#6366f1';
-    };
+    const getThemeAccent = (theme) => theme.color;
 
-    const getThemePreviewBackground = (theme) => {
-        if (theme.id === 'dark') return 'linear-gradient(135deg, #1e293b, #0f172a)';
-        if (theme.id === 'light') return 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
-        if (theme.id === 'pixel-art') return 'linear-gradient(135deg, #f59e0b, #ef4444)';
-        if (theme.id === 'neon-night') return 'linear-gradient(135deg, #22d3ee, #fb7185)';
-        return theme.color;
-    };
+    // Phần lớn là màu chủ đạo (để dấu tích trắng ở giữa luôn rõ), góc dưới là nền sáng/tối của theme
+    const getThemePreviewBackground = (theme) =>
+        `linear-gradient(135deg, ${theme.color} 62%, ${theme.isDark ? '#1c1c1e' : '#f2f2f7'} 62%)`;
 
     const handleSave = async () => {
         setError('');
@@ -111,19 +101,24 @@ export default function SettingsPage() {
     return (
         <div className="min-h-screen bg-app">
             {/* Header */}
-            <div className="bg-surface border-b">
-                <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
-                    <button onClick={() => navigate('/')} className="p-1 hover:bg-hover rounded-full" title={t('settings.backToChat')}>
-                        <ArrowLeft size={20} />
+            <div className="sticky top-0 z-10 apple-material border-b border-line">
+                <div className="relative max-w-lg mx-auto px-4 h-12 flex items-center justify-center">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="absolute left-2 flex items-center gap-0.5 px-2 py-1 text-[17px] text-brand rounded-lg hover:bg-hover"
+                        title={t('settings.backToChat')}
+                    >
+                        <ChevronLeft size={22} className="-ml-1" />
+                        Chat
                     </button>
-                    <h1 className="text-lg font-semibold">{t('settings.title')}</h1>
+                    <h1 className="text-[17px] font-semibold text-fg">{t('settings.title')}</h1>
                 </div>
             </div>
 
             <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
                 {/* Profile section */}
-                <div className="bg-surface rounded-xl p-6 shadow-sm space-y-4">
-                    <h2 className="font-semibold text-fg">{t('settings.profileSection')}</h2>
+                <div className="bg-surface rounded-xl p-5 space-y-4">
+                    <h2 className="text-[13px] font-medium uppercase tracking-wide text-fg-subtle">{t('settings.profileSection')}</h2>
 
                     {error && (
                         <div className="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-sm">{error}</div>
@@ -135,7 +130,7 @@ export default function SettingsPage() {
                             type="text"
                             value={form.username}
                             onChange={(e) => setForm({ ...form, username: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                            className="w-full px-4 py-2.5 border border-line-strong rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                         />
                     </div>
 
@@ -145,7 +140,7 @@ export default function SettingsPage() {
                             type="email"
                             value={user?.email || ''}
                             disabled
-                            className="w-full px-4 py-2.5 border border-line rounded-lg bg-app text-fg-subtle"
+                            className="w-full px-4 py-2.5 rounded-[10px] text-fg-subtle"
                         />
                     </div>
 
@@ -156,7 +151,7 @@ export default function SettingsPage() {
                                 type="tel"
                                 value={form.phoneNumber}
                                 onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-                                className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-lg focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-[var(--color-primary-ring)] outline-none transition"
+                                className="w-full px-4 py-2.5 pl-10 border border-line-strong rounded-[10px] focus:ring-2 focus:ring-brand-ring/40 outline-none transition"
                                 placeholder="0912 345 678"
                             />
                             <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
@@ -166,7 +161,7 @@ export default function SettingsPage() {
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="btn btn-primary w-full"
                     >
                         {loading ? (
                             <Loader2 size={16} className="animate-spin" />
@@ -182,10 +177,10 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Theme / Appearance section */}
-                <div className="bg-[var(--bg-card)] rounded-xl p-6 shadow-sm space-y-4">
+                <div className="bg-surface rounded-xl p-5 space-y-4">
                     <div className="flex items-center gap-2">
                         <Palette size={18} className="text-[var(--color-primary)]" />
-                        <h2 className="font-semibold text-[var(--text-primary)]">{t('settings.appearanceSection')}</h2>
+                        <h2 className="text-[13px] font-medium uppercase tracking-wide text-fg-subtle">{t('settings.appearanceSection')}</h2>
                     </div>
                     <p className="text-xs text-[var(--text-tertiary)]">
                         {t('settings.appearanceHelp')}
@@ -239,13 +234,13 @@ export default function SettingsPage() {
                                 )}
 
                                 {isActive && !isPending && (
-                                    <Check size={18} className={theme.id === 'light' ? 'text-fg' : 'text-white'} />
+                                    <Check size={18} className="text-white drop-shadow" />
                                 )}
 
                                 {isPending && (
                                     <Loader2
                                         size={14}
-                                        className={`absolute animate-spin ${theme.id === 'light' ? 'text-fg' : 'text-white'}`}
+                                        className="absolute animate-spin text-white drop-shadow"
                                     />
                                 )}
                             </motion.button>
@@ -259,14 +254,14 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Danger zone */}
-                <div className="bg-surface rounded-xl p-6 shadow-sm">
-                    <h2 className="font-semibold text-red-600 mb-3">{t('settings.logoutSection')}</h2>
+                <div className="bg-surface rounded-xl p-5">
+                    <h2 className="text-[13px] font-medium uppercase tracking-wide text-fg-subtle mb-3">{t('settings.logoutSection')}</h2>
                     <button
                         onClick={() => {
                             logout();
                             navigate('/login');
                         }}
-                        className="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition"
+                        className="btn w-full bg-field text-[#ff3b30] hover:bg-hover"
                     >
                         {t('settings.logoutButton')}
                     </button>
