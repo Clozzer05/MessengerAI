@@ -21,6 +21,11 @@ exports.createRoom = async (req, res, next) => {
             // Kiểm tra đã có direct room chưa
             const existingRoom = await Room.findDirectRoom(currentUserId, targetUserId);
             if (existingRoom) {
+                // Mở lại chat đã xóa: hiện lại trong danh sách của người mở
+                if (existingRoom.hiddenFor?.some((id) => id.toString() === currentUserId.toString())) {
+                    existingRoom.hiddenFor.pull(currentUserId);
+                    await existingRoom.save();
+                }
                 // Phòng đã có thì trả kèm tin nhắn cuối như danh sách phòng, để giao diện hiện đúng giờ
                 const populated = await existingRoom.populate([
                     { path: 'members.user', select: 'username avatar googlePicture status preferredLanguage preferredLanguageLabel' },
@@ -841,7 +846,7 @@ exports.forwardMessage = async (req, res, next) => {
         const populated = await Message.findById(forwardedMsg._id)
             .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
-        await Room.findByIdAndUpdate(targetRoomId, { lastMessage: forwardedMsg._id });
+        await Room.findByIdAndUpdate(targetRoomId, { lastMessage: forwardedMsg._id, hiddenFor: [] });
 
         const io = req.app.get('io');
         emitToRoomMasked(io, targetRoomId, 'message:received', { message: populated }, await getAnonymousOwner(targetRoomId));

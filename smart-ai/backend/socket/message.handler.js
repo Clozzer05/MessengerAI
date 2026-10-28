@@ -152,8 +152,8 @@ module.exports = (io, socket) => {
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame')
                 .populate(Message.REPLY_TO_POPULATE);
 
-            // Cập nhật lastMessage
-            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
+            // Cập nhật lastMessage; có tin mới thì hiện lại cuộc trò chuyện cho ai đã xóa nó (như Messenger)
+            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
 
             // ═════════════════════════════════════════════════════════════════
             // BƯỚC 1: Broadcast tin nhắn GỐC ngay lập tức (không chờ AI)
@@ -223,7 +223,7 @@ module.exports = (io, socket) => {
                             });
                             
                             const populatedAI = await Message.findById(aiMessage._id).populate('sender', 'username avatar googlePicture');
-                            await Room.findByIdAndUpdate(roomId, { lastMessage: aiMessage._id });
+                            await Room.findByIdAndUpdate(roomId, { lastMessage: aiMessage._id, hiddenFor: [] });
                             
                             io.to(roomId).emit('room:stop-typing', { roomId, userId: 'ai-bot' });
                             
@@ -460,7 +460,7 @@ module.exports = (io, socket) => {
             const populated = await Message.findById(message._id)
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
-            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
+            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
             emitToRoomMasked(io, roomId, 'message:received', { message: populated }, await getAnonymousOwner(roomId));
         } catch (error) {
             console.error('message:send-poll error:', error.message);
@@ -491,7 +491,7 @@ module.exports = (io, socket) => {
             const populated = await Message.findById(message._id)
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
-            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id });
+            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
             emitToRoomMasked(io, roomId, 'message:received', { message: populated }, await getAnonymousOwner(roomId));
         } catch (error) {
             console.error('message:send-contact-card error:', error.message);
