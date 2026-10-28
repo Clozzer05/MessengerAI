@@ -193,7 +193,8 @@ const unbanUser = async (req, res) => {
         if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
 
         user.accountStatus = 'active';
-        user.status = 'active';
+        // Lúc bị ban đã bị ngắt kết nối nên trạng thái online/offline là offline
+        user.status = 'offline';
         user.is_locked = false;
         user.lock_until = null;
         await user.save({ validateModifiedOnly: true });

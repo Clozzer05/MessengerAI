@@ -27,7 +27,7 @@ exports.updateProfile = async (req, res, next) => {
             updates.preferredBubbleFrame = preferredBubbleFrame;
         }
 
-        const validThemes = ['blue', 'red', 'purple', 'yellow', 'brown', 'dark', 'light'];
+        const validThemes = User.schema.path('preferredTheme').enumValues;
         if (req.body.preferredTheme && validThemes.includes(req.body.preferredTheme)) {
             updates.preferredTheme = req.body.preferredTheme;
         }

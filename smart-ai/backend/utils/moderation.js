@@ -31,14 +31,13 @@ const banAccount = async (io, user) => {
 
 // minutes = 0 nghĩa là mở khóa ngay
 const lockAccount = async (io, user, minutes, message) => {
+    // Không đổi user.status: trường này là trạng thái online/offline
     if (minutes === 0) {
         user.accountStatus = 'active';
-        user.status = 'active';
         user.is_locked = false;
         user.lock_until = null;
     } else {
         user.accountStatus = 'locked';
-        user.status = 'active';
         user.is_locked = true;
         user.lock_until = new Date(Date.now() + minutes * 60000);
     }

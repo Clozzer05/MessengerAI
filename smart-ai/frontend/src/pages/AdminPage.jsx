@@ -218,6 +218,13 @@ function EditUserModal({ user, onClose, onSave }) {
     );
 }
 
+// Thời gian khóa: 30 → "30 phút", 360 → "6 giờ", 1440 → "1 ngày" (short: "30p", "6h", "1d")
+const formatLockDuration = (m, short = false) => {
+    if (m < 60) return short ? `${m}p` : `${m} phút`;
+    if (m < 1440) return short ? `${m / 60}h` : `${m / 60} giờ`;
+    return short ? `${m / 1440}d` : `${m / 1440} ngày`;
+};
+
 function LockModal({ user, onClose, onLock }) {
     const [duration, setDuration] = useState(60);
     const [loading, setLoading] = useState(false);
@@ -236,7 +243,7 @@ function LockModal({ user, onClose, onLock }) {
                     {[30, 60, 360, 1440, 10080].map(m => (
                         <button key={m} onClick={() => setDuration(m)}
                             className={`px-3 py-1 rounded-full text-xs font-medium border ${duration === m ? 'bg-brand-medium border-brand-ring text-brand-strong' : 'border-line text-fg-subtle hover:bg-hover'}`}>
-                            {m < 60 ? `${m}p` : m < 1440 ? `${m / 60}h` : `${m / 1440}d`}
+                            {formatLockDuration(m, true)}
                         </button>
                     ))}
                 </div>
@@ -311,18 +318,26 @@ function UsersTab({ currentUser }) {
     const handleAction = async (action, userId, ...args) => {
         setActionLoading(true);
         try {
+            let done = '';
             switch (action) {
-                case 'update': await adminAPI.updateUser(userId, args[0]); break;
-                case 'delete': await adminAPI.deleteUser(userId); break;
-                case 'toggleVerified': await adminAPI.toggleVerified(userId); break;
-                case 'ban': await adminAPI.banUser(userId); break;
-                case 'unban': await adminAPI.unbanUser(userId); break;
-                case 'lock': await adminAPI.lockUser(userId, args[0]); break;
-                case 'resetPassword': await adminAPI.resetPassword(userId, args[0]); break;
+                case 'update': await adminAPI.updateUser(userId, args[0]); done = 'Đã cập nhật người dùng'; break;
+                case 'delete': await adminAPI.deleteUser(userId); done = 'Đã xóa người dùng'; break;
+                case 'toggleVerified': await adminAPI.toggleVerified(userId); done = 'Đã đổi trạng thái xác thực'; break;
+                case 'ban': await adminAPI.banUser(userId); done = 'Đã ban người dùng'; break;
+                case 'unban': await adminAPI.unbanUser(userId); done = 'Đã gỡ ban'; break;
+                case 'lock':
+                    await adminAPI.lockUser(userId, args[0]);
+                    done = args[0] === 0 ? 'Đã mở khóa tài khoản' : `Đã khóa tạm ${formatLockDuration(args[0])}`;
+                    break;
+                case 'resetPassword': await adminAPI.resetPassword(userId, args[0]); done = 'Đã đặt lại mật khẩu'; break;
 
             }
+            emitToast(done, { type: 'success' });
             fetchUsers();
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+            emitToast(err.response?.data?.error || 'Thao tác thất bại', { type: 'error' });
+        }
         finally { setActionLoading(false); }
     };
 
@@ -414,7 +429,11 @@ function UsersTab({ currentUser }) {
                                                     ))}
                                                     {(isSuper || !['sub_admin', 'super_admin'].includes(u.role)) && (
                                                         <>
-                                                            <button onClick={() => setLockUser(u)} className="p-1.5 hover:bg-orange-50 rounded-lg text-orange-500" title="Khóa tạm"><Lock size={15} /></button>
+                                                            {u.accountStatus === 'locked' ? (
+                                                                <button onClick={() => handleAction('lock', u._id, 0)} className="p-1.5 hover:bg-orange-50 rounded-lg text-orange-500" title="Mở khóa"><Unlock size={15} /></button>
+                                                            ) : (
+                                                                <button onClick={() => setLockUser(u)} className="p-1.5 hover:bg-orange-50 rounded-lg text-orange-500" title="Khóa tạm"><Lock size={15} /></button>
+                                                            )}
                                                             <button onClick={() => setResetPwUser(u)} className="p-1.5 hover:bg-purple-50 rounded-lg text-purple-500" title="Reset mật khẩu"><Key size={15} /></button>
                                                         </>
                                                     )}

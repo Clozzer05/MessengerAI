@@ -29,6 +29,17 @@ module.exports = (io, socket) => {
             });
         }
     };
+    // Báo thanh bên trái của mọi thành viên (kể cả người gửi) có tin mới: xem trước, thứ tự phòng, số chưa đọc.
+    // Gửi vào phòng riêng theo userId nên không cần đã mở phòng chat đó.
+    const notifyRoomMembers = (room, message, anonymousOwner) => {
+        for (const member of room.members) {
+            const memberId = member.user.toString();
+            const payload = { roomId: room._id.toString(), lastMessage: message, senderId: userId.toString() };
+            io.to(memberId).emit('room:new-message',
+                anonymousOwner && memberId !== anonymousOwner ? maskMessage(payload, anonymousOwner) : payload);
+        }
+    };
+
     // ─── message:send ───────────────────────────────────────────────────
     socket.on('message:send', async ({ roomId, content, type = 'text', file = null, replyTo = null }) => {
         try {
@@ -167,17 +178,7 @@ module.exports = (io, socket) => {
             // io.to(roomId) only reaches users who socket.join(roomId).
             // Sidebar needs updates for rooms the user has NOT joined.
             // ═════════════════════════════════════════════════════════════════
-            for (const member of room.members) {
-                if (member.user.toString() === userId.toString()) continue;
-                const memberDoc = await User.findById(member.user).select('socketId').lean();
-                if (memberDoc?.socketId) {
-                    const newMessagePayload = { roomId, lastMessage: populatedMessage, senderId: userId.toString() };
-                    io.to(memberDoc.socketId).emit('room:new-message',
-                        anonymousOwner && member.user.toString() !== anonymousOwner
-                            ? maskMessage(newMessagePayload, anonymousOwner)
-                            : newMessagePayload);
-                }
-            }
+            notifyRoomMembers(room, populatedMessage, anonymousOwner);
 
             console.log(`💬 ${socket.user.username} → room ${roomId}: ${content?.substring(0, 50) || '[file]'}`);
 
@@ -461,7 +462,9 @@ module.exports = (io, socket) => {
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
             await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
-            emitToRoomMasked(io, roomId, 'message:received', { message: populated }, await getAnonymousOwner(roomId));
+            const anonymousOwner = await getAnonymousOwner(roomId);
+            emitToRoomMasked(io, roomId, 'message:received', { message: populated }, anonymousOwner);
+            notifyRoomMembers(room, populated, anonymousOwner);
         } catch (error) {
             console.error('message:send-poll error:', error.message);
         }
@@ -491,8 +494,10 @@ module.exports = (io, socket) => {
             const populated = await Message.findById(message._id)
                 .populate('sender', 'username avatar googlePicture preferredLanguage preferredBubbleFrame');
 
-            await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
-            emitToRoomMasked(io, roomId, 'message:received', { message: populated }, await getAnonymousOwner(roomId));
+            const room = await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
+            const anonymousOwner = await getAnonymousOwner(roomId);
+            emitToRoomMasked(io, roomId, 'message:received', { message: populated }, anonymousOwner);
+            if (room) notifyRoomMembers(room, populated, anonymousOwner);
         } catch (error) {
             console.error('message:send-contact-card error:', error.message);
         }
