@@ -29,6 +29,37 @@ module.exports = (io, socket) => {
             });
         }
     };
+    const isRoomMember = (room) => !!room?.members.some((m) => m.user.toString() === userId.toString());
+
+    // Điều kiện gửi vào phòng, dùng chung cho tin thường, bình chọn, danh thiếp.
+    // Trả về câu báo lỗi, hoặc null nếu được gửi.
+    const getSendError = async (room) => {
+        if (!room) return 'Room không tồn tại';
+        if (!isRoomMember(room)) return 'Bạn không phải thành viên';
+
+        // ── Kiểm tra block: nếu bất kỳ thành viên nào đã chặn sender → từ chối ──
+        if (room.type === 'direct') {
+            const otherMember = room.members.find(m => m.user.toString() !== userId.toString());
+            if (otherMember) {
+                const otherUser = await User.findById(otherMember.user).select('blockedUsers').lean();
+                if (otherUser?.blockedUsers?.some(id => id.toString() === userId.toString())) {
+                    return 'Không thể gửi tin nhắn. Người dùng đã chặn bạn.';
+                }
+                // Cũng kiểm tra: sender đã chặn receiver → không cho gửi
+                const senderDoc = await User.findById(userId).select('blockedUsers').lean();
+                if (senderDoc?.blockedUsers?.some(id => id.toString() === otherMember.user.toString())) {
+                    return 'Bạn đã chặn người này. Bỏ chặn để gửi tin nhắn.';
+                }
+            }
+        }
+
+        // ── Check account status (đọc mới từ DB vì socket.user có thể cũ) ──
+        const sender = await User.findById(userId).select('accountStatus lock_until').lean();
+        if (sender?.accountStatus === 'banned') return 'Tài khoản của bạn đã bị khóa.';
+        if (isLockActive(sender)) return 'Tài khoản đang bị khóa tạm thời.';
+        return null;
+    };
+
     // Báo thanh bên trái của mọi thành viên (kể cả người gửi) có tin mới: xem trước, thứ tự phòng, số chưa đọc.
     // Gửi vào phòng riêng theo userId nên không cần đã mở phòng chat đó.
     const notifyRoomMembers = (room, message, anonymousOwner) => {
@@ -52,37 +83,11 @@ module.exports = (io, socket) => {
             }
 
             const room = await Room.findById(roomId);
-            if (!room) return socket.emit('error', { message: 'Room không tồn tại' });
-
-            const isMember = room.members.some(m => m.user.toString() === userId.toString());
-            if (!isMember) return socket.emit('error', { message: 'Bạn không phải thành viên' });
-
-            // ── Kiểm tra block: nếu bất kỳ thành viên nào đã chặn sender → từ chối ──
-            if (room.type === 'direct') {
-                const otherMember = room.members.find(m => m.user.toString() !== userId.toString());
-                if (otherMember) {
-                    const otherUser = await User.findById(otherMember.user).select('blockedUsers').lean();
-                    if (otherUser?.blockedUsers?.some(id => id.toString() === userId.toString())) {
-                        return socket.emit('error', { message: 'Không thể gửi tin nhắn. Người dùng đã chặn bạn.' });
-                    }
-                    // Cũng kiểm tra: sender đã chặn receiver → không cho gửi
-                    const senderDoc = await User.findById(userId).select('blockedUsers').lean();
-                    if (senderDoc?.blockedUsers?.some(id => id.toString() === otherMember.user.toString())) {
-                        return socket.emit('error', { message: 'Bạn đã chặn người này. Bỏ chặn để gửi tin nhắn.' });
-                    }
-                }
-            }
+            const sendError = await getSendError(room);
+            if (sendError) return socket.emit('error', { message: sendError });
 
             // ── Lấy preferredLanguage MỚI NHẤT từ DB (socket.user có thể stale) ──
-            const senderFresh = await User.findById(userId).select('preferredLanguage accountStatus lock_until').lean();
-
-            // ── Check account status ──
-            if (senderFresh?.accountStatus === 'banned') {
-                return socket.emit('error', { message: 'Tài khoản của bạn đã bị khóa.' });
-            }
-            if (isLockActive(senderFresh)) {
-                return socket.emit('error', { message: 'Tài khoản đang bị khóa tạm thời.' });
-            }
+            const senderFresh = await User.findById(userId).select('preferredLanguage').lean();
 
             const senderLanguage = senderFresh?.preferredLanguage || socket.user.preferredLanguage || 'vi';
 
@@ -270,6 +275,10 @@ module.exports = (io, socket) => {
     // ─── message:read ───────────────────────────────────────────────────
     socket.on('message:read', async ({ roomId, messageId }) => {
         try {
+            if (!mongoose.isValidObjectId(roomId) || !mongoose.isValidObjectId(messageId)) return;
+            const room = await Room.findById(roomId).select('members').lean();
+            if (!isRoomMember(room) || !await Message.exists({ _id: messageId, room: roomId })) return;
+
             await Message.findByIdAndUpdate(messageId, {
                 $addToSet: {
                     readBy: { user: userId, readAt: new Date() },
@@ -395,6 +404,11 @@ module.exports = (io, socket) => {
     // Client request bản dịch cho 1 message cụ thể (khi load history)
     socket.on('message:get-translation', async ({ messageId }) => {
         try {
+            if (!mongoose.isValidObjectId(messageId)) return;
+            const msg = await Message.findById(messageId).select('room').lean();
+            const room = msg && await Room.findById(msg.room).select('members').lean();
+            if (!isRoomMember(room)) return;
+
             const translation = await getTranslationForUser(messageId, socket.user.preferredLanguage);
             if (translation) {
                 socket.emit('message:translated', {
@@ -413,8 +427,11 @@ module.exports = (io, socket) => {
     // ─── poll:vote ──────────────────────────────────────────────────────
     socket.on('poll:vote', async ({ messageId, roomId, optionIndex }) => {
         try {
+            if (!mongoose.isValidObjectId(messageId)) return;
             const message = await Message.findById(messageId);
             if (!message || !message.poll) return;
+            const pollRoom = await Room.findById(message.room).select('members').lean();
+            if (!isRoomMember(pollRoom)) return socket.emit('error', { message: 'Bạn không phải thành viên' });
 
             const option = message.poll.options[optionIndex];
             if (!option) return;
@@ -428,10 +445,11 @@ module.exports = (io, socket) => {
             option.votes.push(userId);
             await message.save();
 
-            emitToRoomMasked(io, roomId, 'poll:updated', {
+            const pollRoomId = message.room.toString();
+            emitToRoomMasked(io, pollRoomId, 'poll:updated', {
                 messageId,
                 poll: message.poll,
-            }, await getAnonymousOwner(roomId));
+            }, await getAnonymousOwner(pollRoomId));
         } catch (error) {
             console.error('poll:vote error:', error.message);
         }
@@ -440,21 +458,30 @@ module.exports = (io, socket) => {
     // ─── message:send-poll ──────────────────────────────────────────────
     socket.on('message:send-poll', async ({ roomId, question, options }) => {
         try {
-            if (!roomId || !question || !options || options.length < 2) {
+            const cleanOptions = Array.isArray(options)
+                ? options.filter((o) => typeof o === 'string' && o.trim()).map((o) => o.trim())
+                : [];
+            if (!roomId || typeof question !== 'string' || !question.trim() || cleanOptions.length < 2) {
                 return socket.emit('error', { message: 'Poll cần ít nhất 2 lựa chọn' });
             }
 
             const room = await Room.findById(roomId);
-            if (!room) return socket.emit('error', { message: 'Room không tồn tại' });
+            const sendError = await getSendError(room);
+            if (sendError) return socket.emit('error', { message: sendError });
+
+            // Lọc từ cấm như tin thường
+            const filteredQuestion = await filterMessage(question.trim());
+            const filteredOptions = await Promise.all(cleanOptions.map((o) => filterMessage(o)));
+            if (filteredQuestion.hasBadWord || filteredOptions.some((o) => o.hasBadWord)) await recordBadWord();
 
             const message = await Message.create({
                 room: roomId,
                 sender: userId,
                 type: 'poll',
-                content: question,
+                content: filteredQuestion.filtered,
                 poll: {
-                    question,
-                    options: options.map(text => ({ text, votes: [] })),
+                    question: filteredQuestion.filtered,
+                    options: filteredOptions.map((o) => ({ text: o.filtered, votes: [] })),
                 },
             });
 
@@ -474,6 +501,10 @@ module.exports = (io, socket) => {
     socket.on('message:send-contact-card', async ({ roomId, contactUserId }) => {
         try {
             if (!roomId || !contactUserId) return;
+
+            const targetRoom = await Room.findById(roomId);
+            const sendError = await getSendError(targetRoom);
+            if (sendError) return socket.emit('error', { message: sendError });
 
             const contactUser = await User.findById(contactUserId).select('username avatar bio').lean();
             if (!contactUser) return socket.emit('error', { message: 'User không tồn tại' });
