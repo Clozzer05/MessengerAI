@@ -60,6 +60,11 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
         }
     }, [activeRoomId]);
 
+    // Mở một phòng chưa có trong danh sách (vd. nhắn lại từ tab Bạn bè sau khi đã xóa đoạn chat): tải lại danh sách
+    useEffect(() => {
+        if (activeRoomId && !roomsRef.current.some((r) => r._id === activeRoomId)) loadRooms();
+    }, [activeRoomId]);
+
     // Listen for room updates
     useEffect(() => {
         const handleRoomUpdate = (updatedRoom) => {
@@ -123,6 +128,9 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
     // Listen for new messages (sidebar update + unread badge)
     useEffect(() => {
         const handleNewMessage = ({ roomId: msgRoomId, lastMessage, senderId }) => {
+            // Phòng chưa có trong danh sách (vd. đã xóa đoạn chat, giờ có tin mới): tải lại để hiện lại
+            if (!roomsRef.current.some((r) => r._id === msgRoomId)) loadRooms();
+
             // Update lastMessage and re-sort rooms
             setRooms((prev) => {
                 const idx = prev.findIndex((r) => r._id === msgRoomId);
@@ -331,8 +339,11 @@ export default function RoomList({ activeRoomId, onSelectRoom }) {
                     const display = getRoomDisplay(room);
                     const isActive = room._id === activeRoomId;
                     const isOnline = display.otherUserId && onlineUsers.includes(display.otherUserId);
-                    // lastMessage có thể chỉ là id (chưa populate): coi như chưa có tin để không lỗi khi hiện giờ
-                    const lastMsg = room.lastMessage && typeof room.lastMessage === 'object' ? room.lastMessage : null;
+                    // lastMessage có thể chỉ là id (chưa populate) hoặc là tin mình đã xóa đoạn chat: coi như chưa có tin
+                    const lastMsg = room.lastMessage && typeof room.lastMessage === 'object'
+                        && !room.lastMessage.deletedFor?.some((id) => String(id) === user?._id)
+                        ? room.lastMessage
+                        : null;
                     const unread = unreadCounts[room._id] || 0;
                     const lastFromMe = lastMsg && String(lastMsg.sender?._id || lastMsg.sender) === user?._id;
                     const lastPreview = !lastMsg
