@@ -725,3 +725,42 @@ html.theme-dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     transform: scale(1);
   }
 }
+
+/* ─── Thành phần dùng chung: nút và modal ─── */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors cursor-pointer
+      disabled:opacity-50 disabled:cursor-not-allowed
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-1;
+  }
+  .btn-primary {
+    @apply bg-brand text-white hover:bg-brand-hover;
+  }
+  .btn-secondary {
+    @apply border border-line-strong text-fg-muted hover:bg-hover;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700;
+  }
+}
+
+.modal-overlay {
+  animation: modalOverlayIn 150ms ease-out;
+}
+.modal-panel {
+  animation: modalPanelIn 180ms ease-out;
+}
+@keyframes modalOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalPanelIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-panel {
+    animation: none;
+  }
+}

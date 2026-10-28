@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Loader2, Forward, Search } from 'lucide-react';
+import { Loader2, Forward, Search } from 'lucide-react';
 import { roomAPI, resolveMediaUrl } from '../../services/api';
+import Modal from '../ui/Modal';
 
 export default function ForwardModal({ message, onClose, onForward }) {
     const [rooms, setRooms] = useState([]);
@@ -38,47 +39,38 @@ export default function ForwardModal({ message, onClose, onForward }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm max-h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between p-4 border-b">
-                    <h3 className="text-lg font-bold text-fg flex items-center gap-2">
-                        <Forward size={20} /> Chuyển tiếp tin nhắn
-                    </h3>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-lg"><X size={20} /></button>
-                </div>
-
-                <div className="p-3 border-b">
-                    <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
-                        <input type="text" placeholder="Tìm cuộc trò chuyện..." value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2 bg-surface-muted rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand-ring" />
-                    </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-2">
-                    {loading ? (
-                        <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-fg-subtle" /></div>
-                    ) : filtered.length === 0 ? (
-                        <p className="text-center py-8 text-fg-subtle text-sm">Không tìm thấy</p>
-                    ) : filtered.map(room => {
-                        const roomName = room.name || room.members?.map(m => m.user?.username).filter(Boolean).join(', ') || 'Unknown';
-                        const avatar = room.type === 'group' ? room.groupAvatar : room.members?.[0]?.user?.avatar;
-                        return (
-                            <button key={room._id} onClick={() => handleForward(room._id)} disabled={forwarding}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-hover transition text-left disabled:opacity-50">
-                                <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
-                                    {avatar ? <img src={resolveMediaUrl(avatar)} alt="" className="w-full h-full object-cover" /> : roomName.charAt(0).toUpperCase()}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="font-medium text-fg truncate text-sm">{roomName}</p>
-                                    <p className="text-xs text-fg-subtle">{room.type === 'group' ? 'Nhóm' : 'Cá nhân'}</p>
-                                </div>
-                            </button>
-                        );
-                    })}
+        <Modal title={<span className="flex items-center gap-2"><Forward size={18} /> Chuyển tiếp tin nhắn</span>} onClose={onClose} size="sm">
+            <div className="p-3 border-b">
+                <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
+                    <input type="text" placeholder="Tìm cuộc trò chuyện..." value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 bg-surface-muted rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand-ring" />
                 </div>
             </div>
-        </div>
+
+            <div className="flex-1 overflow-y-auto p-2">
+                {loading ? (
+                    <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-fg-subtle" /></div>
+                ) : filtered.length === 0 ? (
+                    <p className="text-center py-8 text-fg-subtle text-sm">Không tìm thấy</p>
+                ) : filtered.map(room => {
+                    const roomName = room.name || room.members?.map(m => m.user?.username).filter(Boolean).join(', ') || 'Unknown';
+                    const avatar = room.type === 'group' ? room.groupAvatar : room.members?.[0]?.user?.avatar;
+                    return (
+                        <button key={room._id} onClick={() => handleForward(room._id)} disabled={forwarding}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-hover transition text-left disabled:opacity-50">
+                            <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                                {avatar ? <img src={resolveMediaUrl(avatar)} alt="" className="w-full h-full object-cover" /> : roomName.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="font-medium text-fg truncate text-sm">{roomName}</p>
+                                <p className="text-xs text-fg-subtle">{room.type === 'group' ? 'Nhóm' : 'Cá nhân'}</p>
+                            </div>
+                        </button>
+                    );
+                })}
+            </div>
+        </Modal>
     );
 }

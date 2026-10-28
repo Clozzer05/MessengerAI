@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useSocket } from '../../hooks/useSocket';
 import { roomAPI, userActionsAPI, resolveMediaUrl } from '../../services/api';
 import { emitToast } from '../../utils/toast';
+import { confirmDialog } from '../../utils/confirm';
 import MemberList from './MemberList';
 import PendingMembers from './PendingMembers';
 import NicknameModal from './NicknameModal';
@@ -166,7 +167,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
     };
 
     const handleLeave = async (newOwnerId) => {
-        if (!newOwnerId && !confirm('Bạn có chắc muốn rời nhóm?')) return;
+        if (!newOwnerId && !(await confirmDialog({ title: 'Rời nhóm?', message: 'Bạn sẽ không nhận được tin nhắn của nhóm này nữa.', confirmText: 'Rời nhóm', danger: true }))) return;
         setActionLoading('leave');
         try {
             const { data } = await roomAPI.leave(room._id, newOwnerId ? { newOwnerId } : undefined);
@@ -174,6 +175,8 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                 setShowOwnerTransfer(true);
                 return;
             }
+            // Báo danh sách phòng bỏ nhóm vừa rời
+            window.dispatchEvent(new CustomEvent('room:left', { detail: { roomId: room._id } }));
             onRoomUpdate?.(null);
             onClose();
         } catch (err) {
@@ -181,6 +184,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                 setShowOwnerTransfer(true);
             } else {
                 console.error('Leave room error:', err);
+                emitToast(err.response?.data?.error || 'Không rời nhóm được', { type: 'error' });
             }
         } finally {
             setActionLoading(null);
@@ -188,7 +192,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
     };
 
     const handleRemoveMember = async (userId) => {
-        if (!confirm('Xoá thành viên này khỏi nhóm?')) return;
+        if (!(await confirmDialog({ title: 'Xoá thành viên?', message: 'Người này sẽ bị xoá khỏi nhóm.', confirmText: 'Xoá', danger: true }))) return;
         try {
             const { data } = await roomAPI.removeMember(room._id, userId);
             onRoomUpdate?.(data.room);
@@ -397,7 +401,7 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
 
                                 {/* Leave group */}
                                 <button
-                                    onClick={handleLeave}
+                                    onClick={() => handleLeave()}
                                     disabled={actionLoading === 'leave'}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition disabled:opacity-50"
                                 >

@@ -18,6 +18,7 @@ import AppRoutes from './routes/AppRoutes';
 import { useEffect, useState } from 'react';
 import OnboardingPopup from './components/OnboardingPopup';
 import ToastViewport from './components/ui/ToastViewport';
+import ConfirmHost from './components/ui/ConfirmHost';
 import CallModal from './components/call/CallModal';
 import IncomingCallModal from './components/call/IncomingCallModal';
 import NotificationPermission from './components/call/NotificationPermission';
@@ -47,6 +48,7 @@ export default function App() {
       <SocketProvider>
         <CallProvider>
           <ToastViewport />
+          <ConfirmHost />
           {showOnboarding && <OnboardingPopup onClose={handleCloseOnboarding} />}
           <AppRoutes />
           {/* Global call overlays — always on top of everything */}

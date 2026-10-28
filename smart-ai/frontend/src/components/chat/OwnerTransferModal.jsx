@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X, Loader2, Crown } from 'lucide-react';
+import { Loader2, Crown } from 'lucide-react';
 import { resolveMediaUrl } from '../../services/api';
+import Modal from '../ui/Modal';
 
 export default function OwnerTransferModal({ members, currentUserId, onClose, onTransfer }) {
     const [selected, setSelected] = useState(null);
@@ -23,15 +24,8 @@ export default function OwnerTransferModal({ members, currentUserId, onClose, on
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-fg flex items-center gap-2">
-                        <Crown size={20} className="text-yellow-500" /> Chuyển quyền nhóm trưởng
-                    </h3>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-lg"><X size={20} /></button>
-                </div>
-
+        <Modal title={<span className="flex items-center gap-2"><Crown size={18} className="text-yellow-500" /> Chuyển quyền nhóm trưởng</span>} onClose={onClose} size="sm">
+            <div className="p-5 space-y-4">
                 <p className="text-sm text-fg-subtle">Chọn thành viên sẽ trở thành nhóm trưởng mới trước khi bạn rời nhóm:</p>
 
                 <div className="space-y-1 max-h-60 overflow-y-auto">
@@ -54,13 +48,13 @@ export default function OwnerTransferModal({ members, currentUserId, onClose, on
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                    <button onClick={onClose} className="flex-1 py-2 border border-line-strong rounded-lg text-fg-muted hover:bg-hover">Hủy</button>
+                    <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={handleTransfer} disabled={!selected || loading}
-                        className="flex-1 py-2 bg-brand text-white rounded-lg hover:bg-brand-hover disabled:opacity-50 flex items-center justify-center gap-2">
+                        className="btn btn-primary flex-1">
                         {loading && <Loader2 size={16} className="animate-spin" />} Xác nhận & Rời nhóm
                     </button>
                 </div>
             </div>
-        </div>
+        </Modal>
     );
 }

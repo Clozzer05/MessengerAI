@@ -245,7 +245,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
             setRecordingTime(0);
             timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
         } catch {
-            alert('Không thể truy cập micro.\nVui lòng vào Cài đặt trình duyệt → Quyền riêng tư → Micro để bật lại.');
+            emitToast('Không thể truy cập micro. Vui lòng vào Cài đặt trình duyệt → Quyền riêng tư → Micro để bật lại.', { type: 'error', duration: 6000 });
         }
     }, []);
 
@@ -430,7 +430,7 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                         type="button"
                         onClick={() => {
                             if (!navigator.geolocation) {
-                                alert('Trình duyệt của bạn không hỗ trợ định vị.');
+                                emitToast('Trình duyệt của bạn không hỗ trợ định vị.', { type: 'error' });
                                 return;
                             }
                             navigator.geolocation.getCurrentPosition(
@@ -439,9 +439,9 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
                                 },
                                 (err) => {
                                     if (err.code === 1) {
-                                        alert('Bạn đã từ chối quyền truy cập vị trí.\nVui lòng vào Cài đặt trình duyệt → Quyền riêng tư → Vị trí để bật lại.');
+                                        emitToast('Bạn đã từ chối quyền truy cập vị trí. Vui lòng vào Cài đặt trình duyệt → Quyền riêng tư → Vị trí để bật lại.', { type: 'error', duration: 6000 });
                                     } else {
-                                        alert('Không thể lấy vị trí. Vui lòng thử lại.');
+                                        emitToast('Không thể lấy vị trí. Vui lòng thử lại.', { type: 'error' });
                                     }
                                 },
                                 { enableHighAccuracy: true, timeout: 10000 }

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Search, Loader2, UserPlus, Check } from 'lucide-react';
+import { Search, Loader2, UserPlus, Check } from 'lucide-react';
 import { friendAPI, roomAPI } from '../../services/api';
 import { emitToast } from '../../utils/toast';
+import Modal from '../ui/Modal';
 
 // Trưởng/phó nhóm thêm thẳng; thành viên thường chỉ mời được, người được mời vào danh sách chờ duyệt
 export default function AddMemberModal({ roomId, existingMemberIds, canAddDirectly, onClose, onAdded }) {
@@ -59,76 +60,67 @@ export default function AddMemberModal({ roomId, existingMemberIds, canAddDirect
     const getFriendUser = (f) => f.requester || f.recipient || f;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-            <div className="bg-surface rounded-2xl w-full max-w-sm mx-4 shadow-xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-between px-5 py-4 border-b border-line">
-                    <h3 className="font-semibold text-fg">{canAddDirectly ? 'Thêm thành viên' : 'Mời thành viên'}</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-hover rounded-full transition">
-                        <X size={18} />
-                    </button>
-                </div>
+        <Modal title={canAddDirectly ? 'Thêm thành viên' : 'Mời thành viên'} onClose={onClose} size="sm">
+            {!canAddDirectly && (
+                <p className="px-5 pt-3 text-xs text-fg-subtle">Người bạn mời sẽ vào danh sách chờ, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
+            )}
 
-                {!canAddDirectly && (
-                    <p className="px-5 pt-3 text-xs text-fg-subtle">Người bạn mời sẽ vào danh sách chờ, trưởng nhóm hoặc phó nhóm duyệt mới được vào nhóm.</p>
-                )}
-
-                {/* Search */}
-                <div className="px-5 py-3">
-                    <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Tìm bạn bè..."
-                            className="w-full pl-9 pr-4 py-2 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
-                            autoFocus
-                        />
-                    </div>
-                </div>
-
-                {/* Friend list */}
-                <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-1">
-                    {loading ? (
-                        <div className="flex justify-center py-8">
-                            <Loader2 size={24} className="animate-spin text-[var(--color-primary)]" />
-                        </div>
-                    ) : filtered.length === 0 ? (
-                        <p className="text-center text-sm text-fg-subtle py-8">
-                            {search ? 'Không tìm thấy' : 'Không có bạn bè để thêm'}
-                        </p>
-                    ) : (
-                        filtered.map((f) => {
-                            const u = getFriendUser(f);
-                            const initial = u.username?.charAt(0).toUpperCase() || '?';
-                            return (
-                                <div key={u._id} className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-hover">
-                                    <div className="w-9 h-9 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-sm font-semibold overflow-hidden shrink-0">
-                                        {u.avatar ? (
-                                            <img src={u.avatar} alt={u.username} className="w-full h-full object-cover" />
-                                        ) : (
-                                            initial
-                                        )}
-                                    </div>
-                                    <span className="flex-1 text-sm font-medium text-fg truncate">{u.username}</span>
-                                    <button
-                                        onClick={() => handleAdd(u._id)}
-                                        disabled={addingId === u._id}
-                                        className="p-1.5 bg-[var(--color-primary-medium)] hover:bg-[var(--color-primary-medium)] text-[var(--color-primary)] rounded-lg transition disabled:opacity-50"
-                                        title="Thêm"
-                                    >
-                                        {addingId === u._id ? (
-                                            <Loader2 size={14} className="animate-spin" />
-                                        ) : (
-                                            <UserPlus size={14} />
-                                        )}
-                                    </button>
-                                </div>
-                            );
-                        })
-                    )}
+            {/* Search */}
+            <div className="px-5 py-3">
+                <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-subtle" />
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Tìm bạn bè..."
+                        className="w-full pl-9 pr-4 py-2 border border-line rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-ring)] focus:border-transparent"
+                        autoFocus
+                    />
                 </div>
             </div>
-        </div>
+
+            {/* Friend list */}
+            <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-1">
+                {loading ? (
+                    <div className="flex justify-center py-8">
+                        <Loader2 size={24} className="animate-spin text-[var(--color-primary)]" />
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <p className="text-center text-sm text-fg-subtle py-8">
+                        {search ? 'Không tìm thấy' : 'Không có bạn bè để thêm'}
+                    </p>
+                ) : (
+                    filtered.map((f) => {
+                        const u = getFriendUser(f);
+                        const initial = u.username?.charAt(0).toUpperCase() || '?';
+                        return (
+                            <div key={u._id} className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-hover">
+                                <div className="w-9 h-9 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-sm font-semibold overflow-hidden shrink-0">
+                                    {u.avatar ? (
+                                        <img src={u.avatar} alt={u.username} className="w-full h-full object-cover" />
+                                    ) : (
+                                        initial
+                                    )}
+                                </div>
+                                <span className="flex-1 text-sm font-medium text-fg truncate">{u.username}</span>
+                                <button
+                                    onClick={() => handleAdd(u._id)}
+                                    disabled={addingId === u._id}
+                                    className="p-1.5 bg-[var(--color-primary-medium)] hover:bg-[var(--color-primary-medium)] text-[var(--color-primary)] rounded-lg transition disabled:opacity-50"
+                                    title="Thêm"
+                                >
+                                    {addingId === u._id ? (
+                                        <Loader2 size={14} className="animate-spin" />
+                                    ) : (
+                                        <UserPlus size={14} />
+                                    )}
+                                </button>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+        </Modal>
     );
 }
