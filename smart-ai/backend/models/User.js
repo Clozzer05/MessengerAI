@@ -60,7 +60,6 @@ const userSchema = new mongoose.Schema({
         select: false,  // Không trả về password mặc định trong query
     },
 
-    // ===== PHƯƠNG THỨC ĐĂNG NHẬP =====
     provider: {
         type: String,
         enum: ['local', 'google'],
@@ -108,7 +107,6 @@ const userSchema = new mongoose.Schema({
         default: [],
     },
 
-    // ===== TÍNH NĂNG DỊCH THUẬT CÁ NHÂN HÓA =====
     preferredLanguage: {
         type: String,
         default: 'vi',
@@ -119,14 +117,12 @@ const userSchema = new mongoose.Schema({
         default: 'Tiếng Việt',
     },
 
-    // ===== THEME MÀU SẮC =====
     preferredTheme: {
         type: String,
         default: 'blue',
         enum: ['blue', 'red', 'purple', 'yellow', 'brown', 'dark', 'light', 'midnight-purple', 'solarized', 'glassmorphism', 'retro-terminal', 'pixel-art', 'neon-night'],
     },
 
-    // ===== KHUNG BONG BONG CHAT =====
     preferredBubbleFrame: {
         type: String,
         default: 'classic-blue',
@@ -147,7 +143,6 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
 
-    // ===== TRẠNG THÁI TÀI KHOẢN =====
     accountStatus: {
         type: String,
         enum: ['active', 'banned', 'locked'],
@@ -181,7 +176,6 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
 
-    // ===== RESET PASSWORD OTP =====
     resetOTP: {
         type: String,
         default: null,
@@ -191,13 +185,11 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
 
-    // ===== XÁC THỰC TÀI KHOẢN =====
     isVerified: {
         type: Boolean,
         default: false,
     },
 
-    // ===== PHÂN QUYỀN =====
     role: {
         type: String,
         enum: ['user', 'expert', 'sub_admin', 'super_admin'],
@@ -224,7 +216,6 @@ userSchema.virtual('lockUntil')
         this.lock_until = value;
     });
 
-// ─── Pre-save: Hash password ─────────────────────────────────────────
 userSchema.pre('save', async function () {
     // Auto-set language label
     if (this.isModified('preferredLanguage')) {
@@ -237,13 +228,11 @@ userSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-// ─── Method: So sánh password ────────────────────────────────────────
 userSchema.methods.comparePassword = async function (candidatePassword) {
     if (!this.password) return false;
     return bcrypt.compare(candidatePassword, this.password);
 };
 
-// ─── Method: Trả về user JSON (ẩn password) ─────────────────────────
 userSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.password;

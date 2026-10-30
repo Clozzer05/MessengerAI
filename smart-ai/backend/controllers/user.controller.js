@@ -1,7 +1,6 @@
 const { User, SUPPORTED_LANGUAGES, LANGUAGE_LABELS, SUPPORTED_BUBBLE_FRAMES } = require('../models/User');
 const { buildFileUrl } = require('./upload.controller');
 
-// ─── Cập nhật profile (hỗ trợ upload avatar + cover) ──────────────────
 exports.updateProfile = async (req, res, next) => {
     try {
         const { username, preferredLanguage, bio, phoneNumber, address, education, hobbies, interests, preferredBubbleFrame } = req.body;
@@ -66,8 +65,7 @@ exports.updateProfile = async (req, res, next) => {
     }
 };
 
-// ─── Tìm kiếm user (để thêm vào room) ───────────────────────────────
-// ─── Khớp số điện thoại: chỉ khi nhập đủ cả số ───────────────────────
+// Khớp số điện thoại: chỉ khi nhập đủ cả số
 // Bỏ qua dấu cách, chấm, gạch, ngoặc; +84 và số 0 ở đầu được coi như nhau.
 // Nhập thiếu số thì không khớp, để không dò được số của người khác.
 const buildPhoneRegex = (q) => {
@@ -110,7 +108,6 @@ exports.searchUsers = async (req, res, next) => {
     }
 };
 
-// ─── Lấy danh sách ngôn ngữ hỗ trợ ──────────────────────────────────
 exports.getSupportedLanguages = (req, res) => {
     const languages = SUPPORTED_LANGUAGES.map(code => ({
         code,
@@ -119,7 +116,6 @@ exports.getSupportedLanguages = (req, res) => {
     res.json({ languages });
 };
 
-// ─── Lấy thông tin user theo ID (full profile) ───────────────────────
 exports.getUserById = async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id)

@@ -703,7 +703,6 @@ export default function MessageBubble({
         );
     };
 
-    // ─── Poll rendering ─────────────────────────────────────────────
     if (message.type === 'poll' && message.poll) {
         const totalVotes = message.poll.options.reduce((sum, o) => sum + (o.votes?.length || 0), 0);
         return (
@@ -746,7 +745,6 @@ export default function MessageBubble({
         );
     }
 
-    // ─── Contact card rendering ──────────────────────────────────────
     if (message.type === 'contact-card' && message.contactCard) {
         const card = message.contactCard;
         return (

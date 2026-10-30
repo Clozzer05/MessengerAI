@@ -4,7 +4,6 @@ const Room = require('../models/Room');
 const Message = require('../models/Message');
 const { User } = require('../models/User');
 
-// ─── Lấy notes của bạn bè (chưa hết hạn) ────────────────────────────
 exports.getFriendNotes = async (req, res, next) => {
     try {
         const userId = req.user._id;
@@ -33,7 +32,6 @@ exports.getFriendNotes = async (req, res, next) => {
     }
 };
 
-// ─── Tạo note mới ────────────────────────────────────────────────────
 exports.createNote = async (req, res, next) => {
     try {
         const { content } = req.body;
@@ -67,7 +65,6 @@ exports.createNote = async (req, res, next) => {
     }
 };
 
-// ─── Xóa note ────────────────────────────────────────────────────────
 exports.deleteNote = async (req, res, next) => {
     try {
         const note = await Note.findById(req.params.id);
@@ -83,7 +80,7 @@ exports.deleteNote = async (req, res, next) => {
     }
 };
 
-// ─── Reply note → send as direct message ─────────────────────────────
+// Reply note → send as direct message
 exports.replyNote = async (req, res, next) => {
     try {
         const { content } = req.body;

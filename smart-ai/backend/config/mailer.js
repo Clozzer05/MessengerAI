@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-// ─── Khởi tạo chậm: chỉ tạo transporter khi thực sự gửi mail ──────
+// Khởi tạo chậm: chỉ tạo transporter khi thực sự gửi mail
 // Nhờ vậy server vẫn khởi động bình thường khi chưa cấu hình mail.
 let transporter = null;
 
@@ -17,7 +17,6 @@ const getTransporter = () => {
     return transporter;
 };
 
-// ─── Kiểm tra config ─────────────────────────────
 const ensureMailConfig = () => {
     if (!process.env.MAIL_USER || !process.env.MAIL_APP_PASSWORD) {
         const error = new Error('Thiếu MAIL_USER hoặc MAIL_APP_PASSWORD.');
@@ -26,7 +25,6 @@ const ensureMailConfig = () => {
     }
 };
 
-// ─── Gửi mail chung ───────────────────────────────
 const sendMail = async ({ to, subject, html }) => {
     ensureMailConfig();
 

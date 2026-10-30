@@ -222,7 +222,6 @@ exports.getMyTopics = async (req, res, next) => {
     }
 };
 
-// ─── Cập nhật thông tin phòng chủ đề (creator + admin) ────────────────
 exports.updateTopicSettings = async (req, res, next) => {
     try {
         const { title, description } = req.body;

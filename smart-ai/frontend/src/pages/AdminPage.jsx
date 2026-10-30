@@ -17,10 +17,6 @@ import {
     ClipboardList, Filter,
 } from 'lucide-react';
 
-// ═══════════════════════════════════════════════════════════════
-// ─── Shared Components ────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
-
 function StatCard({ icon: Icon, label, value, color, sub }) {
     return (
         <div className="bg-surface rounded-xl p-5 flex items-center gap-4">
@@ -53,10 +49,6 @@ function ConfirmModal({ title, message, onClose, onConfirm, loading, danger = fa
         </Modal>
     );
 }
-
-// ═══════════════════════════════════════════════════════════════
-// ─── Sidebar ──────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
 
 const TABS = [
     { id: 'dashboard', label: 'Tổng quan', icon: BarChart3 },
@@ -96,10 +88,6 @@ function Sidebar({ activeTab, setActiveTab, collapsed, setCollapsed }) {
     );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ─── Dashboard Tab ────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
-
 function DashboardTab({ stats }) {
     if (!stats) return <div className="flex justify-center py-12"><Loader2 size={24} className="animate-spin text-fg-subtle" /></div>;
     return (
@@ -118,10 +106,6 @@ function DashboardTab({ stats }) {
         </div>
     );
 }
-
-// ═══════════════════════════════════════════════════════════════
-// ─── Users Tab ────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
 
 const ROLE_HINTS = {
     user: 'Người dùng thường: chat, gọi, hỏi tư vấn.',
@@ -467,10 +451,6 @@ function UsersTab({ currentUser }) {
     );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ─── Reports Tab ──────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
-
 const REASON_LABELS = {
     spam: 'Spam', harassment: 'Quấy rối', hate_speech: 'Ngôn từ thù ghét',
     violence: 'Bạo lực', inappropriate_content: 'Nội dung không phù hợp',
@@ -649,10 +629,6 @@ function ReportsTab({ currentUser }) {
     );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ─── Bad Words Tab ────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
-
 function BadWordsTab({ currentUser }) {
     const canEdit = currentUser?.role === 'super_admin';
     const [words, setWords] = useState([]);
@@ -727,10 +703,6 @@ function BadWordsTab({ currentUser }) {
     );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ─── System Config Tab ────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
-
 function ConfigTab({ currentUser }) {
     const canEdit = currentUser?.role === 'super_admin';
     const [config, setConfig] = useState(null);
@@ -785,10 +757,6 @@ function ConfigTab({ currentUser }) {
         </div>
     );
 }
-
-// ═══════════════════════════════════════════════════════════════
-// ─── Admin Logs Tab ───────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
 
 const ACTION_LABELS = {
     ban_user: 'Ban user', unban_user: 'Unban user', lock_user: 'Khóa user',
@@ -859,10 +827,6 @@ function LogsTab() {
         </div>
     );
 }
-
-// ═══════════════════════════════════════════════════════════════
-// ─── Main Admin Page ──────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
 
 export default function AdminPage() {
     const { user: currentUser } = useAuth();

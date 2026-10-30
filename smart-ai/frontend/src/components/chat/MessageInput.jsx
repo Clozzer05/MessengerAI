@@ -212,7 +212,6 @@ export default function MessageInput({ onSend, onSendLocation, onTyping, disable
         applySelectedFile(droppedFile);
     };
 
-    // ── Voice recording helpers ────────────────────────────────────
     const stopStream = useCallback(() => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(t => t.stop());

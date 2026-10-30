@@ -4,7 +4,6 @@ const { getAnonymousOwner, maskMessage, maskRoom, ownerToMaskFor, emitToRoomMask
 module.exports = (io, socket) => {
     const userId = socket.user._id;
 
-    // ─── room:join ──────────────────────────────────────────────────────
     socket.on('room:join', async ({ roomId }) => {
         try {
             const room = await Room.findById(roomId);
@@ -40,13 +39,11 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── room:leave ─────────────────────────────────────────────────────
     socket.on('room:leave', ({ roomId }) => {
         socket.leave(roomId);
         console.log(`🚪 ${socket.user.username} left room ${roomId}`);
     });
 
-    // ─── room:typing ────────────────────────────────────────────────────
     // "Đang nhập" chỉ phát vào phòng mà socket đã vào qua room:join (đã kiểm tra thành viên)
     socket.on('room:typing', async ({ roomId }) => {
         if (!socket.rooms.has(roomId)) return;
@@ -58,7 +55,6 @@ module.exports = (io, socket) => {
         }, anonymousOwner, { excludeSocketId: socket.id });
     });
 
-    // ─── room:stop-typing ───────────────────────────────────────────────
     socket.on('room:stop-typing', async ({ roomId }) => {
         if (!socket.rooms.has(roomId)) return;
         emitToRoomMasked(io, roomId, 'room:stop-typing', {

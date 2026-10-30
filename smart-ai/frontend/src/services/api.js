@@ -172,7 +172,7 @@ const api = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-// ── Request: attach JWT from localStorage ──────────────────────
+// Request: attach JWT from localStorage
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -181,7 +181,7 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// ── Response: handle 401 via DOM event (no React dependency) ───
+// Response: handle 401 via DOM event (no React dependency)
 api.interceptors.response.use(
     (res) => res,
     (error) => {
@@ -194,7 +194,6 @@ api.interceptors.response.use(
     }
 );
 
-// ── Auth endpoints ─────────────────────────────────────────────
 export const authAPI = {
     register: (data) => api.post('/auth/register', data),
     login: (data) => api.post('/auth/login', data),
@@ -206,7 +205,6 @@ export const authAPI = {
     sendRegisterOTP: (data) => api.post('/auth/send-register-otp', data),
 };
 
-// ── User endpoints ─────────────────────────────────────────────
 export const userAPI = {
     search: (q) => api.get(`/users/search?q=${encodeURIComponent(q)}`),
     getById: (id) => api.get(`/users/${id}`),
@@ -223,7 +221,6 @@ export const userAPI = {
     getLanguages: () => api.get('/users/languages'),
 };
 
-// ── Room endpoints ─────────────────────────────────────────────
 export const roomAPI = {
     create: (data) => api.post('/rooms', data),
     getAll: () => api.get('/rooms'),
@@ -253,7 +250,6 @@ export const roomAPI = {
     forwardMessage: (messageId, targetRoomId) => api.post('/rooms/forward', { messageId, targetRoomId }),
 };
 
-// ── User Actions endpoints (block / report) ───────────────────
 export const userActionsAPI = {
     block: (userId) => api.post(`/user-actions/block/${userId}`),
     unblock: (userId) => api.delete(`/user-actions/block/${userId}`),
@@ -261,7 +257,6 @@ export const userActionsAPI = {
     report: (data) => api.post('/user-actions/report', data),
 };
 
-// ── Friend endpoints ───────────────────────────────────────────
 export const friendAPI = {
     getAll: () => api.get('/friends'),
     getRequests: () => api.get('/friends/requests'),
@@ -275,7 +270,6 @@ export const friendAPI = {
     remove: (id) => api.delete(`/friends/${id}`),
 };
 
-// ── Counseling endpoints ───────────────────────────────────────
 export const counselingAPI = {
     getCategories: () => api.get('/counseling/categories'),
     createSession: (payload) => api.post('/counseling/sessions', payload),
@@ -288,7 +282,6 @@ export const counselingAPI = {
     expertMine: () => api.get('/counseling/expert/mine'),
 };
 
-// ── Topic endpoints ───────────────────────────────────────────
 export const topicAPI = {
     create: (payload) => api.post('/topics', payload),
     getAll: (params) => api.get('/topics', { params }),
@@ -299,7 +292,6 @@ export const topicAPI = {
     updateSettings: (id, data) => api.put(`/topics/${id}/settings`, data),
 };
 
-// ── Upload endpoints ───────────────────────────────────────────
 export const uploadAPI = {
     uploadFile: (formData) =>
         api.post('/upload', formData, {
@@ -313,7 +305,6 @@ export const uploadAPI = {
         }),
 };
 
-// ── Admin endpoints ────────────────────────────────────────────
 export const adminAPI = {
     getUsers: (params) => api.get('/admin/users', { params }),
     getStats: () => api.get('/admin/stats'),
@@ -339,7 +330,6 @@ export const adminAPI = {
     getLogs: (params) => api.get('/admin/logs', { params }),
 };
 
-// ── Note endpoints ─────────────────────────────────────────────
 export const noteAPI = {
     getFriendNotes: () => api.get('/notes'),
     create: (data) => api.post('/notes', data),

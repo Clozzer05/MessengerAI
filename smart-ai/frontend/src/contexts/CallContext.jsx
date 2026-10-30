@@ -5,7 +5,7 @@ import { CallContext } from '.';
 import { startRingtone, startRingback, stopRingtone } from '../utils/ringtone';
 import { emitToast } from '../utils/toast';
 
-// ── Lazy-load SimplePeer to avoid TDZ errors ───────────────────
+// Lazy-load SimplePeer to avoid TDZ errors
 let SimplePeerClass = null;
 const getSimplePeer = async () => {
     if (!SimplePeerClass) {
@@ -15,7 +15,7 @@ const getSimplePeer = async () => {
     return SimplePeerClass;
 };
 
-// ── Default ICE servers (STUN only — always works) ───────────────
+// Default ICE servers (STUN only — always works)
 const DEFAULT_ICE_SERVERS = [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
@@ -54,16 +54,14 @@ export function CallProvider({ children }) {
         roomName: '',
     });
 
-    // ── 1-1 call refs (backward compat) ──
     const peerRef = useRef(null);
     const remoteStreamRef = useRef(null);
     const targetUserIdRef = useRef(null);
 
-    // ── Group call refs (mesh topology) ──
+    // Group call refs (mesh topology)
     const peersRef = useRef({}); // userId → SimplePeer instance
     const pendingSignalsGroupRef = useRef({}); // userId → signal[]
 
-    // ── Shared refs ──
     const localStreamRef = useRef(null);
     const pendingSignalsRef = useRef([]);
     const notifRef = useRef(null);
@@ -72,7 +70,6 @@ export function CallProvider({ children }) {
     const screenStreamRef = useRef(null);
     const remoteScreenStreamIdsRef = useRef({}); // userId -> screen MediaStream id
 
-    // ── State ──
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null); // 1-1 compat
     const [remoteStreams, setRemoteStreams] = useState({}); // group: userId → stream
@@ -88,11 +85,9 @@ export function CallProvider({ children }) {
     const [remoteScreenStreams, setRemoteScreenStreams] = useState({});
     const [pipMode, setPipMode] = useState(false);
 
-    // ── Device Selection ──
     const [availableDevices, setAvailableDevices] = useState({ audio: [], video: [] });
     const [selectedDevices, setSelectedDevices] = useState({ audioId: '', videoId: '' });
 
-    // ── Network & Quality ──
     const [videoQuality, setVideoQuality] = useState('auto'); // 'auto', 'low', 'high'
     const [networkStats, setNetworkStats] = useState({
         bandwidth: 0,
@@ -102,7 +97,6 @@ export function CallProvider({ children }) {
         connectionState: 'new',
     });
 
-    // ── Call History (session-based) ──
     const [callHistory, setCallHistory] = useState(() => {
         try {
             const stored = sessionStorage.getItem('callHistory');
@@ -155,7 +149,6 @@ export function CallProvider({ children }) {
         fetchIceServers();
     }, []);
 
-    // ── Enumerate available devices on mount ──
     useEffect(() => {
         const enumerateDevices = async () => {
             try {
@@ -183,7 +176,6 @@ export function CallProvider({ children }) {
         return () => navigator.mediaDevices?.removeEventListener('devicechange', enumerateDevices);
     }, []);
 
-    // ── Helper: Add call to history ──
     const addToCallHistory = useCallback((callInfo) => {
         setCallHistory(prev => {
             const updated = [...prev, { timestamp: Date.now(), ...callInfo }].slice(-50); // Keep last 50
@@ -191,8 +183,6 @@ export function CallProvider({ children }) {
             return updated;
         });
     }, []);
-
-    // ---- Helpers ----
 
     // Keep isGroupRef in sync
     useEffect(() => { isGroupRef.current = callState.isGroup; }, [callState.isGroup]);
@@ -283,7 +273,6 @@ export function CallProvider({ children }) {
         return stream;
     }, [selectedDevices, videoQuality]);
 
-    // ── Helper: Get video quality constraints ──
     const getVideoConstraintsByQuality = useCallback((quality) => {
         switch (quality) {
             case 'high':
@@ -296,7 +285,6 @@ export function CallProvider({ children }) {
         }
     }, []);
 
-    // ── Helper: Change input device ──
     const changeDevice = useCallback(async (kind, deviceId) => {
         if (kind === 'audio') {
             setSelectedDevices(prev => ({ ...prev, audioId: deviceId }));
@@ -325,7 +313,6 @@ export function CallProvider({ children }) {
         }
     }, []);
 
-    // ── Helper: Start WebRTC stats monitoring ──
     const startStatsMonitoring = useCallback((peer) => {
         if (!peer || !peer._pc) return;
         if (statsIntervalRef.current) clearInterval(statsIntervalRef.current);
@@ -368,7 +355,6 @@ export function CallProvider({ children }) {
         }, 1000); // Update every second
     }, []);
 
-    // ── Helper: Stop stats monitoring ──
     const stopStatsMonitoring = useCallback(() => {
         if (statsIntervalRef.current) {
             clearInterval(statsIntervalRef.current);
@@ -456,7 +442,6 @@ export function CallProvider({ children }) {
         }
     }, [emit]);
 
-    // ── Create peer for 1-1 calls (backward compat) ──
     const createPeer = useCallback(async (initiator, stream) => {
         if (peerRef.current) {
             peerRef.current.destroy();
@@ -513,7 +498,7 @@ export function CallProvider({ children }) {
         return peer;
     }, [emitPeerSignal, startStatsMonitoring, safePeerSignal, registerRemoteOneToOneStream]);
 
-    // ── Create peer for group calls (mesh: one peer per participant) ──
+    // Create peer for group calls (mesh: one peer per participant)
     const createPeerForUser = useCallback(async (targetId, initiator, stream) => {
         // Destroy existing peer for this user if any
         if (peersRef.current[targetId]) {
@@ -579,7 +564,6 @@ export function CallProvider({ children }) {
         return peer;
     }, [emitPeerSignal, safePeerSignal, startStatsMonitoring, registerRemoteGroupStream, addActiveScreenShareToPeer]);
 
-    // ---- Socket listeners ----
     useEffect(() => {
         const handleIncoming = ({ caller, callType, roomId, isGroup, roomName }) => {
             console.log('[Call] Incoming call from', caller?.username, 'roomId:', roomId, 'isGroup:', isGroup);
@@ -677,7 +661,7 @@ export function CallProvider({ children }) {
             }
         };
 
-        // ── 1-1: callee accepted → caller creates initiator peer ──
+        // 1-1: callee accepted → caller creates initiator peer
         const handleAccepted = async ({ userId: acceptedUserId }) => {
             console.log('[Call] Call accepted by', acceptedUserId);
             if (acceptedUserId) targetUserIdRef.current = acceptedUserId;
@@ -695,7 +679,7 @@ export function CallProvider({ children }) {
             }
         };
 
-        // ── Group: a new participant joined → existing members create initiator peer ──
+        // Group: a new participant joined → existing members create initiator peer
         const handleParticipantJoined = async ({ userId: joinedUserId, username, avatar }) => {
             console.log('[GroupCall] Participant joined:', username, joinedUserId);
             setParticipants(prev => {
@@ -711,7 +695,7 @@ export function CallProvider({ children }) {
             }
         };
 
-        // ── Group: I just joined → server tells me about existing participants ──
+        // Group: I just joined → server tells me about existing participants
         const handleExistingParticipants = async ({ participants: existingIds, callType: srvCallType, roomName: srvRoomName, activeScreenShares }) => {
             console.log('[GroupCall] Existing participants:', existingIds);
             if (activeScreenShares && typeof activeScreenShares === 'object') {
@@ -742,7 +726,7 @@ export function CallProvider({ children }) {
             }
         };
 
-        // ── Group: a participant left ──
+        // Group: a participant left
         const handleParticipantLeft = ({ userId: leftUserId, username }) => {
             console.log('[GroupCall] Participant left:', username, leftUserId);
             // Emit toast notification
@@ -771,7 +755,7 @@ export function CallProvider({ children }) {
             }
         };
 
-        // ── WebRTC signaling (works for both 1-1 and group) ──
+        // WebRTC signaling (works for both 1-1 and group)
         const handleOffer = async ({ fromUserId, sdp }) => {
             console.log('[Call] Received offer from', fromUserId);
             if (!sdp) return;
@@ -907,7 +891,6 @@ export function CallProvider({ children }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [on, off, user, cleanup, getMediaStream, createPeer, createPeerForUser, callState.isGroup, safePeerSignal]);
 
-    // ---- Actions ----
     const initiateCall = useCallback(async (roomId, targetUserId, callType = 'video', targetUserName = '', options = {}) => {
         if (callState.active || callState.outgoing || callState.incoming) return;
         const { isGroup = false, targetUserIds = [], roomName = '' } = options;
@@ -988,7 +971,7 @@ export function CallProvider({ children }) {
         }
     }, [emit, getMediaStream, cleanup, callState]);
 
-    // ── Proactively join an ongoing group call (from "Tham gia" system message) ──
+    // Proactively join an ongoing group call (from "Tham gia" system message)
     const joinGroupCall = useCallback(async ({ roomId, callType = 'video', roomName = '' }) => {
         if (!roomId) return;
         if (callState.active && callState.roomId === roomId) {
@@ -1122,7 +1105,7 @@ export function CallProvider({ children }) {
         }
     }, []);
 
-    // ── Direct stop screen share (avoids stale closure in onended) ──
+    // Direct stop screen share (avoids stale closure in onended)
     const stopScreenShareDirect = useCallback(async () => {
         const isGroup = Object.keys(peersRef.current).length > 0;
         const peers = isGroup

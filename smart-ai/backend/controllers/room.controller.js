@@ -4,13 +4,11 @@ const { getAnonymousOwners, getAnonymousOwner, displayNameInRoom, maskRoom, mask
 const Message = require('../models/Message');
 const { User } = require('../models/User');
 
-// ─── Tạo room mới ────────────────────────────────────────────────────
 exports.createRoom = async (req, res, next) => {
     try {
         const { name, type, memberIds } = req.body;
         const currentUserId = req.user._id;
 
-        // ── Direct chat (1-1) ──
         if (type === 'direct') {
             if (!memberIds || memberIds.length !== 1) {
                 return res.status(400).json({ error: 'Chat 1-1 cần đúng 1 người nhận' });
@@ -46,7 +44,6 @@ exports.createRoom = async (req, res, next) => {
             return res.status(201).json({ room: populated });
         }
 
-        // ── Group chat ──
         if (type === 'group') {
             if (!name || name.trim().length === 0) {
                 return res.status(400).json({ error: 'Tên nhóm là bắt buộc' });
@@ -76,7 +73,6 @@ exports.createRoom = async (req, res, next) => {
     }
 };
 
-// ─── Lấy danh sách room của user ─────────────────────────────────────
 exports.getUserRooms = async (req, res, next) => {
     try {
         const rooms = await Room.getUserRooms(req.user._id);
@@ -87,7 +83,6 @@ exports.getUserRooms = async (req, res, next) => {
     }
 };
 
-// ─── Lấy thông tin chi tiết room ──────────────────────────────────────
 exports.getRoomById = async (req, res, next) => {
     try {
         const room = await Room.findById(req.params.id)
@@ -115,7 +110,6 @@ exports.getRoomById = async (req, res, next) => {
     }
 };
 
-// ─── Lấy tin nhắn của room (phân trang) ──────────────────────────────
 exports.getRoomMessages = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -141,7 +135,6 @@ exports.getRoomMessages = async (req, res, next) => {
     }
 };
 
-// ─── Thêm thành viên vào group ────────────────────────────────────────
 exports.addMember = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -195,7 +188,6 @@ exports.addMember = async (req, res, next) => {
     }
 };
 
-// ─── Rời khỏi group ──────────────────────────────────────────────────
 exports.leaveRoom = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -276,7 +268,6 @@ const emitMembersUpdated = async (req, room) => {
     return populated;
 };
 
-// ─── Xoá thành viên khỏi nhóm (trưởng nhóm hoặc phó nhóm) ───────────
 // Trưởng nhóm xoá được phó nhóm và thành viên; phó nhóm chỉ xoá được thành viên thường.
 exports.removeMember = async (req, res, next) => {
     try {
@@ -314,7 +305,6 @@ exports.removeMember = async (req, res, next) => {
     }
 };
 
-// ─── Phong / bỏ phó nhóm (chỉ trưởng nhóm) ──────────────────────────
 exports.setMemberRole = async (req, res, next) => {
     try {
         const { id, userId } = req.params;
@@ -348,7 +338,6 @@ exports.setMemberRole = async (req, res, next) => {
     }
 };
 
-// ─── Đặt biệt danh ──────────────────────────────────────────────────
 exports.setNickname = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -418,7 +407,6 @@ exports.setNickname = async (req, res, next) => {
     }
 };
 
-// ─── Tắt/Bật thông báo ──────────────────────────────────────────────
 exports.toggleMute = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -449,7 +437,6 @@ exports.toggleMute = async (req, res, next) => {
     }
 };
 
-// ─── Yêu cầu tham gia nhóm (pending) ────────────────────────────────
 exports.requestJoin = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -491,7 +478,6 @@ exports.requestJoin = async (req, res, next) => {
     }
 };
 
-// ─── Admin duyệt thành viên chờ ─────────────────────────────────────
 exports.approveMember = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -527,7 +513,6 @@ exports.approveMember = async (req, res, next) => {
     }
 };
 
-// ─── Admin từ chối thành viên chờ ───────────────────────────────────
 exports.rejectMember = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -557,7 +542,6 @@ exports.rejectMember = async (req, res, next) => {
     }
 };
 
-// ─── Lấy danh sách pending members ─────────────────────────────────
 exports.getPendingMembers = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -577,7 +561,6 @@ exports.getPendingMembers = async (req, res, next) => {
     }
 };
 
-// ─── Link mời vào nhóm ──────────────────────────────────────────────
 // Thành viên nào cũng lấy được link; người vào bằng link phải chờ trưởng/phó nhóm duyệt.
 exports.getInviteLink = async (req, res, next) => {
     try {
@@ -661,7 +644,6 @@ exports.joinByInvite = async (req, res, next) => {
     }
 };
 
-// ─── Admin cập nhật thông tin nhóm (avatar, cover, description) ─────
 exports.updateGroupSettings = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -706,7 +688,7 @@ exports.updateGroupSettings = async (req, res, next) => {
     }
 };
 
-// ─── Xóa lịch sử chat cho user hiện tại ─────────────────────────────
+// Xóa lịch sử chat cho user hiện tại
 exports.deleteChat = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -733,7 +715,6 @@ exports.deleteChat = async (req, res, next) => {
     }
 };
 
-// ─── Ghim tin nhắn ───────────────────────────────────────────────────
 exports.pinMessage = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -783,7 +764,6 @@ exports.pinMessage = async (req, res, next) => {
     }
 };
 
-// ─── Bỏ ghim tin nhắn ───────────────────────────────────────────────
 exports.unpinMessage = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -814,7 +794,6 @@ exports.unpinMessage = async (req, res, next) => {
     }
 };
 
-// ─── Chuyển tiếp tin nhắn ────────────────────────────────────────────
 exports.forwardMessage = async (req, res, next) => {
     try {
         const { messageId, targetRoomId } = req.body;

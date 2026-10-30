@@ -14,7 +14,6 @@ const {
 // Tất cả routes đều cần auth + admin (sub_admin hoặc super_admin)
 router.use(authMiddleware, adminMiddleware);
 
-// ─── Sub-admin có thể dùng ────────────────────────────────────────
 router.get('/users', getUsers);
 router.get('/stats', getStats);
 router.get('/users/:id', getUserById);
@@ -23,7 +22,6 @@ router.put('/users/:id/reset-password', resetPassword);
 router.get('/reports', getReports);
 router.get('/logs', getAdminLogs);
 
-// ─── Chỉ super_admin mới được dùng ───────────────────────────────
 router.put('/users/:id', superAdminMiddleware, updateUser);
 router.delete('/users/:id', superAdminMiddleware, deleteUser);
 router.put('/users/:id/toggle-verified', superAdminMiddleware, toggleVerified);

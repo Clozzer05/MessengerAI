@@ -19,7 +19,6 @@ const messageSchema = new mongoose.Schema({
         required: true,
     },
 
-    // ===== NỘI DUNG GỐC =====
     type: {
         type: String,
         enum: ['text', 'image', 'video', 'file', 'location', 'system', 'ai-response', 'poll', 'contact-card'],
@@ -30,7 +29,6 @@ const messageSchema = new mongoose.Schema({
         default: '',
     },
 
-    // ===== METADATA FILE =====
     file: {
         url: { type: String },
         name: { type: String },
@@ -38,14 +36,12 @@ const messageSchema = new mongoose.Schema({
         mimeType: { type: String },
     },
 
-    // ===== METADATA VỊ TRÍ =====
     location: {
         lat: { type: Number },
         lng: { type: Number },
         address: { type: String, default: '' },
     },
 
-    // ===== AI / DỊCH THUẬT METADATA =====
     originalLanguage: {
         type: String,
         default: null,            // Ngôn ngữ gốc (lấy từ sender.preferredLanguage)
@@ -74,7 +70,6 @@ const messageSchema = new mongoose.Schema({
     deleted: { type: Boolean, default: false },
     editedAt: { type: Date, default: null },
 
-    // ===== POLL =====
     poll: {
         question: { type: String },
         options: [{
@@ -84,19 +79,16 @@ const messageSchema = new mongoose.Schema({
         multipleChoice: { type: Boolean, default: false },
     },
 
-    // ===== PIN =====
     pinned: { type: Boolean, default: false },
     pinnedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     pinnedAt: { type: Date, default: null },
 
-    // ===== FORWARD =====
     forwardedFrom: {
         room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
         sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         senderName: { type: String },
     },
 
-    // ===== CONTACT CARD =====
     contactCard: {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         username: { type: String },
@@ -104,20 +96,17 @@ const messageSchema = new mongoose.Schema({
         bio: { type: String },
     },
 
-    // ===== REPLY TO NOTE =====
     replyToNote: {
         type: String,
         default: null,
     },
 
-    // ===== TRẢ LỜI TIN NHẮN (cùng phòng) =====
     replyTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message',
         default: null,
     },
 
-    // ===== CALL EVENT (system messages for call lifecycle) =====
     callEvent: {
         kind: { type: String, enum: ['started', 'ended', null], default: null }, // 'started' | 'ended'
         callType: { type: String, enum: ['audio', 'video', null], default: null },
@@ -125,15 +114,12 @@ const messageSchema = new mongoose.Schema({
         durationSec: { type: Number, default: 0 }, // only when ended
     },
     
-    // ===== SOFT DELETE PER USER =====
     deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 
-// ─── Indexes ──────────────────────────────────────────────────────────
 messageSchema.index({ room: 1, createdAt: -1 });
 messageSchema.index({ sender: 1 });
 
-// ─── Static: Lấy tin nhắn phân trang ─────────────────────────────────
 // Tin được trả lời: đủ để hiện trích dẫn phía trên bong bóng
 const REPLY_TO_POPULATE = {
     path: 'replyTo',

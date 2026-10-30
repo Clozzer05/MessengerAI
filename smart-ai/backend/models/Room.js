@@ -33,7 +33,6 @@ const roomSchema = new mongoose.Schema({
         type: String,
         default: '',
     },
-    // ── Group profile fields ──
     groupAvatar: {
         type: String,
         default: '',
@@ -107,12 +106,10 @@ const roomSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-// ─── Indexes ──────────────────────────────────────────────────────────
 roomSchema.index({ 'members.user': 1 });
 roomSchema.index({ type: 1, 'members.user': 1 });
 roomSchema.index({ updatedAt: -1 });
 
-// ─── Static: Tìm direct room giữa 2 user ────────────────────────────
 roomSchema.statics.findDirectRoom = async function (userId1, userId2) {
     return this.findOne({
         type: 'direct',
@@ -121,7 +118,6 @@ roomSchema.statics.findDirectRoom = async function (userId1, userId2) {
     });
 };
 
-// ─── Static: Lấy tất cả room của 1 user ─────────────────────────────
 roomSchema.statics.getUserRooms = async function (userId) {
     return this.find({ 'members.user': userId, hiddenFor: { $ne: userId } })
         .populate('members.user', 'username avatar googlePicture status preferredLanguage preferredLanguageLabel')

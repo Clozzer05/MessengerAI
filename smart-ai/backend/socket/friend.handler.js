@@ -5,7 +5,6 @@ const Room = require('../models/Room');
 module.exports = (io, socket) => {
     const userId = socket.user._id;
 
-    // ─── friend:request — Send a friend request via socket ─────────────
     socket.on('friend:request', async ({ recipientId }) => {
         try {
             if (userId.toString() === recipientId) return;
@@ -54,7 +53,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── friend:accept ─────────────────────────────────────────────────
     socket.on('friend:accept', async ({ friendshipId }) => {
         try {
             const friendship = await Friendship.findById(friendshipId);
@@ -106,7 +104,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── friend:reject ─────────────────────────────────────────────────
     socket.on('friend:reject', async ({ friendshipId }) => {
         try {
             const friendship = await Friendship.findById(friendshipId);
@@ -121,7 +118,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── friend:cancel-request — Cancel a pending friend request ───────
     socket.on('friend:cancel-request', async ({ friendshipId }) => {
         try {
             const friendship = await Friendship.findById(friendshipId);

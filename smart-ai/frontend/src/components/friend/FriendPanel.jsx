@@ -415,7 +415,6 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </>
                 )}
 
-                {/* ── Friends List ── */}
                 {!loading && tab === 'friends' && (
                     <>
                         {friends.length === 0 ? (
@@ -477,7 +476,6 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </>
                 )}
 
-                {/* ── Requests Tab ── */}
                 {!loading && tab === 'requests' && (
                     <>
                         {/* Incoming requests */}
@@ -584,7 +582,6 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </>
                 )}
 
-                {/* ── Suggestions Tab ── */}
                 {!loading && tab === 'suggestions' && (
                     <div className="p-4 space-y-6">
                         {suggestions.topSimilarity?.length > 0 && (
@@ -619,7 +616,6 @@ export default function FriendPanel({ onSelectRoom, onRequestCountChange }) {
                     </div>
                 )}
 
-                {/* ── Search / Add Friend Tab ── */}
                 {!loading && tab === 'search' && (
                     <div className="p-4 space-y-3">
                         <div className="relative">

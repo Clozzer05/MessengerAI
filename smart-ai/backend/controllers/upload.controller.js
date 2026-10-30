@@ -19,10 +19,8 @@ const buildFileUrl = (req, filename) => {
     return baseUrl ? `${baseUrl}${relativePath}` : relativePath;
 };
 
-// ─── Export helpers for reuse in other controllers ───────────────────
 exports.buildFileUrl = buildFileUrl;
 
-// ─── Upload single file ──────────────────────────────────────────────
 exports.uploadFile = async (req, res, next) => {
     try {
         if (!req.file) {
@@ -48,7 +46,6 @@ exports.uploadFile = async (req, res, next) => {
     }
 };
 
-// ─── Upload multiple files ────────────────────────────────────────────
 exports.uploadFiles = async (req, res, next) => {
     try {
         if (!req.files || req.files.length === 0) {
