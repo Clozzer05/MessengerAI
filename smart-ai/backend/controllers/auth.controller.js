@@ -209,7 +209,7 @@ exports.verifyOTP = async (req, res, next) => {
             return res.status(400).json({ error: 'Vui lòng nhập email và mã OTP' });
         }
 
-        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+resetOTP +resetOTPExpire');
         if (!user) {
             return res.status(404).json({ error: 'Email không tồn tại' });
         }
@@ -246,7 +246,7 @@ exports.resetPassword = async (req, res, next) => {
             return res.status(400).json({ error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
         }
 
-        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+resetOTP +resetOTPExpire');
         if (!user) {
             return res.status(404).json({ error: 'Email không tồn tại' });
         }

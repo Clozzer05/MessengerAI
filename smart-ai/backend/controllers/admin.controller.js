@@ -6,6 +6,9 @@ const BadWord = require('../models/BadWord');
 const AdminLog = require('../models/AdminLog');
 const SystemConfig = require('../models/SystemConfig');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const { sendAdminResetLinkEmail } = require('../config/mailer');
+const { isOriginAllowed } = require('../config/cors');
 const { clearCache } = require('../utils/badWordFilter');
 const { banAccount, lockAccount, ADMIN_ROLES } = require('../utils/moderation');
 
@@ -242,24 +245,44 @@ const lockUser = async (req, res) => {
     }
 };
 
+const RESET_LINK_HOURS = 24;
+
+// Admin không đặt mật khẩu hộ: gửi link để chính người dùng tạo mật khẩu mới
 const resetPassword = async (req, res) => {
     try {
-        const { newPassword } = req.body;
-        if (!newPassword || newPassword.length < 6) {
-            return res.status(400).json({ error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
-        }
-
         const user = await User.findById(req.params.id).select('+password');
         if (!user) return res.status(404).json({ error: 'Không tìm thấy user' });
         if (!canManageUser(req.user, user)) return res.status(403).json({ error: NO_PERMISSION_ON_ADMIN });
+        if (!user.password) {
+            return res.status(400).json({ error: 'Tài khoản này đăng nhập bằng Google, không có mật khẩu để đặt lại' });
+        }
 
-        user.password = newPassword; // Will be hashed by pre-save hook
+        // Link trỏ về trang web admin đang dùng (đã qua kiểm tra CORS)
+        const origin = req.get('origin');
+        const baseUrl = origin && isOriginAllowed(origin) ? origin : (process.env.PUBLIC_BASE_URL || 'http://localhost:5173');
+        const token = crypto.randomBytes(32).toString('hex');
+        const link = `${baseUrl}/reset-password?email=${encodeURIComponent(user.email)}&token=${token}`;
+
+        // Gửi mail trước: gửi lỗi thì tài khoản giữ nguyên, không bị khóa ngoài
+        await sendAdminResetLinkEmail(user.email, user.username, link, RESET_LINK_HOURS);
+
+        // Mật khẩu ngẫu nhiên làm mật khẩu cũ hết hiệu lực; đổi mật khẩu cũng làm mọi phiên đăng nhập cũ hết hạn
+        user.password = crypto.randomBytes(32).toString('hex');
+        user.resetOTP = token;
+        user.resetOTPExpire = new Date(Date.now() + RESET_LINK_HOURS * 3600 * 1000);
         await user.save();
 
-        await logAction(req.user._id, 'reset_password', user._id, `Reset password for ${user.username}`, req.ip);
-        res.json({ message: `Đã reset mật khẩu cho ${user.username}` });
+        const io = req.app.get('io');
+        if (io) {
+            const room = user._id.toString();
+            io.to(room).emit('account:password-reset', { message: 'Quản trị viên đã đặt lại mật khẩu. Kiểm tra email để tạo mật khẩu mới.' });
+            setTimeout(() => io.in(room).disconnectSockets(true), 500);
+        }
+
+        await logAction(req.user._id, 'reset_password', user._id, `Gửi link đặt lại mật khẩu cho ${user.username}`, req.ip);
+        res.json({ message: `Đã gửi email đặt lại mật khẩu tới ${user.email}` });
     } catch (error) {
-        res.status(500).json({ error: 'Lỗi khi reset mật khẩu' });
+        res.status(500).json({ error: error.statusCode ? error.message : 'Lỗi khi reset mật khẩu' });
     }
 };
 

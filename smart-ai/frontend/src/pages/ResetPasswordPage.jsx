@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { MessageCircle, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
 import { authAPI } from '../services/api';
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const email = location.state?.email;
-    const otp = location.state?.otp;
+    const [searchParams] = useSearchParams();
+    // Đến từ luồng quên mật khẩu (state) hoặc từ link admin gửi qua email (query)
+    const email = location.state?.email || searchParams.get('email');
+    const otp = location.state?.otp || searchParams.get('token');
 
     const [form, setForm] = useState({ password: '', confirmPassword: '' });
     const [showPwd, setShowPwd] = useState(false);

@@ -58,6 +58,12 @@ export function SocketProvider({ children }) {
             window.dispatchEvent(new CustomEvent('account:banned', { detail: { message } }));
         });
 
+        // Admin đặt lại mật khẩu → phiên này hết hạn, đăng xuất
+        socket.on('account:password-reset', ({ message } = {}) => {
+            emitToast(message, { type: 'error', duration: 6000 });
+            window.dispatchEvent(new Event('auth:logout'));
+        });
+
         // Cảnh báo khi tin nhắn chứa từ cấm
         socket.on('moderation:warning', ({ message } = {}) => {
             emitToast(message, { type: 'error', duration: 6000 });

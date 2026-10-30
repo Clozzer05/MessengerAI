@@ -244,26 +244,24 @@ function LockModal({ user, onClose, onLock }) {
 }
 
 function ResetPasswordModal({ user, onClose, onReset }) {
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const handleReset = async () => {
-        if (password.length < 6) { setError('Mật khẩu ít nhất 6 ký tự'); return; }
         setLoading(true);
-        try { await onReset(user._id, password); onClose(); }
+        try { await onReset(user._id); onClose(); }
         catch (err) { setError(err.response?.data?.error || 'Lỗi'); setLoading(false); }
     };
     return (
         <Modal title={`Reset mật khẩu: ${user.username}`} onClose={onClose} size="sm">
             <div className="p-5 space-y-4">
                 {error && <p className="text-red-500 text-sm">{error}</p>}
-                <input type="password" placeholder="Mật khẩu mới (≥6 ký tự)" value={password} onChange={e => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-ring outline-none" />
+                <p className="text-sm text-fg">Gửi email chứa link đặt mật khẩu mới tới <b>{user.email}</b>.</p>
+                <p className="text-sm text-fg-subtle">Mật khẩu hiện tại sẽ hết hiệu lực ngay và tài khoản bị đăng xuất khỏi mọi thiết bị. Link có hiệu lực 24 giờ.</p>
                 <div className="flex gap-3">
                     <button onClick={onClose} className="btn btn-secondary flex-1">Hủy</button>
                     <button onClick={handleReset} disabled={loading}
                         className="btn btn-primary flex-1">
-                        {loading && <Loader2 size={16} className="animate-spin" />} Reset
+                        {loading && <Loader2 size={16} className="animate-spin" />} Gửi email
                     </button>
                 </div>
             </div>
@@ -313,7 +311,7 @@ function UsersTab({ currentUser }) {
                     await adminAPI.lockUser(userId, args[0]);
                     done = args[0] === 0 ? 'Đã mở khóa tài khoản' : `Đã khóa tạm ${formatLockDuration(args[0])}`;
                     break;
-                case 'resetPassword': await adminAPI.resetPassword(userId, args[0]); done = 'Đã đặt lại mật khẩu'; break;
+                case 'resetPassword': done = (await adminAPI.resetPassword(userId)).data.message; break;
 
             }
             emitToast(done, { type: 'success' });
@@ -446,7 +444,7 @@ function UsersTab({ currentUser }) {
             {deleteUser && <ConfirmModal title="Xác nhận xóa" message={`Bạn có chắc muốn xóa user "${deleteUser.username}"? Không thể hoàn tác.`}
                 onClose={() => setDeleteUser(null)} onConfirm={() => { handleAction('delete', deleteUser._id); setDeleteUser(null); }} danger />}
             {lockUser && <LockModal user={lockUser} onClose={() => setLockUser(null)} onLock={(id, dur) => handleAction('lock', id, dur)} />}
-            {resetPwUser && <ResetPasswordModal user={resetPwUser} onClose={() => setResetPwUser(null)} onReset={(id, pw) => handleAction('resetPassword', id, pw)} />}
+            {resetPwUser && <ResetPasswordModal user={resetPwUser} onClose={() => setResetPwUser(null)} onReset={(id) => handleAction('resetPassword', id)} />}
         </div>
     );
 }
