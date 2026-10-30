@@ -9,14 +9,12 @@ const friendHandler = require('./friend.handler');
 const presence = require('./presence');
 
 const initializeSocket = (io) => {
-    // ─── Middleware xác thực Socket ────────────────────────────────────
     io.use(socketAuthMiddleware);
 
     io.on('connection', async (socket) => {
         const user = socket.user;
         const userId = user._id.toString();
 
-        // ─── Kiểm tra maintenance mode ────────────────────────────────
         if (!['sub_admin', 'super_admin'].includes(user.role)) {
             const config = await SystemConfig.findOne({ key: 'maintenanceMode' });
             if (config && config.value === true) {
@@ -46,14 +44,12 @@ const initializeSocket = (io) => {
             socket.broadcast.emit('user:online', { userId, status: 'online' });
         }
 
-        // ─── Đăng ký tất cả handlers ──────────────────────────────────
         chatHandler(io, socket);
         messageHandler(io, socket);
         webrtcHandler(io, socket);
         aiHandler(io, socket);
         friendHandler(io, socket);
 
-        // ─── Disconnect ────────────────────────────────────────────────
         socket.on('disconnect', async () => {
             console.log(`🔴 ${user.username} disconnected (socket: ${socket.id})`);
 

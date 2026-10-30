@@ -119,7 +119,7 @@ export default function RoomSelectionDialog() {
     }
   }
 
-  // ── Auto-join public lobby as soon as the Colyseus lobby is connected ─
+  // Auto-join public lobby as soon as the Colyseus lobby is connected
   // This skips the room selection dialog entirely — users go straight to
   // the avatar/name picker (LoginDialog).
   React.useEffect(() => {

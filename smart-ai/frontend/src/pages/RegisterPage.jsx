@@ -84,7 +84,6 @@ export default function RegisterPage() {
         if (step === 2) otpRefs.current[0]?.focus();
     }, [step]);
 
-    // ── Step 1: Gửi OTP đến email ──
     const handleSendOTP = useCallback(async (e) => {
         e.preventDefault();
         if (cooldown > 0) return;
@@ -101,7 +100,6 @@ export default function RegisterPage() {
         }
     }, [email, cooldown]);
 
-    // ── OTP input handlers ──
     const handleOtpChange = useCallback((index, value) => {
         if (value && !/^\d$/.test(value)) return;
         setOtp(prev => {
@@ -128,7 +126,6 @@ export default function RegisterPage() {
         otpRefs.current[Math.min(pasted.length, 5)]?.focus();
     }, []);
 
-    // ── Step 2: Xác nhận OTP → chuyển bước 3 ──
     const handleVerifyOTP = useCallback((e) => {
         e.preventDefault();
         const otpString = otp.join('');
@@ -140,7 +137,6 @@ export default function RegisterPage() {
         setStep(3);
     }, [otp]);
 
-    // ── Gửi lại OTP ──
     const handleResendOTP = useCallback(async () => {
         if (cooldown > 0) return;
         setResending(true);
@@ -157,7 +153,6 @@ export default function RegisterPage() {
         }
     }, [cooldown, email]);
 
-    // ── Step 3: Đăng ký với OTP ──
     const handleRegister = useCallback(async (e) => {
         e.preventDefault();
         setError('');
@@ -217,7 +212,6 @@ export default function RegisterPage() {
                     </div>
                 </div>
 
-                {/* ── Step 1: Nhập email ── */}
                 {step === 1 && (
                     <form onSubmit={handleSendOTP} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-5">
                         {error && (
@@ -290,7 +284,6 @@ export default function RegisterPage() {
                     </form>
                 )}
 
-                {/* ── Step 2: Nhập OTP ── */}
                 {step === 2 && (
                     <form onSubmit={handleVerifyOTP} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-6">
                         {error && (
@@ -347,7 +340,6 @@ export default function RegisterPage() {
                     </form>
                 )}
 
-                {/* ── Step 3: Thông tin đăng ký ── */}
                 {step === 3 && (
                     <form onSubmit={handleRegister} className="bg-surface rounded-[20px] shadow-sm p-8 space-y-4">
                         {error && (

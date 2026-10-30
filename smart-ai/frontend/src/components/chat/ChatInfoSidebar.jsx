@@ -280,7 +280,6 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                         )}
                     </div>
 
-                    {/* ─── Actions for 1-1 chat ─── */}
                     {!isGroup && (
                         <>
                             <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden divide-y divide-line">
@@ -318,7 +317,6 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                         </>
                     )}
 
-                    {/* ─── Group chat sections ─── */}
                     {isGroup && (
                         <>
                             {/* Group actions */}
@@ -337,7 +335,6 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                 />
                             </div>
 
-                            {/* ─── Members section ─── */}
                             <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden">
                                 <button
                                     onClick={() => setShowMembers(!showMembers)}
@@ -360,7 +357,6 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                                 )}
                             </div>
 
-                            {/* ─── Pending members (trưởng/phó nhóm) ─── */}
                             {canManage && (
                                 <div className="mx-3 mb-4 rounded-xl bg-surface overflow-hidden">
                                     <button
@@ -399,7 +395,6 @@ export default function ChatInfoSidebar({ room, onClose, onRoomUpdate }) {
                 </div>
             </div>
 
-            {/* ─── Modals ─── */}
             {nicknameTarget && (
                 <NicknameModal
                     roomId={room._id}

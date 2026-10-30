@@ -4,13 +4,11 @@ const Room = require('../models/Room');
 const Friendship = require('../models/Friendship');
 const SystemConfig = require('../models/SystemConfig');
 const { getAnonymousOwner } = require('../utils/anonymity');
-// ─── Active Calls Tracker (in-memory) ─────────────────────────────────
 const activeCalls = new Map(); // roomId → { callType, callerId, participants[], startTime, isGroup, roomName }
 
 module.exports = (io, socket) => {
     const userId = socket.user._id.toString();
 
-    // ─── Helper: lấy socketId của target user ───────────────────────────
     const getSocketId = async (targetUserId) => {
         const user = await User.findById(targetUserId).select('socketId').lean();
         return user?.socketId || null;
@@ -36,11 +34,6 @@ module.exports = (io, socket) => {
         return false;
     };
 
-    // ═══════════════════════════════════════════════════════════════════
-    // ─── Call Management ──────────────────────────────────────────────
-    // ═══════════════════════════════════════════════════════════════════
-
-    // ─── call:initiate ──────────────────────────────────────────────────
     socket.on('call:initiate', async ({ roomId, callType, targetUserIds, targetUserId }) => {
         try {
             console.log(`📞 ${socket.user.username} initiating ${callType} call in room ${roomId}`);
@@ -169,7 +162,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:accept ────────────────────────────────────────────────────
     socket.on('call:accept', async ({ roomId }) => {
         try {
             console.log(`✅ ${socket.user.username} accepted call in room ${roomId}`);
@@ -242,7 +234,7 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:join (user proactively joins an ongoing group call) ──────
+    // call:join (user proactively joins an ongoing group call)
     socket.on('call:join', async ({ roomId }) => {
         try {
             const call = activeCalls.get(roomId);
@@ -302,7 +294,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:reject ────────────────────────────────────────────────────
     socket.on('call:reject', async ({ roomId }) => {
         try {
             const call = activeCalls.get(roomId);
@@ -330,7 +321,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:cancel ────────────────────────────────────────────────────
     socket.on('call:cancel', async ({ roomId }) => {
         const call = activeCalls.get(roomId);
         // Chỉ người gọi mới hủy được cuộc gọi của mình
@@ -349,7 +339,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:end ──────────────────────────────────────────────────────
     socket.on('call:end', async ({ roomId }) => {
         try {
             const call = activeCalls.get(roomId);
@@ -435,7 +424,7 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:invite-member (Group only: invite additional members) ────
+    // call:invite-member (Group only: invite additional members)
     socket.on('call:invite-member', async ({ roomId, targetUserId: rawTargetId }) => {
         try {
             const call = activeCalls.get(roomId);
@@ -487,7 +476,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── call:get-participants (Get current participants list) ─────────
     socket.on('call:get-participants', async ({ roomId }) => {
         const call = activeCalls.get(roomId);
         if (!call || !await isRoomMember(roomId)) return;
@@ -506,12 +494,8 @@ module.exports = (io, socket) => {
         socket.emit('call:participants-list', { roomId, participants: participantDetails });
     });
 
-    // ═══════════════════════════════════════════════════════════════════
-    // ─── WebRTC Signaling (P2P) ───────────────────────────────────────
     // Server chỉ làm trung gian relay SDP và ICE candidates
-    // ═══════════════════════════════════════════════════════════════════
 
-    // ─── webrtc:offer ──────────────────────────────────────────────────
     socket.on('webrtc:offer', async ({ targetUserId, sdp }) => {
         console.log(`📡 [OFFER] ${socket.user.username} (${userId}) → target ${targetUserId}`);
         if (!targetUserId || !sdp || !inSameCall(targetUserId)) return;
@@ -530,7 +514,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── webrtc:answer ─────────────────────────────────────────────────
     socket.on('webrtc:answer', async ({ targetUserId, sdp }) => {
         console.log(`📡 [ANSWER] ${socket.user.username} (${userId}) → target ${targetUserId}`);
         if (!targetUserId || !sdp || !inSameCall(targetUserId)) return;
@@ -549,7 +532,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── webrtc:ice-candidate ──────────────────────────────────────────
     socket.on('webrtc:ice-candidate', async ({ targetUserId, candidate }) => {
         // Log mức độ thấp hơn hoặc bỏ qua để tránh spam console, nhưng giữ kiểm tra
         if (!targetUserId || !candidate || !inSameCall(targetUserId)) return;
@@ -566,7 +548,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── screen-share:status ─────────────────────────────────────────
     socket.on('screen-share:status', async ({ targetUserId, sharing, roomId, streamId }) => {
         if (roomId) {
             // Group call: broadcast to all participants
@@ -602,7 +583,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── Cleanup khi disconnect ────────────────────────────────────────
     socket.on('disconnect', async () => {
         for (const [roomId, call] of activeCalls.entries()) {
             if (call.participants.includes(userId)) {

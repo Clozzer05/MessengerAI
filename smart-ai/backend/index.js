@@ -13,15 +13,12 @@ const errorHandler = require('./middlewares/errorHandler');
 const { initAI, getAIStats } = require('./services/ai.service');
 const initializeSocket = require('./socket');
 
-// ─── Colyseus (Virtual Office) ────────────────────────────────────
 const colyseus = require('colyseus');
 const { OfficeRoom } = require('./game/OfficeRoom');
 
-// ─── Khởi tạo Express + HTTP Server ──────────────────────────────────
 const app = express();
 const server = http.createServer(app);
 
-// ─── Khởi tạo Socket.io ──────────────────────────────────────────────
 const io = new Server(server, {
     cors: {
         origin: function (origin, callback) {
@@ -42,19 +39,16 @@ const io = new Server(server, {
 app.set('io', io);
 app.set('socketio', io);
 
-// ─── Middleware ───────────────────────────────────────────────────────
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ─── Static files (uploads) ──────────────────────────────────────────
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsDir));
 
-// ─── API Routes ───────────────────────────────────────────────────────
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const roomRoutes = require('./routes/room.routes');
@@ -77,7 +71,6 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/counseling', counselingRoutes);
 app.use('/api/topics', topicRoutes);
 
-// ─── Health Check ─────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
@@ -87,7 +80,6 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// ─── ICE Servers (TURN/STUN for WebRTC) ───────────────────────────────
 app.get('/api/ice-servers', async (req, res) => {
     try {
         console.log(`❄️  ICE Servers requested by ${req.ip}`);
@@ -166,10 +158,8 @@ app.get('/api/ice-servers', async (req, res) => {
     }
 });
 
-// ─── Error Handler ────────────────────────────────────────────────────
 app.use(errorHandler);
 
-// ─── Start Server ─────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {

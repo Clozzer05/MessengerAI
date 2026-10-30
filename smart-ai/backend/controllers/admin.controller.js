@@ -12,7 +12,6 @@ const { banAccount, lockAccount, ADMIN_ROLES } = require('../utils/moderation');
 // Sub admin chỉ được tác động lên user thường và chuyên gia, không được đụng tới tài khoản admin
 const canManageUser = (actor, target) => actor.role === 'super_admin' || !ADMIN_ROLES.includes(target.role);
 const NO_PERMISSION_ON_ADMIN = 'Sub admin không có quyền thao tác trên tài khoản quản trị';
-// ── Helper: Log admin action ──────────────────────────────────────────
 const logAction = async (adminId, action, targetUserId, details, ip) => {
     try {
         await AdminLog.create({ admin: adminId, action, targetUser: targetUserId, details, ip: ip || '' });
@@ -21,7 +20,6 @@ const logAction = async (adminId, action, targetUserId, details, ip) => {
     }
 };
 
-// ─── Lấy danh sách users (có phân trang + tìm kiếm + filter) ─────────
 const getUsers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -60,7 +58,6 @@ const getUsers = async (req, res) => {
     }
 };
 
-// ─── Lấy thống kê tổng quan ──────────────────────────────────────────
 const getStats = async (req, res) => {
     try {
         const [totalUsers, verifiedUsers, onlineUsers, bannedUsers, totalRooms, totalMessages, totalReports, pendingReports] = await Promise.all([
@@ -83,9 +80,6 @@ const getStats = async (req, res) => {
     }
 };
 
-// ─── Analytics đã bị xóa ──────────────────────────────────────────────
-
-// ─── Lấy chi tiết 1 user ─────────────────────────────────────────────
 const getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
@@ -96,7 +90,6 @@ const getUserById = async (req, res) => {
     }
 };
 
-// ─── Cập nhật user (admin) ────────────────────────────────────────────
 const updateUser = async (req, res) => {
     try {
         const { username, email, phoneNumber, role, isVerified, bio, expertCategories } = req.body;
@@ -135,7 +128,6 @@ const updateUser = async (req, res) => {
     }
 };
 
-// ─── Xóa user ─────────────────────────────────────────────────────────
 const deleteUser = async (req, res) => {
     try {
         if (req.params.id === req.user._id.toString()) {
@@ -152,7 +144,6 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// ─── Toggle trạng thái xác thực ───────────────────────────────────────
 const toggleVerified = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -167,7 +158,6 @@ const toggleVerified = async (req, res) => {
     }
 };
 
-// ─── Ban user ─────────────────────────────────────────────────────────
 const banUser = async (req, res) => {
     try {
         if (req.params.id === req.user._id.toString()) {
@@ -186,7 +176,6 @@ const banUser = async (req, res) => {
     }
 };
 
-// ─── Unban user ───────────────────────────────────────────────────────
 const unbanUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -216,7 +205,6 @@ const unbanUser = async (req, res) => {
     }
 };
 
-// ─── Temp lock user ───────────────────────────────────────────────────
 const lockUser = async (req, res) => {
     try {
         if (req.params.id === req.user._id.toString()) {
@@ -254,7 +242,6 @@ const lockUser = async (req, res) => {
     }
 };
 
-// ─── Reset Password ──────────────────────────────────────────────────
 const resetPassword = async (req, res) => {
     try {
         const { newPassword } = req.body;
@@ -275,12 +262,6 @@ const resetPassword = async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi reset mật khẩu' });
     }
 };
-
-// ─── Mute / Unmute đã bị xóa ────────────────────────────────────────
-
-// ═══════════════════════════════════════════════════════════════════
-// ─── Reports ──────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
 
 const getReports = async (req, res) => {
     try {
@@ -372,10 +353,6 @@ const resolveReport = async (req, res) => {
     }
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// ─── Bad Words ────────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
-
 const getBadWords = async (req, res) => {
     try {
         const words = await BadWord.find().sort({ createdAt: -1 });
@@ -419,10 +396,6 @@ const removeBadWord = async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi xóa bad word' });
     }
 };
-
-// ═══════════════════════════════════════════════════════════════════
-// ─── System Config ────────────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════════
 
 const getSystemConfig = async (req, res) => {
     try {
@@ -478,7 +451,6 @@ const updateSystemConfig = async (req, res) => {
     }
 };
 
-// ─── Admin Logs ───────────────────────────────────────────────────────
 const getAdminLogs = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;

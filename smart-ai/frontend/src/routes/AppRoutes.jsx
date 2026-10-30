@@ -12,7 +12,6 @@ import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 
-// ── Lazy-loaded pages ──────────────────────────────────────────
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
@@ -28,7 +27,6 @@ const ExpertCounselingPage = lazy(() => import('../pages/ExpertCounselingPage'))
 const OfficePage = lazy(() => import('../pages/OfficePage'));
 const JoinGroupPage = lazy(() => import('../pages/JoinGroupPage'));
 
-// ── Loading fallback ───────────────────────────────────────────
 function LoadingScreen() {
     return (
         <div className="h-dvh p-4 md:p-6 bg-app">
@@ -74,7 +72,6 @@ function LoadingScreen() {
     );
 }
 
-// ── Route guards ───────────────────────────────────────────────
 function PrivateRoute({ children }) {
     const { user, loading } = useAuth();
     const { pathname } = useLocation();
@@ -91,7 +88,6 @@ function PublicRoute({ children }) {
     return user ? <Navigate to="/" replace /> : children;
 }
 
-// ── Route table ────────────────────────────────────────────────
 export default function AppRoutes() {
     const location = useLocation();
 

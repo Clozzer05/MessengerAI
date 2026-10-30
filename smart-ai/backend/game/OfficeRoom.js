@@ -9,7 +9,6 @@ const schema = require('@colyseus/schema');
 
 const { Schema, MapSchema, type } = schema;
 
-// ── Player schema ────────────────────────────────────────────────
 class Player extends Schema {}
 
 // Define typed properties on Player
@@ -18,11 +17,9 @@ type('number')(Player.prototype, 'y');
 type('string')(Player.prototype, 'displayName');
 type('string')(Player.prototype, 'avatar');   // color hex e.g. "#3B82F6"
 
-// ── Room state schema ────────────────────────────────────────────
 class OfficeState extends Schema {}
 type({ map: Player })(OfficeState.prototype, 'players');
 
-// ── OfficeRoom ────────────────────────────────────────────────────
 class OfficeRoom extends colyseus.Room {
     maxClients = 50;
 

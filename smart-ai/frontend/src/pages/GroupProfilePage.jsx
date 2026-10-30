@@ -128,7 +128,6 @@ export default function GroupProfilePage() {
             </div>
 
             <div className="max-w-3xl mx-auto">
-                {/* ─── Cover + Avatar Header ─── */}
                 <div className="relative">
                     {/* Cover photo */}
                     <div className="h-48 sm:h-64 bg-gradient-to-r from-[var(--color-gradient-from)] to-[var(--color-gradient-to)] rounded-b-2xl overflow-hidden relative group">
@@ -204,7 +203,6 @@ export default function GroupProfilePage() {
                     </div>
                 </div>
 
-                {/* ─── Name + Description + Actions ─── */}
                 <div className="bg-surface rounded-2xl mt-0 px-6 pt-20 pb-6">
                     <h2 className="text-2xl font-bold text-fg">{room.name}</h2>
                     {room.description && (
@@ -235,7 +233,6 @@ export default function GroupProfilePage() {
                     </div>
                 </div>
 
-                {/* ─── Members section ─── */}
                 <div className="bg-surface rounded-2xl mt-4 px-6 py-5 mb-8">
                     <h3 className="text-lg font-semibold text-fg mb-4">
                         Thành viên ({memberCount})
@@ -282,7 +279,6 @@ export default function GroupProfilePage() {
     );
 }
 
-// ─── Inline Edit Group Info Button + Modal ──────────────────────────
 function EditGroupButton({ room, onSaved }) {
     const [show, setShow] = useState(false);
     const [name, setName] = useState(room.name || '');

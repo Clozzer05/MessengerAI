@@ -23,7 +23,6 @@ import {
 import { resolveMediaUrl } from '../../services/api';
 import { useDraggable } from '../../hooks/useDraggable';
 
-// ── Smart responsive grid for video call ──
 function getCols(count) {
     if (count === 1) return 1;
     if (count === 2) return 2;
@@ -77,7 +76,6 @@ function getLastItemStyle(count) {
     };
 }
 
-// ── Single video tile component with speaking glow ──
 function VideoTile({ stream, label, muted = false, mirror = false, isAudioOnly = false, avatar, style, onPin, isPinned, pinnable = false, fit = 'cover' }) {
     const videoRef = useRef(null);
     const [isSpeaking, setIsSpeaking] = useState(false);
@@ -217,7 +215,6 @@ export default function CallModal() {
     // Draggable call toolbar (persisted to localStorage)
     const toolbarDrag = useDraggable('callToolbar:position');
 
-    // ── Draggable PiP state ──
     const pipRef = useRef(null);
     const dragState = useRef({ dragging: false, startX: 0, startY: 0, startLeft: 0, startTop: 0, moved: false });
     const [pipPosition, setPipPosition] = useState(null); // null = use default CSS position
@@ -292,7 +289,7 @@ export default function CallModal() {
 
     const isGroup = callState.isGroup;
 
-    // ── For 1-1 backward compat ──
+    // For 1-1 backward compat
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
     const remoteScreenVideoRef = useRef(null);
@@ -392,7 +389,7 @@ export default function CallModal() {
         : (otherPerson?.username || 'Unknown');
     const displayAvatar = resolveMediaUrl(otherPerson?.avatar || otherPerson?.googlePicture);
 
-    // ── Build group tiles list (must be before early return to respect hooks rules) ──
+    // Build group tiles list (must be before early return to respect hooks rules)
     const groupTiles = useMemo(() => {
         if (!isGroup) return [];
         const tiles = [];
@@ -413,7 +410,7 @@ export default function CallModal() {
         return tiles;
     }, [isGroup, localStream, remoteStreams, participants]);
 
-    // ── Đo khung lưới video nhóm để tính kích thước ô ──
+    // Đo khung lưới video nhóm để tính kích thước ô
     const [gridBox, setGridBox] = useState({ width: 0, height: 0 });
     const gridObserverRef = useRef(null);
     const gridRef = useCallback((el) => {
@@ -429,7 +426,6 @@ export default function CallModal() {
     }, []);
     const tileSize = getBestTileSize(groupTiles.length, gridBox.width, gridBox.height, 8);
 
-    // ── Detect group screen sharer (self or remote) ──
     const groupScreenShare = useMemo(() => {
         if (!isGroup) return null;
         if (screenSharing && screenStream) {
@@ -469,9 +465,6 @@ export default function CallModal() {
 
     if (!callState.active && !callState.outgoing) return null;
 
-    // ═════════════════════════════════════════════════════════
-    // ─── PiP (Picture-in-Picture) Bubble Mode ───────────────
-    // ═════════════════════════════════════════════════════════
     if (pipMode) {
         const pipStyle = pipPosition
             ? { aspectRatio: '16/10', position: 'fixed', left: pipPosition.left, top: pipPosition.top, bottom: 'auto', right: 'auto' }
@@ -532,15 +525,11 @@ export default function CallModal() {
         );
     }
 
-    // ═════════════════════════════════════════════════════════
-    // ─── Full-Screen Overlay Mode ───────────────────────────
-    // ═════════════════════════════════════════════════════════
     return (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
             <div className="flex-1 relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
                 <audio ref={remoteAudioRef} autoPlay playsInline />
 
-                {/* ═══ GROUP CALL GRID ═══ */}
                 {isGroup ? (
                     groupTiles.length > 1 && isVideoCall ? (
                         groupScreenShare ? (
@@ -687,7 +676,6 @@ export default function CallModal() {
                         </div>
                     )
                 ) : (
-                    /* ═══ 1-1 CALL LAYOUT (unchanged) ═══ */
                     <>
                         {hasRemote && isVideoCall ? (
                             screenSharing && screenStream ? (
@@ -794,7 +782,6 @@ export default function CallModal() {
                     </>
                 )}
 
-                {/* ─── Top Bar ─── */}
                 <div className={`absolute top-0 left-0 right-0 flex items-center justify-between px-5 py-3 bg-gradient-to-b from-black/60 to-transparent transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <div className="flex items-center gap-3">
                         {isGroup && (
@@ -826,7 +813,6 @@ export default function CallModal() {
                     </div>
                 )}
 
-                {/* ─── Invite Panel (Group only) ─── */}
                 {showInvitePanel && isGroup && (
                     <InvitePanel
                         roomId={callState.roomId}
@@ -836,7 +822,6 @@ export default function CallModal() {
                     />
                 )}
 
-                {/* ─── Settings Panel ─── */}
                 {showSettingsPanel && (
                     <SettingsPanel
                         availableDevices={availableDevices}
@@ -850,7 +835,6 @@ export default function CallModal() {
                 )}
             </div>
 
-            {/* ═══ Floating Toolbar — always on top ═══ */}
             <div className={`absolute bottom-0 left-0 right-0 z-50 flex justify-center pb-8 pt-16 bg-linear-to-t from-black/60 to-transparent transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 <div
                     ref={toolbarDrag.ref}
@@ -936,7 +920,6 @@ export default function CallModal() {
     );
 }
 
-// ── Invite Panel Component ──
 function InvitePanel({ roomId, participants, onInvite, onClose }) {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -1014,7 +997,6 @@ function InvitePanel({ roomId, participants, onInvite, onClose }) {
     );
 }
 
-// ── Settings Panel Component ──
 function SettingsPanel({ availableDevices, selectedDevices, changeDevice, videoQuality, setVideoQuality, networkStats, onClose }) {
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/20 backdrop-blur-md" onClick={onClose}>

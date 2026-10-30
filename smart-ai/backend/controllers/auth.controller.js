@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const { sendOTPEmail, sendRegistrationOTPEmail } = require('../config/mailer');
 const SystemConfig = require('../models/SystemConfig');
 
-// ─── In-memory store for registration OTPs ────────────────────────────
 // key: email, value: { otp, expire, ... }
 const registerOTPStore = new Map();
 
@@ -16,7 +15,6 @@ setInterval(() => {
     }
 }, 10 * 60 * 1000);
 
-// ─── Gửi OTP xác thực email đăng ký ──────────────────────────────────
 exports.sendRegisterOTP = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -53,7 +51,6 @@ exports.sendRegisterOTP = async (req, res, next) => {
     }
 };
 
-// ─── Đăng ký (yêu cầu OTP) ───────────────────────────────────────────
 exports.register = async (req, res, next) => {
     try {
         const { username, email, password, otp, preferredLanguage } = req.body;
@@ -112,7 +109,6 @@ exports.register = async (req, res, next) => {
     }
 };
 
-// ─── Đăng nhập ────────────────────────────────────────────────────────
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -172,12 +168,10 @@ exports.login = async (req, res, next) => {
     }
 };
 
-// ─── Lấy thông tin user hiện tại ─────────────────────────────────────
 exports.getMe = async (req, res) => {
     res.json({ user: req.user });
 };
 
-// ─── Quên mật khẩu: gửi OTP qua email ───────────────────────────────
 exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -208,7 +202,6 @@ exports.forgotPassword = async (req, res, next) => {
     }
 };
 
-// ─── Xác thực OTP ────────────────────────────────────────────────────
 exports.verifyOTP = async (req, res, next) => {
     try {
         const { email, otp } = req.body;
@@ -242,7 +235,6 @@ exports.verifyOTP = async (req, res, next) => {
     }
 };
 
-// ─── Đặt lại mật khẩu ───────────────────────────────────────────────
 exports.resetPassword = async (req, res, next) => {
     try {
         const { email, otp, newPassword } = req.body;
@@ -286,7 +278,6 @@ exports.resetPassword = async (req, res, next) => {
     }
 };
 
-// ─── Google OAuth2: Đăng nhập / Đăng ký / Merge ──────────────────────
 exports.googleLogin = async (req, res, next) => {
     try {
         const { credential } = req.body;

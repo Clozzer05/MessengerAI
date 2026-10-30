@@ -3,7 +3,6 @@ const Report = require('../models/Report');
 const Message = require('../models/Message');
 const Room = require('../models/Room');
 const { getAnonymousOwner, scrub, ANONYMOUS_ID } = require('../utils/anonymity');
-// ─── Block user ──────────────────────────────────────────────────────
 exports.blockUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
@@ -45,7 +44,6 @@ exports.blockUser = async (req, res, next) => {
     }
 };
 
-// ─── Unblock user ────────────────────────────────────────────────────
 exports.unblockUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
@@ -81,7 +79,6 @@ exports.unblockUser = async (req, res, next) => {
     }
 };
 
-// ─── Lấy danh sách blocked users ────────────────────────────────────
 exports.getBlockedUsers = async (req, res, next) => {
     try {
         const currentUser = await User.findById(req.user._id)
@@ -93,7 +90,6 @@ exports.getBlockedUsers = async (req, res, next) => {
     }
 };
 
-// ─── Gửi báo cáo ────────────────────────────────────────────────────
 exports.reportUser = async (req, res, next) => {
     try {
         const { reason, description, roomId, messageId } = req.body;

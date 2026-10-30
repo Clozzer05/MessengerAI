@@ -35,7 +35,6 @@ router.put('/:id/members/:userId/role', roomController.setMemberRole);
 // DELETE /api/rooms/:id/leave  (rời room)
 router.delete('/:id/leave', roomController.leaveRoom);
 
-// ─── Chat Info Sidebar APIs ────────────────────────────────────────
 // PUT  /api/rooms/:id/nickname     (đặt biệt danh)
 router.put('/:id/nickname', roomController.setNickname);
 
@@ -63,7 +62,6 @@ router.put('/:id/invite', roomController.resetInviteLink);
 // PUT  /api/rooms/:id/settings     (admin cập nhật ảnh & thông tin nhóm)
 router.put('/:id/settings', roomController.updateGroupSettings);
 
-// ─── New Chat Features ─────────────────────────────────────────────
 // DELETE /api/rooms/:id/chat       (xóa lịch sử chat cho user hiện tại)
 router.delete('/:id/chat', roomController.deleteChat);
 

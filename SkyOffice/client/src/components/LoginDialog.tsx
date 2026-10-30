@@ -153,7 +153,7 @@ export default function LoginDialog() {
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const game = phaserGame.scene.keys.game as Game
 
-  // ── Username bridge: listen for postMessage from parent chat app ───────
+  // Username bridge: listen for postMessage from parent chat app
   React.useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'SKYOFFICE_SET_NAME' && event.data.name) {
@@ -174,7 +174,7 @@ export default function LoginDialog() {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  // ── Auto-submit once name is filled AND the game room is ready ─────────
+  // Auto-submit once name is filled AND the game room is ready
   // This lets users go straight from clicking "Enter Office" to being
   // spawned in the world, without touching any dialog.
   React.useEffect(() => {

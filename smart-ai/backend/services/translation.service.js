@@ -17,7 +17,7 @@ const { translateBatch } = require('./ai.service');
  */
 const translateForRoom = async (io, roomId, messageId, content, senderLanguage) => {
     try {
-        // ── Guard: text quá ngắn hoặc chỉ emoji/link → skip ──
+        // Guard: text quá ngắn hoặc chỉ emoji/link → skip
         if (!content || content.trim().length < 2) return;
         if (/^https?:\/\/\S+$/.test(content.trim())) return;
         if (/^[\p{Emoji}\s]+$/u.test(content.trim())) return;

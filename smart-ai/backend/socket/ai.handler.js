@@ -5,7 +5,6 @@ const { summarizeConversation, getAIStats, generateAIResponse, translateText, an
 module.exports = (io, socket) => {
     const userId = socket.user._id.toString();
 
-    // ─── ai:toggle ──────────────────────────────────────────────────────
     // Bật/tắt AI Bot cho user trong 1 room cụ thể
     socket.on('ai:toggle', async ({ roomId, enabled }) => {
         try {
@@ -49,7 +48,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── ai:summarize ───────────────────────────────────────────────────
     // Yêu cầu AI tóm tắt cuộc trò chuyện
     socket.on('ai:summarize', async ({ roomId, messageCount = 50 }) => {
         try {
@@ -100,13 +98,11 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── ai:stats ───────────────────────────────────────────────────────
     // Lấy thống kê AI (rate limit, cache)
     socket.on('ai:stats', () => {
         socket.emit('ai:stats', getAIStats());
     });
 
-    // ─── ai:chat ────────────────────────────────────────────────────────
     // Mini AI ChatBox: user gửi prompt trực tiếp, AI trả lời riêng tư
     socket.on('ai:chat', async ({ roomId, message }) => {
         try {
@@ -160,7 +156,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── ai:translate ───────────────────────────────────────────────────
     // Private translation — result sent ONLY to requesting socket, NOT saved to DB
     socket.on('ai:translate', async ({ messageId, content, targetLanguage, sourceLanguage }) => {
         try {
@@ -180,7 +175,6 @@ module.exports = (io, socket) => {
 
 
 
-    // ─── ai:analyze-screen ────────────────────────────────────────────────
     // Analyze a screenshot from screen sharing using Gemini vision
     socket.on('ai:analyze-screen', async ({ roomId, imageBase64 }) => {
         try {

@@ -79,7 +79,7 @@ export default function MiniAIChatBox({ roomId, onClose, onAutoTranslateChange }
         emit('ai:summarize', { roomId, messageCount: 20 });
     };
 
-    // ── Screen analysis: capture a frame from screen share and send to AI ──
+    // Screen analysis: capture a frame from screen share and send to AI
     const captureScreenFrame = () => {
         const stream = screenStream;
         if (!stream) return null;

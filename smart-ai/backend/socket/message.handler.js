@@ -37,7 +37,7 @@ module.exports = (io, socket) => {
         if (!room) return 'Room không tồn tại';
         if (!isRoomMember(room)) return 'Bạn không phải thành viên';
 
-        // ── Kiểm tra block: nếu bất kỳ thành viên nào đã chặn sender → từ chối ──
+        // Kiểm tra block: nếu bất kỳ thành viên nào đã chặn sender → từ chối
         if (room.type === 'direct') {
             const otherMember = room.members.find(m => m.user.toString() !== userId.toString());
             if (otherMember) {
@@ -53,7 +53,7 @@ module.exports = (io, socket) => {
             }
         }
 
-        // ── Check account status (đọc mới từ DB vì socket.user có thể cũ) ──
+        // Check account status (đọc mới từ DB vì socket.user có thể cũ)
         const sender = await User.findById(userId).select('accountStatus lock_until').lean();
         if (sender?.accountStatus === 'banned') return 'Tài khoản của bạn đã bị khóa.';
         if (isLockActive(sender)) return 'Tài khoản đang bị khóa tạm thời.';
@@ -71,7 +71,6 @@ module.exports = (io, socket) => {
         }
     };
 
-    // ─── message:send ───────────────────────────────────────────────────
     socket.on('message:send', async ({ roomId, content, type = 'text', file = null, replyTo = null }) => {
         try {
             if (!roomId) return socket.emit('error', { message: 'roomId là bắt buộc' });
@@ -86,12 +85,11 @@ module.exports = (io, socket) => {
             const sendError = await getSendError(room);
             if (sendError) return socket.emit('error', { message: sendError });
 
-            // ── Lấy preferredLanguage MỚI NHẤT từ DB (socket.user có thể stale) ──
+            // Lấy preferredLanguage MỚI NHẤT từ DB (socket.user có thể stale)
             const senderFresh = await User.findById(userId).select('preferredLanguage').lean();
 
             const senderLanguage = senderFresh?.preferredLanguage || socket.user.preferredLanguage || 'vi';
 
-            // ── Bad word filter ──
             let filteredContent = content;
             if (type === 'text' && content) {
                 if (!isStickerPayload(content)) {
@@ -101,12 +99,11 @@ module.exports = (io, socket) => {
                 }
             }
 
-            // ── Trả lời tin nhắn: chỉ nhận tin trong cùng phòng ──
+            // Trả lời tin nhắn: chỉ nhận tin trong cùng phòng
             if (replyTo && !(mongoose.isValidObjectId(replyTo) && await Message.exists({ _id: replyTo, room: roomId }))) {
                 return socket.emit('error', { message: 'Tin nhắn được trả lời không tồn tại' });
             }
 
-            // ── Tạo message ──
             const messageData = {
                 room: roomId,
                 sender: userId,
@@ -133,7 +130,7 @@ module.exports = (io, socket) => {
 
             const message = await Message.create(messageData);
 
-            // ── Track tương tác cho direct chat (cặp user) ──
+            // Track tương tác cho direct chat (cặp user)
             // Chỉ là thống kê: lỗi ở đây không được chặn việc gửi tin nhắn
             if (room.type === 'direct') {
                 const otherMember = room.members.find((m) => m.user.toString() !== userId.toString());
@@ -171,33 +168,25 @@ module.exports = (io, socket) => {
             // Cập nhật lastMessage; có tin mới thì hiện lại cuộc trò chuyện cho ai đã xóa nó (như Messenger)
             await Room.findByIdAndUpdate(roomId, { lastMessage: message._id, hiddenFor: [] });
 
-            // ═════════════════════════════════════════════════════════════════
             // BƯỚC 1: Broadcast tin nhắn GỐC ngay lập tức (không chờ AI)
-            // ═════════════════════════════════════════════════════════════════
             // Phòng tư vấn ẩn danh: chỉ người hỏi thấy tên thật của mình
             const anonymousOwner = room.type === 'counseling' ? await getAnonymousOwner(roomId) : null;
             emitToRoomMasked(io, roomId, 'message:received', { message: populatedMessage }, anonymousOwner);
 
-            // ═════════════════════════════════════════════════════════════════
             // BƯỚC 1.5: Notify ALL room members (sidebar update + unread)
             // io.to(roomId) only reaches users who socket.join(roomId).
             // Sidebar needs updates for rooms the user has NOT joined.
-            // ═════════════════════════════════════════════════════════════════
             notifyRoomMembers(room, populatedMessage, anonymousOwner);
 
             console.log(`💬 ${socket.user.username} → room ${roomId}: ${content?.substring(0, 50) || '[file]'}`);
 
-            // ═════════════════════════════════════════════════════════════════
             // BƯỚC 2: Dịch thuật ASYNC (fire-and-forget, không block UX)
-            // ═════════════════════════════════════════════════════════════════
             if (type === 'text' && filteredContent && filteredContent.trim().length >= 2 && !isStickerPayload(filteredContent)) {
                 translateForRoom(io, roomId, message._id, filteredContent, senderLanguage)
                     .catch(err => console.error('Translation error:', err.message));
             }
 
-            // ═════════════════════════════════════════════════════════════════
             // BƯỚC 3: AI Counseling Bot Response
-            // ═════════════════════════════════════════════════════════════════
             if (room.type === 'counseling' && type === 'text') {
                 const CounselingSession = require('../models/CounselingSession');
                 const session = await CounselingSession.findOne({ room: roomId, status: 'active' });
@@ -272,7 +261,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:read ───────────────────────────────────────────────────
     socket.on('message:read', async ({ roomId, messageId }) => {
         try {
             if (!mongoose.isValidObjectId(roomId) || !mongoose.isValidObjectId(messageId)) return;
@@ -294,7 +282,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:edit ───────────────────────────────────────────────────
     socket.on('message:edit', async ({ messageId, roomId, content }) => {
         try {
             if (!messageId || !content || !content.trim()) return;
@@ -336,7 +323,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:delete ─────────────────────────────────────────────────
     socket.on('message:delete', async ({ messageId, roomId }) => {
         try {
             const message = await Message.findById(messageId);
@@ -356,7 +342,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:react ────────────────────────────────────────────────
     socket.on('message:react', async ({ messageId, roomId, emoji }) => {
         try {
             if (!messageId || !roomId || typeof emoji !== 'string' || !emoji || emoji.length > 16) return;
@@ -400,7 +385,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:get-translation ────────────────────────────────────────
     // Client request bản dịch cho 1 message cụ thể (khi load history)
     socket.on('message:get-translation', async ({ messageId }) => {
         try {
@@ -424,7 +408,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── poll:vote ──────────────────────────────────────────────────────
     socket.on('poll:vote', async ({ messageId, roomId, optionIndex }) => {
         try {
             if (!mongoose.isValidObjectId(messageId)) return;
@@ -455,7 +438,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:send-poll ──────────────────────────────────────────────
     socket.on('message:send-poll', async ({ roomId, question, options }) => {
         try {
             const cleanOptions = Array.isArray(options)
@@ -497,7 +479,6 @@ module.exports = (io, socket) => {
         }
     });
 
-    // ─── message:send-contact-card ──────────────────────────────────────
     socket.on('message:send-contact-card', async ({ roomId, contactUserId }) => {
         try {
             if (!roomId || !contactUserId) return;

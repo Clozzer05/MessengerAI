@@ -4,12 +4,10 @@ const { User } = require('../models/User');
 const JWT_SECRET = process.env.JWT_SECRET || 'smart-ai-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
-// ─── Tạo JWT Token ───────────────────────────────────────────────────
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
-// ─── Middleware xác thực HTTP requests ────────────────────────────────
 const authMiddleware = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
@@ -38,7 +36,6 @@ const authMiddleware = async (req, res, next) => {
     }
 };
 
-// ─── Middleware xác thực Socket.io ────────────────────────────────────
 const socketAuthMiddleware = async (socket, next) => {
     try {
         const token = socket.handshake.auth?.token;

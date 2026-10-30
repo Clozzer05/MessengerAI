@@ -248,7 +248,7 @@ exports.joinExpert = async (req, res, next) => {
     }
 };
 
-// ── Middleware: chỉ chuyên gia mới tư vấn, admin không tham gia ──
+// Chỉ chuyên gia mới tư vấn, admin không tham gia
 exports.requireExpert = (req, res, next) => {
     if (!req.user) return res.status(401).json({ error: 'Chưa đăng nhập' });
     if (req.user.role !== 'expert') {
