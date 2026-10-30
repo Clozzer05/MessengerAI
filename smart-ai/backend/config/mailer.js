@@ -130,8 +130,32 @@ async function sendSMSOTP(phoneNumber, otp) {
     return { success: true };
 }
 
+/**
+ * Link đặt lại mật khẩu do quản trị viên gửi
+ */
+async function sendAdminResetLinkEmail(toEmail, username, link, hours) {
+    await sendMail({
+        to: toEmail,
+        subject: 'Đặt lại mật khẩu tài khoản - Smart AI Chat',
+        html: `
+            <div style="background:#f4f6f8;padding:40px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+            <div style="max-width:480px;margin:auto;background:#ffffff;border-radius:16px;padding:32px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+                <h2 style="margin-bottom:8px;color:#111;">🔒 Smart AI Chat</h2>
+                <p style="color:#666;margin-bottom:24px;">Xin chào ${username}, quản trị viên đã đặt lại mật khẩu tài khoản của bạn.</p>
+                <p style="font-size:14px;color:#666;">Mật khẩu cũ không còn dùng được và bạn đã được đăng xuất khỏi mọi thiết bị. Bấm nút dưới đây để tạo mật khẩu mới.</p>
+                <a href="${link}" style="display:inline-block;margin:20px 0;padding:12px 28px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;">Đặt mật khẩu mới</a>
+                <p style="font-size:13px;color:#999;">Link có hiệu lực trong <b>${hours} giờ</b> và chỉ dùng được một lần.</p>
+                <hr style="margin:24px 0;border:none;border-top:1px solid #eee;">
+                <p style="font-size:12px;color:#aaa;">Nếu bạn không rõ vì sao nhận được email này, hãy liên hệ quản trị viên.</p>
+            </div>
+            </div>
+        `,
+    });
+}
+
 module.exports = {
     sendOTPEmail,
+    sendAdminResetLinkEmail,
     sendRegistrationOTPEmail,
     sendSMSOTP,
     ensureMailConfig,

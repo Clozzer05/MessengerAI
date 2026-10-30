@@ -176,11 +176,19 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
 
+    // select: false để mã đặt lại mật khẩu không lọt ra các API trả về user (kể cả trang admin)
     resetOTP: {
         type: String,
         default: null,
+        select: false,
     },
     resetOTPExpire: {
+        type: Date,
+        default: null,
+        select: false,
+    },
+    // Token đăng nhập cấp trước thời điểm này không còn hiệu lực
+    passwordChangedAt: {
         type: Date,
         default: null,
     },
@@ -224,6 +232,7 @@ userSchema.pre('save', async function () {
 
     // Chỉ hash password nếu có giá trị và đã thay đổi
     if (!this.isModified('password') || !this.password) return;
+    if (!this.isNew) this.passwordChangedAt = new Date();
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
 });

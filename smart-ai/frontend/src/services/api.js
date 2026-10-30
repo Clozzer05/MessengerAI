@@ -315,7 +315,7 @@ export const adminAPI = {
     banUser: (id) => api.put(`/admin/users/${id}/ban`),
     unbanUser: (id) => api.put(`/admin/users/${id}/unban`),
     lockUser: (id, duration) => api.put(`/admin/users/${id}/lock`, { duration }),
-    resetPassword: (id, newPassword) => api.put(`/admin/users/${id}/reset-password`, { newPassword }),
+    resetPassword: (id) => api.put(`/admin/users/${id}/reset-password`),
     // Reports
     getReports: (params) => api.get('/admin/reports', { params }),
     resolveReport: (id, data) => api.put(`/admin/reports/${id}/resolve`, data),

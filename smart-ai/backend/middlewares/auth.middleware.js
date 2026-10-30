@@ -8,6 +8,10 @@ const generateToken = (userId) => {
     return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
+// iat tính bằng giây nên so theo giây, token cấp cùng giây với lúc đổi mật khẩu vẫn dùng được
+const issuedBeforePasswordChange = (decoded, user) =>
+    !!user.passwordChangedAt && decoded.iat < Math.floor(user.passwordChangedAt.getTime() / 1000);
+
 const authMiddleware = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
@@ -24,6 +28,9 @@ const authMiddleware = async (req, res, next) => {
         }
         if (user.accountStatus === 'banned') {
             return res.status(401).json({ error: 'Tài khoản của bạn đã bị khóa vĩnh viễn.' });
+        }
+        if (issuedBeforePasswordChange(decoded, user)) {
+            return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.' });
         }
 
         req.user = user;
@@ -47,6 +54,9 @@ const socketAuthMiddleware = async (socket, next) => {
         const user = await User.findById(decoded.id).select('-password');
         if (!user) {
             return next(new Error('Authentication error: User not found'));
+        }
+        if (issuedBeforePasswordChange(decoded, user)) {
+            return next(new Error('Authentication error: Session expired'));
         }
 
         // Check account status
